@@ -41,7 +41,7 @@ decathlon_tabs <-
                      post = "s",
                      dragRange = F
                    ),
-            plotOutput(plotoutputlabel, height = "600")
+            plotOutput(plotoutputlabel, height = "550")
           )
         )
       )
