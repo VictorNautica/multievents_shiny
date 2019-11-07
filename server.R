@@ -77,12 +77,12 @@ function(input, output) {
           DT::renderDataTable(
             DT::datatable(
               if (is.na(input[[inputid]])) {
-                dfs[[event]][dfs[[event]][["100m"]] > runs_func(input$filter_100m[2], 25.4347, 18, 1.81) &
-                               dfs[[event]][["100m"]] < runs_func(input$filter_100m[1], 25.4347, 18, 1.81),]
+                dfs[[event]][dfs[[event]][["100m"]] > dec_100m(input$filter_100m[2]) &
+                               dfs[[event]][["100m"]] < dec_100m(input$filter_100m[1]),]
               }
               else if (input[[inputid]] == "select_all") {
-                dfs[[event]][dfs[[event]][["100m"]] > runs_func(input$filter_100m[2], 25.4347, 18, 1.81) &
-                               dfs[[event]][["100m"]] < runs_func(input$filter_100m[1], 25.4347, 18, 1.81),]
+                dfs[[event]][dfs[[event]][["100m"]] > dec_100m(input$filter_100m[2]) &
+                               dfs[[event]][["100m"]] < dec_100m(input$filter_100m[1]),]
               } else {
                 dfs[[event]][which(dfs[[event]]$Year %in% input[[inputid]]), ]
               },

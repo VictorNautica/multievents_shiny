@@ -133,5 +133,5 @@ navbarPage(theme = shinythemes::shinytheme("cerulean"),
            ),
            textAreaInput("form", NULL, placeholder = "Enter text", width = "400px", height = "150px"),
            actionButton("goButton", "Submit", width = "200px"),
-           HTML("<br/>", "<br/>", "Also I row 1:30 fat ergos for an infinite timeframe"))
+           HTML(rep("<br/>", 40), "Also I row 1:30 fat ergos for an infinite timeframe"))
 )
