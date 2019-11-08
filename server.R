@@ -73,18 +73,18 @@ function(input, output) {
         
 
         datatablecreation <- function(event, inputid) {
+          
 ## When it's not a run event I need to reverse the SliderInputId [1] and [2]          
           DT::renderDataTable(
-            DT::datatable(
-              if (is.na(input[[inputid]])) {
-                dfs[[event]][dfs[[event]][["100m"]] > dec_100m(input$filter_100m[2]) &
-                               dfs[[event]][["100m"]] < dec_100m(input$filter_100m[1]),]
-              }
-              else if (input[[inputid]] == "select_all") {
-                dfs[[event]][dfs[[event]][["100m"]] > dec_100m(input$filter_100m[2]) &
-                               dfs[[event]][["100m"]] < dec_100m(input$filter_100m[1]),]
-              } else {
-                dfs[[event]][which(dfs[[event]]$Year %in% input[[inputid]]), ]
+            DT::datatable({
+                years <- input[[inputid]]
+                
+                if (length(years) == 0) {
+                  dfs[[event]][dfs[[event]][["100m"]] > dec_100m(input$filter_100m[2]) &
+                                 dfs[[event]][["100m"]] < dec_100m(input$filter_100m[1]),]
+                } else {
+                  dfs[[event]][which(dfs[[event]]$Year %in% years), ]
+                }
               },
               options = list(pageLength = 25),
               rownames = FALSE,
