@@ -71,6 +71,7 @@ function(input, output) {
         
         ## For tables ####
         
+        display_dfs <- NULL
 
         datatablecreation <- function(event, inputid) {
           
@@ -80,11 +81,14 @@ function(input, output) {
                 years <- input[[inputid]]
                 
                 if (length(years) == 0) {
-                  dfs[[event]][dfs[[event]][["100m"]] > dec_100m(input$filter_100m[2]) &
-                                 dfs[[event]][["100m"]] < dec_100m(input$filter_100m[1]),]
+                  # reassign in the parent data frame!!!
+                  display_dfs <<- dfs[[event]][dfs[[event]][["100m"]] > dec_100m(input$filter_100m[2]) &
+                                                dfs[[event]][["100m"]] < dec_100m(input$filter_100m[1]),]
                 } else {
-                  dfs[[event]][which(dfs[[event]]$Year %in% years), ]
+                  display_dfs <<- dfs[[event]][which(dfs[[event]]$Year %in% years), ]
                 }
+                
+                display_dfs
               },
               options = list(pageLength = 25),
               rownames = FALSE,
@@ -102,9 +106,12 @@ function(input, output) {
         barplotcreation <- function(event, event_text, exnum_rows_selected) {renderPlot({
           
           hasClick <- input[[exnum_rows_selected]]
+          
           if (is.null(hasClick)) return(NULL) ## shows blank plot otherwise
           
-          temp_shiny <- dfs[[event]][input[[exnum_rows_selected]], ] %>% gather(key = "event", value = "points", `100m`:`1500m`) %>% mutate_at(.vars = "event", .funs = as_factor)
+          temp_shiny <- display_dfs[hasClick, ] %>%
+            gather(key = "event", value = "points", `100m`:`1500m`) %>%
+            mutate_at(.vars = "event", .funs = as_factor)
           
           if (length(hasClick) == 1) {
           temp_shiny %>% 
