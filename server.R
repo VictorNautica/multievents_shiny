@@ -28,45 +28,18 @@ function(input, output) {
   })
         
         output$dec_plot <- renderPlot({
-          line_plot <- select(
-            decathlon_s2p(
-              input$event_one,
-              input$event_two,
-              input$event_three,
-              input$event_four,
-              input$event_five,
-              input$event_six,
-              input$event_seven,
-              input$event_eight,
-              input$event_nine,
-              input$event_ten
-            ),
-            Event,
-            Points,
-            Score
+          decathlon_vis(
+            input$event_one,
+            input$event_two,
+            input$event_three,
+            input$event_four,
+            input$event_five,
+            input$event_six,
+            input$event_seven,
+            input$event_eight,
+            input$event_nine,
+            input$event_ten
           )
-          
-          ggplot(line_plot, aes(Event, Points, group = 1, label = Score)) +
-            geom_point() +
-            geom_line() +
-            geom_rect(aes(
-              xmin = 5.5,
-              xmax = 1,
-              ymin = -Inf,
-              ymax = Inf
-            ),
-            alpha = 0.01,
-            fill = "blue") +
-            geom_rect(aes(
-              xmin = 5.5,
-              xmax = 10,
-              ymin = -Inf,
-              ymax = Inf
-            ),
-            alpha = 0.01,
-            fill = "green") +
-            ggrepel::geom_label_repel(segment.colour = NA) +
-            theme(text = element_text(family = "Tahoma", size = 18))
         })
         
         ## For tables ####
