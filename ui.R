@@ -1,4 +1,4 @@
-navbarPage(theme = shinythemes::shinytheme("cerulean"), 
+navbarPage(theme = shinythemes::shinytheme("yeti"), 
   title = "Multi-events repository",
   tabPanel(
     "Decathlon calculator",
@@ -6,9 +6,9 @@ navbarPage(theme = shinythemes::shinytheme("cerulean"),
       splitLayout(
         verticalLayout(
           numericInput("event_one", "100m:", 10.87, min = 0, max = 100, step = 0.1, width = "40%"),
-          numericInput("event_two", "LJ:", 7.6, min = 0, max = 100, step = 0.1, width = "40%"),
-          numericInput("event_three", "SP:", 14, min = 0, max = 100, step = 0.1, width = "40%"),
-          numericInput("event_four", "HJ:", 2.00, min = 0, max = 100, step = 0.03, width = "40%"),
+          numericInput("event_two", "Long jump:", 7.6, min = 0, max = 100, step = 0.1, width = "40%"),
+          numericInput("event_three", "Shot put:", 14, min = 0, max = 100, step = 0.1, width = "40%"),
+          numericInput("event_four", "High jump:", 2.00, min = 0, max = 100, step = 0.03, width = "40%"),
           numericInput("event_five", "400m:", 50, min = 0, max = 100, step = 0.2, width = "40%"), 
           numericInput("event_six", "110m hurdles:", 16, min = 0, max = 100, step = 0.1, width = "40%"),
           numericInput("event_seven", "Discus throw:", 42, min = 0, max = 100, step = 0.5, width = "40%"),
@@ -122,6 +122,19 @@ navbarPage(theme = shinythemes::shinytheme("cerulean"),
              )
              
            )),
+  tabPanel("Athlete Profile (coming soon)",
+           sidebarLayout(sidebarPanel(
+             autocomplete_input(
+               "athlete_select",
+               "Athlete Name:",
+               lapply(dfs, function(x)
+                 x$`Athlete`) %>% unlist(use.names = F) %>% unique() %>% sort()
+             )
+           ),
+           mainPanel()
+           )
+           )
+  , 
   tabPanel("About",
            HTML(
              paste(
