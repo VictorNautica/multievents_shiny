@@ -44,20 +44,24 @@ function(input, output) {
         
         ## For tables ####
         
+        display_dfs <- NULL
 
         datatablecreation <- function(event, inputid) {
+          
 ## When it's not a run event I need to reverse the SliderInputId [1] and [2]          
           DT::renderDataTable(
-            DT::datatable(
-              if (is.na(input[[inputid]])) {
-                dfs[[event]][dfs[[event]][["100m"]] > dec_100m(input$filter_100m[2]) &
-                               dfs[[event]][["100m"]] < dec_100m(input$filter_100m[1]),]
-              }
-              else if (input[[inputid]] == "select_all") {
-                dfs[[event]][dfs[[event]][["100m"]] > dec_100m(input$filter_100m[2]) &
-                               dfs[[event]][["100m"]] < dec_100m(input$filter_100m[1]),]
-              } else {
-                dfs[[event]][which(dfs[[event]]$Year %in% input[[inputid]]), ]
+            DT::datatable({
+                years <- input[[inputid]]
+                
+                if (length(years) == 0) {
+                  # reassign in the parent data frame!!!
+                  display_dfs <<- dfs[[event]][dfs[[event]][["100m"]] > dec_100m(input$filter_100m[2]) &
+                                                dfs[[event]][["100m"]] < dec_100m(input$filter_100m[1]),]
+                } else {
+                  display_dfs <<- dfs[[event]][which(dfs[[event]]$Year %in% years), ]
+                }
+                
+                display_dfs
               },
               options = list(pageLength = 25),
               rownames = FALSE,
@@ -75,9 +79,12 @@ function(input, output) {
         barplotcreation <- function(event, event_text, exnum_rows_selected) {renderPlot({
           
           hasClick <- input[[exnum_rows_selected]]
+          
           if (is.null(hasClick)) return(NULL) ## shows blank plot otherwise
           
-          temp_shiny <- dfs[[event]][input[[exnum_rows_selected]], ] %>% gather(key = "event", value = "points", `100m`:`1500m`) %>% mutate_at(.vars = "event", .funs = as_factor)
+          temp_shiny <- display_dfs[hasClick, ] %>%
+            gather(key = "event", value = "points", `100m`:`1500m`) %>%
+            mutate_at(.vars = "event", .funs = as_factor)
           
           if (length(hasClick) == 1) {
           temp_shiny %>% 

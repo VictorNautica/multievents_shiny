@@ -27,9 +27,8 @@ decathlon_tabs <-
             selectInput(
               inputId = select_year_label,
               label = "Select year of competition",
-              choices = c(All = "select_all", unique(dfs[[dfs_proper_call]]$Year)),
+              choices = c(unique(dfs[[dfs_proper_call]]$Year)),
               multiple = TRUE,
-              selected = "select_all",
               selectize = TRUE
             ),
             sliderInput(
