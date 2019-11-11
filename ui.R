@@ -2,37 +2,53 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
   title = "Multi-events repository",
   tabPanel(
     "Decathlon calculator",
-    sidebarLayout(sidebarPanel(
-      fluidRow(column(3, 
-                      numericInput("event_one", "100m:", 10.87, min = 0, max = 100, step = 0.1, width = "40%"),
-                      numericInput("event_two", "Long jump:", 7.6, min = 0, max = 100, step = 0.1, width = "40%"),
-                      numericInput("event_three", "Shot put:", 14, min = 0, max = 100, step = 0.1, width = "40%"),
-                      numericInput("event_four", "High jump:", 2.00, min = 0, max = 100, step = 0.03, width = "40%"),
-                      numericInput("event_five", "400m:", 50, min = 0, max = 100, step = 0.2, width = "40%"), 
-                      numericInput("event_six", "110m hurdles:", 16, min = 0, max = 100, step = 0.1, width = "40%"),
-                      numericInput("event_seven", "Discus throw:", 42, min = 0, max = 100, step = 0.5, width = "40%"),
-                      numericInput("event_eight", "Pole vault:", 4.70, min = 0, max = 100, step = 0.1, width = "40%"),
-                      numericInput("event_nine", "Javelin throw:", 62, min = 0, max = 100, step = 1, width = "40%"),
-                      numericInput("event_ten", "1500m:", 290, min = 0, max = 500, step = 1, width = "40%")),
-               column(3,           
-                      title = "Points",
-                      textOutput("value_one"),
-                      textOutput("value_two"),
-                      textOutput("value_three"),
-                      textOutput("value_four"),
-                      textOutput("value_five"),
-                      textOutput("value_six"),
-                      textOutput("value_seven"),
-                      textOutput("value_eight"),
-                      textOutput("value_nine"),
-                      textOutput("value_ten")),
-               fluidRow(numericInput("event_one", "100m:", 10.87, min = 0, max = 100, step = 0.1, width = "40%"), textOutput("value_one"))
+    sidebarLayout(sidebarPanel(width = 2,
+      fluidRow(
+        fluidRow(column(6, numericInput("event_one", "100m:", 10.87, min = 0, max = 100, step = 0.1, width = "80%")),
+                 column(6, tags$label("Score:"), textOutput("value_one"))
       )),
+      fluidRow(
+        fluidRow(column(6, numericInput("event_two", "Long jump:", 7.6, min = 0, max = 100, step = 0.1, width = "80%")),
+                 column(6, tags$label("Score:"), textOutput("value_two"))
+        )),
+      fluidRow(
+        fluidRow(column(6, numericInput("event_three", "Shot put:", 14, min = 0, max = 100, step = 0.1, width = "80%")),
+                 column(6, tags$label("Score:"), textOutput("value_three"))
+        )),
+      fluidRow(
+        fluidRow(column(6, numericInput("event_four", "High jump:", 2.00, min = 0, max = 100, step = 0.03, width = "80%")),
+                 column(6, tags$label("Score:"), textOutput("value_four"))
+        )),
+      fluidRow(
+        fluidRow(column(6, numericInput("event_five", "400m:", 50, min = 0, max = 100, step = 0.2, width = "80%")),
+                 column(6, tags$label("Score:"), textOutput("value_five"))
+        )),
+      fluidRow(
+        fluidRow(column(6, numericInput("event_six", "110m hurdles:", 16, min = 0, max = 100, step = 0.1, width = "80%")),
+                 column(6, tags$label("Score:"), textOutput("value_six"))
+        )),
+      fluidRow(
+        fluidRow(column(6, numericInput("event_seven", "Discus throw:", 42, min = 0, max = 100, step = 0.5, width = "80%")),
+                 column(6, tags$label("Score:"), textOutput("value_seven"))
+        )),
+      fluidRow(
+        fluidRow(column(6, numericInput("event_eight", "Pole vault:", 4.70, min = 0, max = 100, step = 0.1, width = "80%")),
+                 column(6, tags$label("Score:"), textOutput("value_eight"))
+        )),
+      fluidRow(
+        fluidRow(column(6, numericInput("event_nine", "Javelin throw:", 62, min = 0, max = 100, step = 1, width = "80%")),
+                 column(6, tags$label("Score:"), textOutput("value_nine"))
+        )),
+      fluidRow(
+        fluidRow(column(6, numericInput("event_ten", "1500m:", 290, min = 0, max = 500, step = 1, width = "80%")),
+                 column(6, tags$label("Score:"), textOutput("value_ten"))
+        ))
+      ), 
     mainPanel(
       # Output: Header + table of distribution ----
-      h4("Summary statistics"),
+      fluidRow(column(width = 6, h4("Summary statistics"),
       tableOutput("dec_table"),
-      plotOutput("dec_plot")
+      plotOutput("dec_plot")), fluidRow(width = 6))
     ))
   ),
   tabPanel(
