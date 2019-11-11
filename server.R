@@ -143,7 +143,10 @@ function(input, output) {
       
         # output$wewew <- renderPrint(input$filter_100m)
         
-}
-
 ## Athlete Profile ####
 
+output$athlete_select <- renderText(input$athlete_select)
+        
+
+        
+}

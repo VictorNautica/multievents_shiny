@@ -3,7 +3,6 @@ library(multievents)
 library(tidyverse)
 # devtools::install_github("victornautica/multievents")
 library(multievents)
-library(dqshiny)
 
 dfs <- readRDS("dfs.Rds")
 dfs <- lapply(dfs, function(x) {x$date <- NULL
