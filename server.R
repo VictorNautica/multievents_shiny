@@ -49,8 +49,8 @@ function(input, output) {
         datatablecreation <- function(event, inputid) {
           
 ## When it's not a run event I need to reverse the SliderInputId [1] and [2]          
-          DT::renderDataTable(
-            DT::datatable({
+          renderDataTable(
+            datatable({
                 years <- input[[inputid]]
                 
                 if (length(years) == 0) {
@@ -76,7 +76,7 @@ function(input, output) {
         
         ## Visualisations ####
         
-        barplotcreation <- function(event, event_text, exnum_rows_selected) {renderPlot({
+        barplotcreation <- function(event, event_text, exnum_rows_selected) {renderPlotly({
           
           hasClick <- input[[exnum_rows_selected]]
           
@@ -87,7 +87,9 @@ function(input, output) {
             mutate_at(.vars = "event", .funs = as_factor)
           
           if (length(hasClick) == 1) {
-          temp_shiny %>% 
+          
+            
+            foobar <- temp_shiny %>% 
             ggplot(aes(event, points)) + 
             geom_bar(stat = "identity", alpha = 0.75) +
             scale_y_continuous(limits = c(0,1100),
@@ -96,10 +98,14 @@ function(input, output) {
                  y = "Points",
                  title = paste0(unique(temp_shiny$Year), " ", event_text, ", ", unique(temp_shiny$Athlete)),
                  subtitle = paste0(unique(temp_shiny$Country), "\n", "Final rank: ", unique(temp_shiny$Rank))
-            ) } else {
+            )
+            
+            ggplotly(foobar)
+            
+            } else {
               temp_shiny$Athlete <- paste0(temp_shiny$Year, " | ", temp_shiny$Rank, " | ", temp_shiny$Country, " | ", temp_shiny$Athlete)
               
-              temp_shiny %>%
+              foobar <- temp_shiny %>%
                 ggplot(aes(event, points, fill = Athlete)) +
                 geom_bar(stat = "identity", alpha = 0.66, colour = "black", size = 0.25, position = "dodge") +
                 scale_y_continuous(limits = c(0, 1100),
@@ -112,6 +118,8 @@ function(input, output) {
                   y = "Points",
                   title = event_text) +
                 coord_flip()
+              
+              ggplotly(foobar)
               
               
             } ## selecting 2+ rows
@@ -145,8 +153,60 @@ function(input, output) {
         
 ## Athlete Profile ####
 
-output$athlete_select <- renderText(input$athlete_select)
-        
 
         
+        
+        for_indiv_athlete_tab <- readRDS("dfs.Rds")
+        for_indiv_athlete_tab <-
+          bind_rows(for_indiv_athlete_tab,
+                    .id = "Major Event")
+        for_indiv_athlete_tab$`Major Event` <-
+          as_factor(for_indiv_athlete_tab$`Major Event`)
+        for_indiv_athlete_tab$`Major Event` <- fct_recode(
+          for_indiv_athlete_tab$`Major Event`,
+          "Olympics" = "olympics",
+          "World Championships" = "world_championships",
+          "G\u00f6tzis" = "gotzis"
+        )
+        
+        # for_indiv_athlete_tab <- as.data.frame(for_indiv_athlete_tab)
+        output$individual_athlete_profile <-
+          renderDataTable({
+            for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select),]
+          })
+        
+        
+        output$individual_athlete_plot <- renderPlot({
+          foobar <-
+            for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select), ]
+
+          foobar %<>% pivot_longer(`Final Score`:`1500m`, "Event", values_to = "Score") %>% unite("Major Event", c(`Major Event`, Year), sep = " ") %>% arrange(date)
+          foobar$`Major Event` %<>% as_factor()
+
+          this_plot <- foobar %>% ggplot(aes(`Major Event`, Score, group = Event, fill = `Major Event`)) +
+            geom_bar(stat = "identity", alpha = 2 / 3) +
+            facet_wrap("Event",
+                       nrow = 2,
+                       ncol = 6,
+                       scales = "free") +
+            theme(axis.text.x = element_text(
+              angle = 45,
+              hjust = 1,
+              vjust = 1
+            )) +
+            scale_fill_brewer(palette = "Set1")
+
+          return(this_plot)
+        })
+        
+        ## Scrapping ####
+        
+        output$use_this_athletename <- renderText({c('<img src="',athlete_info[[input$athlete_select]][["image_url"]],'">')})
+        
+        ## Birth data ####
+        
+        output$athlete_birth <- renderText(as.character(athlete_info[[input$athlete_select]][["birth_date"]]))
+        output$iaaf_code <- renderText(athlete_info[[input$athlete_select]][["iaaf_code"]])
+        output$athlete_specific <- renderText(input$athlete_select)
+          
 }

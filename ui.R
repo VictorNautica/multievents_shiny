@@ -143,9 +143,15 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
                c("", lapply(dfs, function(x)
                  x$`Athlete`) %>% unlist(use.names = F) %>% unique() %>% sort())
              ),
-             textOutput("athlete_select")
-           ),
-           mainPanel()
+             fluidRow(column(5, htmlOutput("use_this_athletename")),
+                      column(7, HTML(paste(h4("Name: "), htmlOutput("athlete_specific"),
+                                            h4("Date of Birth: "), htmlOutput("athlete_birth"),
+                                            h4("Country: "),
+                                            h4("IAAF Code: "), htmlOutput("iaaf_code"),
+                                            h4("Height: "))))
+           )),
+           mainPanel(dataTableOutput("individual_athlete_profile"),
+                     plotOutput("individual_athlete_plot"))
            )
            )
   , 

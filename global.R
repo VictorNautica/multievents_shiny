@@ -1,13 +1,17 @@
 library(shiny)
 library(multievents)
 library(tidyverse)
+library(magrittr)
 # devtools::install_github("victornautica/multievents")
 library(multievents)
+library(DT)
+library(plotly)
 
 dfs <- readRDS("dfs.Rds")
 dfs <- lapply(dfs, function(x) {x$date <- NULL
               return(x)}
               )
+dfs <- lapply(dfs, ungroup)
 dfs_score <- readRDS("dfs_score.Rds")
 
 ## UI - tab df modules ####
@@ -21,7 +25,7 @@ decathlon_tabs <-
       tabPanel(
         tab_label,
         sidebarLayout(
-          mainPanel(DT::dataTableOutput(ex_id)),
+          mainPanel(dataTableOutput(ex_id)),
           sidebarPanel(
             style = "position:fixed;width:inherit;",
             selectInput(
@@ -40,7 +44,7 @@ decathlon_tabs <-
                      post = "s",
                      dragRange = F
                    ),
-            plotOutput(plotoutputlabel, height = "550")
+            plotlyOutput(plotoutputlabel, height = "550")
           )
         )
       )
