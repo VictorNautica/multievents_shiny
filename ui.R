@@ -146,7 +146,7 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
              fluidRow(column(5, htmlOutput("use_this_athletename")),
                       column(7, HTML(paste(h4("Name: "), htmlOutput("athlete_specific"),
                                             h4("Date of Birth: "), htmlOutput("athlete_birth"),
-                                            h4("Country: "),
+                                            h4("Country: "), htmlOutput("athlete_country"),
                                             h4("IAAF Code: "), htmlOutput("iaaf_code"),
                                             h4("Height: "))))
            )),

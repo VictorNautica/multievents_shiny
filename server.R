@@ -172,7 +172,8 @@ function(input, output) {
         # for_indiv_athlete_tab <- as.data.frame(for_indiv_athlete_tab)
         output$individual_athlete_profile <-
           renderDataTable({
-            for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select),]
+            within(for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select),],
+                   rm(Athlete, Country, Year)) ## remove unneeded columns
           })
         
         
@@ -180,7 +181,7 @@ function(input, output) {
           foobar <-
             for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select), ]
 
-          foobar %<>% pivot_longer(`Final Score`:`1500m`, "Event", values_to = "Score") %>% unite("Major Event", c(`Major Event`, Year), sep = " ") %>% arrange(date)
+          foobar %<>% pivot_longer(`Final Score`:`1500m`, "Event", values_to = "Score") %>% unite("Major Event", c(`Major Event`, Year), sep = " ") %>% arrange(Date)
           foobar$`Major Event` %<>% as_factor()
 
           this_plot <- foobar %>% ggplot(aes(`Major Event`, Score, group = Event, fill = `Major Event`)) +
@@ -208,5 +209,5 @@ function(input, output) {
         output$athlete_birth <- renderText(as.character(athlete_info[[input$athlete_select]][["birth_date"]]))
         output$iaaf_code <- renderText(athlete_info[[input$athlete_select]][["iaaf_code"]])
         output$athlete_specific <- renderText(input$athlete_select)
-          
+        output$athlete_country <- renderText(athlete_info_tbl[[which(athlete_info_tbl$Athlete == input$athlete_select), "Country"]])
 }

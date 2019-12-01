@@ -8,10 +8,6 @@ library(DT)
 library(plotly)
 
 dfs <- readRDS("dfs.Rds")
-dfs <- lapply(dfs, function(x) {x$date <- NULL
-              return(x)}
-              )
-dfs <- lapply(dfs, ungroup)
 dfs_score <- readRDS("dfs_score.Rds")
 
 ## UI - tab df modules ####

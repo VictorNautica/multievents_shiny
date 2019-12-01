@@ -72,6 +72,7 @@ athlete_info %>% keep(~ length(.x$iaaf_code) != 1)
 athlete_info %>% keep(~ .x$iaaf_code %>% rlang::is_na())
 athlete_info %>% keep(~ length(.x$image_url) != 1)
 athlete_info %>% keep(~ .x$image_url %>% rlang::is_na())
+athlete_info[["Thomas Walser"]][["iaaf_code"]] <- NA
 
 error_fix <- function(name, dob, code, profile_url) {
   athlete_info[[name]] <<- list()
@@ -129,8 +130,10 @@ error_fix("Aleksandr Yurkov",
           "14230808",
           "https://www.worldathletics.org/Areas/Competitions/Assets/Images/layout/profile-not-found.png")
 
-athlete_info_second -> athlete_info
+athlete_info_second <- athlete_info
 
+athlete_info_tbl <- athlete_info %>% lapply(as_tibble) %>% bind_rows(.id = "Athlete")
+athlete_info_tbl <- left_join(athlete_info_tbl, (dfs %>% lapply(function(x) x %>% select(Athlete, Country)) %>% bind_rows() %>% unique()), by = "Athlete") %>% select(Athlete, Country, everything())
 
 
 ## athlete_info[["Bryan Clay"]][["birth_date"]] %>% as.Date("%d %B %Y")
