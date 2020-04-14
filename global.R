@@ -48,4 +48,6 @@ decathlon_tabs <-
 
 ## ui tags padding test
 
-padding <- function(calc_output) tags$div(textOutput(calc_output), style = "padding-top:10px")
+padding <- function(calc_output) {
+  column(6, tags$label("Score:"), tags$div(textOutput(calc_output), style = "padding-top:10px"))
+}
