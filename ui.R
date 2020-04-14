@@ -1,47 +1,47 @@
 navbarPage(theme = shinythemes::shinytheme("yeti"), 
   title = "Multi-events repository",
   tabPanel(
-    "Decathlon calculator",
+    "Calculator",
     sidebarLayout(sidebarPanel(width = 2,
       fluidRow(
         fluidRow(column(6, numericInput("event_one", "100m:", 10.87, min = 0, max = 100, step = 0.1, width = "80%")),
-                 column(6, tags$label("Score:"), padding("value_one")),
+                 padding("value_one")
       )),
       fluidRow(
         fluidRow(column(6, numericInput("event_two", "Long jump:", 7.6, min = 0, max = 100, step = 0.1, width = "80%")),
-                 column(6, tags$label("Score:"), padding("value_two"))
+                 padding("value_two")
         )),
       fluidRow(
         fluidRow(column(6, numericInput("event_three", "Shot put:", 14, min = 0, max = 100, step = 0.1, width = "80%")),
-                 column(6, tags$label("Score:"), padding("value_three"))
+                 padding("value_three")
         )),
       fluidRow(
         fluidRow(column(6, numericInput("event_four", "High jump:", 2.00, min = 0, max = 100, step = 0.03, width = "80%")),
-                 column(6, tags$label("Score:"), padding("value_four"))
+                 padding("value_four")
         )),
       fluidRow(
         fluidRow(column(6, numericInput("event_five", "400m:", 50, min = 0, max = 100, step = 0.2, width = "80%")),
-                 column(6, tags$label("Score:"), padding("value_five"))
+                 padding("value_five")
         )),
       fluidRow(
         fluidRow(column(6, numericInput("event_six", "110m hurdles:", 16, min = 0, max = 100, step = 0.1, width = "80%")),
-                 column(6, tags$label("Score:"), padding("value_six"))
+                 padding("value_six")
         )),
       fluidRow(
         fluidRow(column(6, numericInput("event_seven", "Discus throw:", 42, min = 0, max = 100, step = 0.5, width = "80%")),
-                 column(6, tags$label("Score:"), padding("value_seven"))
+                 padding("value_seven")
         )),
       fluidRow(
         fluidRow(column(6, numericInput("event_eight", "Pole vault:", 4.70, min = 0, max = 100, step = 0.1, width = "80%")),
-                 column(6, tags$label("Score:"), padding("value_eight"))
+                 padding("value_eight")
         )),
       fluidRow(
         fluidRow(column(6, numericInput("event_nine", "Javelin throw:", 62, min = 0, max = 100, step = 1, width = "80%")),
-                 column(6, tags$label("Score:"), padding("value_nine"))
+                 padding("value_nine")
         )),
       fluidRow(
         fluidRow(column(6, numericInput("event_ten", "1500m:", 290, min = 0, max = 500, step = 1, width = "80%")),
-                 column(6, tags$label("Score:"), padding("value_ten"))
+                 padding("value_ten")
         ))
       ), 
     mainPanel(
