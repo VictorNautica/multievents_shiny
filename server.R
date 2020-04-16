@@ -3,6 +3,7 @@ function(input, output) {
   ## For calculator ####
 
 
+      ## 1)  Decathlon ####
         output$value_one <- renderText({ dec_100m(input$event_one) })
         output$value_two <- renderText({ dec_lj(input$event_two) })
         output$value_three <- renderText({ dec_sp(input$event_three) })
@@ -41,6 +42,43 @@ function(input, output) {
             input$event_ten
           )
         })
+        
+        ## 2) Heptathlon ####
+        
+        output$valueh_one <- renderText({ hept_100mh(input$hept_one) })
+        output$valueh_two <- renderText({ hept_hj(input$hept_two) })
+        output$valueh_three <- renderText({ hept_sp(input$hept_three) })
+        output$valueh_four <- renderText({ hept_200m(input$hept_four) })
+        output$valueh_five <- renderText({ hept_lj(input$hept_five) })
+        output$valueh_six <- renderText({ hept_jt(input$hept_six) })
+        output$valueh_seven <- renderText({ hept_800m(input$hept_seven) })
+        
+        output$hept_table <- renderTable({
+          heptathlon_s2p(input$hept_one,
+                        input$hept_two,
+                        input$hept_three,
+                        input$hept_four,
+                        input$hept_five,
+                        input$hept_six,
+                        input$hept_seven)
+        })
+        
+        # output$dec_plot <- renderPlot({
+        #   decathlon_vis(
+        #     input$event_one,
+        #     input$event_two,
+        #     input$event_three,
+        #     input$event_four,
+        #     input$event_five,
+        #     input$event_six,
+        #     input$event_seven,
+        #     input$event_eight,
+        #     input$event_nine,
+        #     input$event_ten
+        #   )
+        # })      ## change to hept  
+        
+        
         
         ## For tables ####
         
@@ -133,6 +171,114 @@ function(input, output) {
         output$bar_wc <- barplotcreation("world_championships", "World Championships", "ex2_rows_selected")
         output$bar_gotzis <- barplotcreation("gotzis", "Gotzis Hypomeeting", "ex3_rows_selected")
         
+  ## Score to points line graph ####
+        
+        output$trdhrdthdrth <- renderPlotly({
+          
+          eventpoints_func <-
+            function(plotpointnumber,
+                     eventtype,
+                     alpha,
+                     beta,
+                     delta,
+                     nudgeathlete,
+                     nudgescore,
+                     event_and_measurement,
+                     upperx = NULL,
+                     lowerx = NULL,
+                     by_x,
+                     opt_label = waiver(),
+                     opt_minorbreaks = waiver()) {
+              ggplot(data = data.frame(x = 0), mapping = aes(x = x)) +
+                stat_function(
+                  fun = function(x)
+                    floor(alpha * ((if (eventtype == "runs") {
+                      beta - x
+                    }
+                    else {
+                      x - beta
+                    }) ^ delta))
+                ) +
+                geom_point(data = plotpoints[[plotpointnumber]], aes(x = Score, y = Points, colour =
+                                                                       Record)) +
+                geom_label_repel(
+                  data = plotpoints[[plotpointnumber]],
+                  aes(x = Score, y = Points, label = Athletename),
+                  box.padding   = 0.35,
+                  point.padding = 0.5,
+                  segment.color = 'grey50',
+                  direction = "x",
+                  nudge_x = nudgeathlete
+                ) +
+                geom_label_repel(
+                  data = plotpoints[[plotpointnumber]],
+                  aes(x = Score, y = Points, label = score_and_points),
+                  box.padding   = 0.35,
+                  point.padding = 0.5,
+                  segment.color = 'grey50',
+                  direction = "y",
+                  nudge_y = nudgescore
+                ) +
+                geom_label_repel(
+                  data = plotpoints[[plotpointnumber]],
+                  aes(x = Score, y = Points, label = score_and_points),
+                  box.padding   = 0.35,
+                  point.padding = 0.5,
+                  segment.color = 'grey50',
+                  direction = "y",
+                  segment.alpha = 0,
+                  nudge_y = nudgescore
+                ) +
+                scale_y_continuous(name = "Points",
+                                   breaks = seq(0, 1500, 100)) +
+                theme(
+                  text = element_text(size = 18, family = "Segoe UI"),
+                  legend.title = element_blank(),
+                  legend.position = "top"
+                ) +
+                
+                if (eventtype == "jumps") {
+                  scale_x_continuous(
+                    name = event_and_measurement,
+                    breaks = seq(lowerx, upperx, by_x),
+                    limits = c(lowerx, upperx),
+                    minor_breaks = opt_minorbreaks,
+                    labels = function(x)
+                      x / 100
+                  )
+                } else if (eventtype == "runs") {
+                  scale_x_reverse(
+                    name = event_and_measurement,
+                    breaks = seq(upperx, lowerx, by_x),
+                    limits = c(upperx, lowerx),
+                    labels = opt_label
+                  )
+                } else {
+                  scale_x_continuous(
+                    name = event_and_measurement,
+                    breaks = seq(lowerx, upperx, by_x),
+                    limits = c(lowerx, upperx)
+                  )
+                }
+            }
+          
+          eventpoints_func(
+            plotpointnumber = 1,
+            eventtype = "runs",
+            nudgeathlete = -2,
+            nudgescore = -200,
+            alpha = 25.4347,
+            beta = 18,
+            delta = 1.81,
+            lowerx = 9,
+            upperx = 18,
+            by_x = -1,
+            event_and_measurement = "100m time (seconds)"
+          ) %>% plotly()
+          
+          
+        })
+        
   ## Upload custom Files ####
         
         output$contents <- renderTable({
@@ -210,4 +356,26 @@ function(input, output) {
         output$iaaf_code <- renderText(athlete_info[[input$athlete_select]][["iaaf_code"]])
         output$athlete_specific <- renderText(input$athlete_select)
         output$athlete_country <- renderText(athlete_info_tbl[[which(athlete_info_tbl$Athlete == input$athlete_select), "Country"]])
+
+## S2P functions ####
+
+output$plotly_dec100m <- renderPlotly(
+  {
+    eventpointsfull_func(
+      plotpointnumber = "X100m",
+      eventtype = "runs",
+      nudgeathlete = -0.5,
+      nudgescore = -150,
+      alpha = 25.4347,
+      beta = 18,
+      delta = 1.81,
+      lowerx = 9,
+      upperx = 12,
+      by_x = -1,
+      event_and_measurement = "100m time (seconds)",
+      short_measure = "Time"
+    )
+  }
+)
+
 }
