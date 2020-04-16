@@ -88,7 +88,8 @@ eventpointsfull_func <-
                                                             "\nEvent: ", Event)
     )
     ) +
-      geom_point(shape = 6, alpha = 0.3) +
+      # geom_jitter(shape = 4, alpha = 0.5, width = 0, height = 50) +
+      geom_point(shape = 1, alpha = 0.5) +
       stat_function(
         fun = function(x)
           alpha * ((if (eventtype == "runs") {
@@ -101,36 +102,6 @@ eventpointsfull_func <-
           }) ^ delta)
       ) +
       geom_rug(alpha = 1 / 10) +
-      # geom_point(data = plotpoints[["decathlon"]][[plotpointnumber]], 
-      #            aes(x = Score, y = Points, colour = Record)) +
-      # geom_label_repel(
-      #   data = plotpoints[[plotpointnumber]],
-      #   aes(x = Score, y = Points, label = Athletename),
-      #   box.padding   = 0.35,
-      #   point.padding = 0.5,
-      #   segment.color = 'grey50',
-      #   direction = "x",
-      #   nudge_x = nudgeathlete
-      # ) +
-    # geom_label_repel(
-    #   data = plotpoints[[plotpointnumber]],
-    #   aes(x = Score, y = Points, label = score_and_points),
-    #   box.padding   = 0.35,
-    #   point.padding = 0.5,
-    #   segment.color = 'grey50',
-    #   direction = "y",
-    #   nudge_y = nudgescore
-    # ) +
-    # geom_label_repel(
-    #   data = plotpoints[[plotpointnumber]],
-    #   aes(x = Score, y = Points, label = score_and_points),
-    #   box.padding   = 0.35,
-    #   point.padding = 0.5,
-    #   segment.color = 'grey50',
-    #   direction = "y",
-    #   segment.alpha = 0,
-    #   nudge_y = nudgescore
-    # ) +
     scale_y_continuous(breaks = seq(0, 1500, 100)) +
       theme(
         text = element_text(size = 18, family = "Segoe UI"),
@@ -159,8 +130,8 @@ eventpointsfull_func <-
         )
       }
     # p <- ggMarginal(p)
-    
-    p <- plotly::ggplotly(p)
+    p <- plotly::ggplotly(p) %>% 
+      plotly::layout(hovermode = "x")
     p$x$data[[2]]$hoverinfo <- "none"
     
     p[["x"]][["data"]][[1]][["text"]] <- str_replace_all(p[["x"]][["data"]][[1]][["text"]], "x:", paste0(short_measure, ":")) ## points
