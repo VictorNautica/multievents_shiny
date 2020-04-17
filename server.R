@@ -63,20 +63,17 @@ function(input, output) {
                         input$hept_seven)
         })
         
-        # output$dec_plot <- renderPlot({
-        #   decathlon_vis(
-        #     input$event_one,
-        #     input$event_two,
-        #     input$event_three,
-        #     input$event_four,
-        #     input$event_five,
-        #     input$event_six,
-        #     input$event_seven,
-        #     input$event_eight,
-        #     input$event_nine,
-        #     input$event_ten
-        #   )
-        # })      ## change to hept  
+        output$hept_plot <- renderPlot({
+          heptathlon_vis(
+            input$hept_one,
+            input$hept_two,
+            input$hept_three,
+            input$hept_four,
+            input$hept_five,
+            input$hept_six,
+            input$hept_seven
+          )
+        })      ## change to hept
         
         
         
@@ -171,113 +168,14 @@ function(input, output) {
         output$bar_wc <- barplotcreation("world_championships", "World Championships", "ex2_rows_selected")
         output$bar_gotzis <- barplotcreation("gotzis", "Gotzis Hypomeeting", "ex3_rows_selected")
         
-  ## Score to points line graph ####
-        
-        output$trdhrdthdrth <- renderPlotly({
+        output$decathlon_heatplot_points <- renderPlot({
           
-          eventpoints_func <-
-            function(plotpointnumber,
-                     eventtype,
-                     alpha,
-                     beta,
-                     delta,
-                     nudgeathlete,
-                     nudgescore,
-                     event_and_measurement,
-                     upperx = NULL,
-                     lowerx = NULL,
-                     by_x,
-                     opt_label = waiver(),
-                     opt_minorbreaks = waiver()) {
-              ggplot(data = data.frame(x = 0), mapping = aes(x = x)) +
-                stat_function(
-                  fun = function(x)
-                    floor(alpha * ((if (eventtype == "runs") {
-                      beta - x
-                    }
-                    else {
-                      x - beta
-                    }) ^ delta))
-                ) +
-                geom_point(data = plotpoints[[plotpointnumber]], aes(x = Score, y = Points, colour =
-                                                                       Record)) +
-                geom_label_repel(
-                  data = plotpoints[[plotpointnumber]],
-                  aes(x = Score, y = Points, label = Athletename),
-                  box.padding   = 0.35,
-                  point.padding = 0.5,
-                  segment.color = 'grey50',
-                  direction = "x",
-                  nudge_x = nudgeathlete
-                ) +
-                geom_label_repel(
-                  data = plotpoints[[plotpointnumber]],
-                  aes(x = Score, y = Points, label = score_and_points),
-                  box.padding   = 0.35,
-                  point.padding = 0.5,
-                  segment.color = 'grey50',
-                  direction = "y",
-                  nudge_y = nudgescore
-                ) +
-                geom_label_repel(
-                  data = plotpoints[[plotpointnumber]],
-                  aes(x = Score, y = Points, label = score_and_points),
-                  box.padding   = 0.35,
-                  point.padding = 0.5,
-                  segment.color = 'grey50',
-                  direction = "y",
-                  segment.alpha = 0,
-                  nudge_y = nudgescore
-                ) +
-                scale_y_continuous(name = "Points",
-                                   breaks = seq(0, 1500, 100)) +
-                theme(
-                  text = element_text(size = 18, family = "Segoe UI"),
-                  legend.title = element_blank(),
-                  legend.position = "top"
-                ) +
-                
-                if (eventtype == "jumps") {
-                  scale_x_continuous(
-                    name = event_and_measurement,
-                    breaks = seq(lowerx, upperx, by_x),
-                    limits = c(lowerx, upperx),
-                    minor_breaks = opt_minorbreaks,
-                    labels = function(x)
-                      x / 100
-                  )
-                } else if (eventtype == "runs") {
-                  scale_x_reverse(
-                    name = event_and_measurement,
-                    breaks = seq(upperx, lowerx, by_x),
-                    limits = c(upperx, lowerx),
-                    labels = opt_label
-                  )
-                } else {
-                  scale_x_continuous(
-                    name = event_and_measurement,
-                    breaks = seq(lowerx, upperx, by_x),
-                    limits = c(lowerx, upperx)
-                  )
-                }
-            }
+          choose <- switch(input$decathlon_tile_choose,
+                         score = "mean_score",
+                         points = "mean_points")
           
-          eventpoints_func(
-            plotpointnumber = 1,
-            eventtype = "runs",
-            nudgeathlete = -2,
-            nudgescore = -200,
-            alpha = 25.4347,
-            beta = 18,
-            delta = 1.81,
-            lowerx = 9,
-            upperx = 18,
-            by_x = -1,
-            event_and_measurement = "100m time (seconds)"
-          ) %>% plotly()
-          
-          
-        })
+          tile_function(choose)
+          })
         
   ## Upload custom Files ####
         
@@ -348,14 +246,14 @@ function(input, output) {
         
         ## Scrapping ####
         
-        output$use_this_athletename <- renderText({c('<img src="',athlete_info[[input$athlete_select]][["image_url"]],'">')})
+        output$use_this_athletename <- renderText({c('<img src="',athlete_info[[which(athlete_info$Athlete == input$athlete_select),"image_url"]],'">')})
         
         ## Birth data ####
         
-        output$athlete_birth <- renderText(as.character(athlete_info[[input$athlete_select]][["birth_date"]]))
-        output$iaaf_code <- renderText(athlete_info[[input$athlete_select]][["iaaf_code"]])
+        output$athlete_birth <- renderText(as.character(athlete_info[[which(athlete_info$Athlete == input$athlete_select),"birth_date"]]))
+        output$iaaf_code <- renderText(athlete_info[[which(athlete_info$Athlete == input$athlete_select),"iaaf_code"]])
         output$athlete_specific <- renderText(input$athlete_select)
-        output$athlete_country <- renderText(athlete_info_tbl[[which(athlete_info_tbl$Athlete == input$athlete_select), "Country"]])
+        output$athlete_country <- renderText(athlete_info[[which(athlete_info$Athlete == input$athlete_select),"Country"]])
 
 ## S2P functions ####
 
@@ -377,5 +275,186 @@ output$plotly_dec100m <- renderPlotly(
     )
   }
 )
+        
+output$plotly_declj <- renderPlotly(
+  {
+    eventpointsfull_func(
+      plotpointnumber = "LJ",
+      eventtype = "jumps",
+      nudgeathlete = -2,
+      nudgescore = -200,
+      alpha = 0.14354,
+      beta = 220,
+      delta = 1.4,
+      lowerx = 5,
+      upperx = 9,
+      by_x = 0.5,
+      event_and_measurement = "Long Jump distance (m)",
+      opt_minorbreaks = seq(2, 9, 0.1),
+      short_measure = "Distance"
+    )
+  }
+)
+
+output$plotly_decsp <- renderPlotly(
+  {
+    eventpointsfull_func(
+      plotpointnumber = "SP",
+      eventtype = "throws",
+      nudgeathlete = -2,
+      nudgescore = -200,
+      alpha = 51.39,
+      beta = 1.5,
+      delta = 1.05,
+      lowerx = 10,
+      upperx = 25,
+      by_x = 2,
+      event_and_measurement = "Shot put distance (m)",
+      short_measure = "Distance"
+    )
+  }
+)
+
+output$plotly_dechj <- renderPlotly(
+  {
+    eventpointsfull_func(
+      plotpointnumber = "HJ",
+      eventtype = "jumps",
+      nudgeathlete = -25,
+      nudgescore = -200,
+      alpha = 0.8465,
+      beta = 75,
+      delta = 1.42 ,
+      lowerx = 1.7,
+      upperx = 2.6,
+      by_x = 0.1,
+      event_and_measurement = "High Jump height (m)",
+      short_measure = "Distance"
+    )
+  }
+)
+
+output$plotly_dec400m <- renderPlotly(
+  {
+    eventpointsfull_func(
+      plotpointnumber = "X400m",
+      eventtype = "runs",
+      nudgeathlete = -5,
+      nudgescore = -200,
+      alpha = 1.53775,
+      beta = 82,
+      delta = 1.81,
+      lowerx = 40,
+      upperx = 56,
+      by_x = -2,
+      event_and_measurement = "400m time (seconds)",
+      short_measure = "Time"
+    )
+  }
+)
+
+output$plotly_dec110mh <- renderPlotly(
+  {
+    eventpointsfull_func(
+      plotpointnumber = "X110mh",
+      eventtype = "runs",
+      nudgeathlete = -2.5,
+      nudgescore = -200,
+      alpha = 5.74352,
+      beta = 28.5,
+      delta = 1.92,
+      lowerx = 12,
+      upperx = 18,
+      by_x = -1,
+      event_and_measurement = "110m hurdles time (m)",
+      short_measure = "Time"
+    )
+  }
+)
+
+output$plotly_decdt <- renderPlotly(
+  {
+    eventpointsfull_func(
+      plotpointnumber = "DT",
+      eventtype = "throws",
+      nudgeathlete = -10,
+      nudgescore = -200,
+      alpha = 12.91,
+      beta = 4,
+      delta = 1.1 ,
+      lowerx = 25,
+      upperx = 80,
+      by_x = 5,
+      event_and_measurement = "Discus throw distance (m)",
+      short_measure = "Distance"
+    )
+  }
+)
+
+output$plotly_decpv <- renderPlotly(
+  {
+    eventpointsfull_func(
+      plotpointnumber = "PV",
+      eventtype = "jumps",
+      nudgeathlete = -50,
+      nudgescore = -200,
+      alpha = 0.2797,
+      beta = 100,
+      delta = 1.35,
+      lowerx = 3.6,
+      upperx = 6.5,
+      by_x = 0.2,
+      event_and_measurement = "Pole vault height (m)",
+      short_measure = "Height"
+    )
+  }
+)
+
+output$plotly_decjt <- renderPlotly(
+  {
+    eventpointsfull_func(
+      plotpointnumber = "JT",
+      eventtype = "throws",
+      nudgeathlete = -25,
+      nudgescore = -200,
+      alpha = 10.14,
+      beta = 7,
+      delta = 1.08,
+      lowerx = 40,
+      upperx = 100,
+      by_x = 10,
+      event_and_measurement = "Javelin throw distance (m)",
+      short_measure = "Distance"
+    )
+  }
+)
+
+output$plotly_dec1500m <- renderPlotly(
+  {
+    eventpointsfull_func(
+      plotpointnumber = "X1500m",
+      eventtype = "runs",
+      nudgeathlete = -50,
+      nudgescore = -200,
+      alpha = 0.03768,
+      beta = 480,
+      delta = 1.85,
+      lowerx = 180,
+      upperx = 345,
+      by_x = -15,
+      event_and_measurement = "1500 time (m:ss)",
+      short_measure = "Time",
+      opt_label = function(x)
+        seconds_to_period(x) %>% gsub(pattern = "M ", replacement = ":", .) %>% gsub(pattern = "5S", replacement = "5", .) %>% gsub("30S", "30", .) %>% gsub("0S", "00", .)
+    )
+  }
+)
+
+## Radar ####
+
+output$radar_athlete <- renderPlot(radar_function(input$athlete_select))
+
+## https://stackoverflow.com/questions/47702624/shiny-unwanted-space-added-by-plotoutput-and-or-renderplot this might be relevant to get rid of the whitespace
+
 
 }

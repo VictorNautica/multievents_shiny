@@ -135,6 +135,9 @@ athlete_info_second <- athlete_info
 athlete_info_tbl <- athlete_info %>% lapply(as_tibble) %>% bind_rows(.id = "Athlete")
 athlete_info_tbl <- left_join(athlete_info_tbl, (dfs %>% lapply(function(x) x %>% select(Athlete, Country)) %>% bind_rows() %>% unique()), by = "Athlete") %>% select(Athlete, Country, everything())
 
+athlete_info_tbl$Country %<>% countrycode::countrycode("ioc", "country.name")
+write_rds(athlete_info_tbl, "athlete_info_tbl.Rds")
+
 
 ## athlete_info[["Bryan Clay"]][["birth_date"]] %>% as.Date("%d %B %Y")
 

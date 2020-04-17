@@ -52,9 +52,7 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
       # Output: Header + table of distribution ----
       fluidRow(column(width = 6, h4("Summary statistics"),
       tableOutput("dec_table"),
-      plotOutput("dec_plot")), fluidRow(width = 6))
-    )
-    )
+      plotOutput("dec_plot")), fluidRow(width = 6))))
     ),
     tabPanel("Heptathlon",
              sidebarLayout(sidebarPanel(width = 2,
@@ -87,14 +85,10 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
                                                    padding("valueh_seven")
                                           )),
                                         ),
-                           mainPanel(fluidRow(column(width = 6, h4("Summary statistics"),
-                                                     tableOutput("hept_table"),                
-                                     fluidRow(column(width = 6)
-                                              )
-                                     )
-  )
-  )
-  )
+                           mainPanel(
+                             fluidRow(column(width = 6, h4("Summary statistics"),
+                                             tableOutput("hept_table"),
+                                             plotOutput("hept_plot")), fluidRow(width = 6))))
   )
   )
   ),
@@ -136,23 +130,30 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
                       title = "",
                       tabPanel("Decathlon", navlistPanel(
                         widths = c(2, 10),
-                        tabPanel(
-                          "100m",
-                          plotlyOutput("plotly_dec100m", height = "800px"),
-                          "Note: may take a few seconds to load"
-                        ),
-                        tabPanel("Long jump"),
-                        tabPanel("Shot put"),
-                        tabPanel("High jump"),
-                        tabPanel("400m"),
-                        tabPanel("110m hurdles"),
-                        tabPanel("Discus throw"),
-                        tabPanel("Pole vault"),
-                        tabPanel("Javelin throw"),
-                        tabPanel("1500m")
+                        tabPanel("100m", 
+                                 plotlyOutput("plotly_dec100m", height = "800px")),
+                        tabPanel("Long jump",
+                                 plotlyOutput("plotly_declj", height = "800px")),
+                        tabPanel("Shot put",
+                                 plotlyOutput("plotly_decsp", height = "800px")),
+                        tabPanel("High jump",
+                                 plotlyOutput("plotly_dechj", height = "800px")),
+                        tabPanel("400m",
+                                 plotlyOutput("plotly_dec400m", height = "800px")),
+                        tabPanel("110m hurdles",
+                                 plotlyOutput("plotly_dec110mh", height = "800px")),
+                        tabPanel("Discus throw",
+                                 plotlyOutput("plotly_decdt", height = "800px")),
+                        tabPanel("Pole vault",
+                                 plotlyOutput("plotly_decpv", height = "800px")),
+                        tabPanel("Javelin throw",
+                                 plotlyOutput("plotly_decjt", height = "800px")),
+                        tabPanel("1500m",
+                                 plotlyOutput("plotly_dec1500m", height = "800px")),
+                        h6("Note: may take a few seconds to load")
                       ),
                       ),
-                      tabPanel("Heptathlon", navlistPanel(
+                      tabPanel("Heptathlon (coming soon)", navlistPanel(
                         widths = c(2, 10),
                         tabPanel("100m hurdles"),
                         tabPanel("High jump"),
@@ -163,7 +164,20 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
                         tabPanel("800m")
                       ))
                       )
-           ), 
+           ),
+  tabPanel("Heat Plots",
+           navbarPage(theme = "yeti",
+                      title = "",
+                      tabPanel("Decathlon", 
+                               radioButtons("decathlon_tile_choose", 
+                                            label = NULL, 
+                                            inline = T,
+                                            choices = c("Score" = "score",
+                                              "Points" = "points")),
+                               plotOutput("decathlon_heatplot_points", height = "800px")),
+                      tabPanel("Heptathlon (coming soon)")
+           )
+  ),
   tabPanel("Custom Data (coming soon)", 
            titlePanel(HTML(paste0("Upload completed multievents competition"))),
            
@@ -221,20 +235,37 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
              
            )),
   tabPanel("Athlete Profile (coming soon)",
-           sidebarLayout(sidebarPanel(
+           sidebarLayout(sidebarPanel(width = 3,
              selectInput(
                "athlete_select",
                "Athlete Name:",
-               c("", lapply(dfs, function(x)
-                 x$`Athlete`) %>% unlist(use.names = F) %>% unique() %>% sort())
+               lapply(dfs, function(x)
+                 x$`Athlete`) %>% unlist(use.names = F) %>% unique() %>% sort()
              ),
-             fluidRow(column(5, htmlOutput("use_this_athletename")),
-                      column(7, HTML(paste(h4("Name: "), htmlOutput("athlete_specific"),
-                                            h4("Date of Birth: "), htmlOutput("athlete_birth"),
-                                            h4("Country: "), htmlOutput("athlete_country"),
-                                            h4("IAAF Code: "), htmlOutput("iaaf_code"),
-                                            h4("Height: "))))
-           )),
+             fluidRow(
+               column(4, htmlOutput("use_this_athletename")),
+               column(
+                 8,
+                 fluidRow(column(
+                   6,  div(style = "text-align:right", tags$b("Date of Birth: "))
+                 ), column(6, htmlOutput("athlete_birth"))),
+                 fluidRow(column(
+                   6,  div(style = "text-align:right", tags$b("Country: "))
+                 ),
+                 column(6, htmlOutput("athlete_country"))),
+                 fluidRow(column(
+                   6,  div(style = "text-align:right", tags$b("IAAF Code: "))
+                 ),
+                 column(6, htmlOutput("iaaf_code"))),
+                 fluidRow(column(
+                   6, div(style = "text-align:right", tags$b("Height: "))
+                 ),
+                 column(6, "Coming soon")),
+                 
+                             )),
+             tags$br(),
+             plotOutput("radar_athlete")
+             ),
            mainPanel(dataTableOutput("individual_athlete_profile"),
                      plotOutput("individual_athlete_plot"))
            )
@@ -245,12 +276,37 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
              paste(
                h4("About"),
                "<br/>",
-               "I previously competed in the decathlon at an amateur level. I mainly created this Shiny App to showcase some of the skills I have in this feature of R for work training and my CV. If you have any queries or spot any inaccuracies in the data, please feel free to contact me through the form below:",
+               "I previously competed in the decathlon at an amateur level. I mainly created this Shiny App to showcase some of the skills I have in this feature of R for work training and my CV.<br/>
+              If you have any queries or spot any inaccuracies in the data, please contact me through the form below:",
                "<br/>", "<br/>"
              )
            ),
-           textAreaInput("form", NULL, placeholder = "Enter text", width = "400px", height = "150px"),
+           textAreaInput(
+             "form",
+             NULL,
+             placeholder = "Enter text",
+             width = "500px",
+             height = "150px",
+             resize = "none"
+           ), 
            actionButton("goButton", "Submit", width = "200px"),
-           "Feel free give a small donation through the Paypal button below to support future features/my hosting costs.",
-           HTML(rep("<br/>", 40), "Also I row 1:30 fat ergos for an infinite timeframe"))
+           HTML("<br/><br/>"),
+           "If you like the app than feel free to give a small donation through the Paypal button below to support future development/my hosting costs.",
+           HTML(paste('<br/><br/><form action="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DV63U2B9R7FE6&source=url" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick" />
+<input type="hidden" name="hosted_button_id" value="DV63U2B9R7FE6" />
+<input type="image" src="https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+<img alt="" border="0" src="https://www.paypal.com/en_GB/i/scr/pixel.gif" width="1" height="1" />
+</form>
+')),
+           HTML("<br/><br/>"),
+           h4("Credits"),
+           HTML("<br/>"),
+           "- decathlon2000.com for providing the scores/points data",
+           HTML("<br/>"),
+           "- Stack Overflow for being an amazing resource for coding Q&A",
+           HTML("<br/>"),
+           "- Tom Jemmett for helping with some initial bugs on the dataset view tab",
+           HTML("<br/>"),
+           "- Thomas Park for the gorgeous Yeti CSS theme")
 )

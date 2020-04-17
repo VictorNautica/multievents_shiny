@@ -3,13 +3,14 @@ library(multievents)
 library(tidyverse)
 library(magrittr)
 # devtools::install_github("victornautica/multievents")
-library(multievents)
 library(DT)
 library(plotly)
+library(lubridate)
 
 dfs <- readRDS("dfs.Rds")
 dfs_score <- readRDS("dfs_score.Rds")
 ultimate_df_list <- readRDS("E:/clean_analysis/ultimate_df_list.Rds")
+athlete_info <- readRDS("athlete_info_tbl.Rds")
 
 ## UI - tab df modules ####
 
@@ -140,3 +141,116 @@ eventpointsfull_func <-
     
     return(p)
   }
+
+## SERVER - HEAT MAP ####
+
+ultimate_df_points_long <- ultimate_df_list[["ultimate_df_points"]] %>% gather(key = "event", value = "points", X100m:X1500m)
+ultimate_df_points_long %<>% arrange(date)
+ultimate_df_points_long$event_fct_order <- ultimate_df_points_long %$% paste0(Year, " ", comp) %>% as_factor()
+
+ultimate_df_scores_long <- ultimate_df_list[["ultimate_df_score"]] %>% gather(key = "event", value = "score", X100m:X1500m)
+ultimate_df_scores_long %<>% arrange(date)
+ultimate_df_scores_long$event_fct_order <- ultimate_df_points_long %$% paste0(Year, " ", comp) %>% as_factor()
+
+test <- ultimate_df_scores_long %>% group_by(event_fct_order, event) %>% summarise(mean_score = round(mean(score), digits = 2))
+test %<>% mutate(mean_score = case_when(event == "X1500m" ~ mean_score %>% 
+                                          seconds_to_period() %>% 
+                                          round(digits=2) %>% 
+                                          gsub(pattern = "M ", replacement = ":", .) %>% 
+                                          gsub(pattern = "S", replacement = "", .) %>% 
+                                          str_to_lower(),
+                                        event %in% c("X100m", "X400m", "X110mh") ~ paste(mean_score, "s", sep = ""),
+                                        event %in% c("PV", "JT", "SP", "HJ", "LJ", "DT") ~ paste (mean_score, "m", sep = "")))
+
+test1 <- ultimate_df_points_long %>% group_by(event_fct_order, event) %>% summarise(mean_points = round(mean(points), digits = 0))
+test_combined <- inner_join(test, test1, by = c("event_fct_order", "event"))
+
+rm(test, test1, ultimate_df_points_long, ultimate_df_scores_long)
+
+tile_function <- function(which_metric){
+  
+  test_combined %>% ggplot() +
+    geom_raster(aes(
+      fill = mean_points,
+      x = event_fct_order,
+      y = reorder(event, mean_points)
+    ), alpha = 0.75) +
+    geom_text(
+      aes(label = !!sym(which_metric), x = event_fct_order, y = event),
+      family = "Segoe UI",
+      size = 3.75
+    ) +
+    scale_y_discrete(
+      labels = c(
+        "1500m",
+        "Javelin Throw",
+        "Discus Throw",
+        "Shotput",
+        "High Jump",
+        "Pole Vault",
+        "400m",
+        "100m",
+        "Long Jump",
+        "110m hurdles"
+      )
+    ) +
+    scale_fill_gradient(low = "#FCFBFD",
+                        high = "#6A51A3",
+                        guide = guide_colourbar(title.vjust = 1)) +
+    theme(
+      text = element_text(size = 18),
+      legend.position = "top",
+      legend.key.width = unit(90, "pt"),
+      legend.key.height = unit(7.5, "pt"),
+      axis.text.x = element_text(
+        angle = 45,
+        hjust = 1,
+        size = 12
+      )
+    ) +
+    labs(fill = "Mean Points  ",
+         x = "Competition (chronological order)",
+         y = "Event")
+}
+
+## SERVER - RADAR INITIAL DF ####
+
+df_radar <- ultimate_df_list[["ultimate_df_points"]] %>% select(Athlete, X100m:X1500m) %>% 
+  group_by(Athlete) %>% 
+  summarise(avg_speed = sum(X100m+X400m+X110mh)/(n()*3),
+            avg_throws = sum(SP+DT+JT)/(n()*3),
+            avg_jumps = sum(LJ+HJ+PV)/(n()*3),
+            avg_endurance = sum(X1500m)/n())
+df_radar %<>% mutate_if(is.numeric, scale)
+df_radar <- lapply(df_radar, function(x) { attributes(x) <- NULL; x }) %>% as_tibble() ## strip attributes otherwise normalize crashes rstudio
+df_radar %<>% mutate_if(is.numeric, BBmisc::normalize, method = "range")
+
+radar_function <- function(athletename) {
+  
+  df_radar %>% filter(Athlete == athletename)
+
+ggradar::ggradar(df_radar %>% filter(Athlete == athletename), 
+                 grid.min = min(with(df_radar, c(avg_speed, avg_throws, avg_jumps, avg_endurance))),
+                 grid.mid = 0.5,
+                 grid.max = max(with(df_radar, c(avg_speed, avg_throws, avg_jumps, avg_endurance))),
+                 values.radar	= NA,
+                 axis.labels = c("Speed",
+                                 "Throws",
+                                 "Jumps",
+                                 "Endurance"),
+                 axis.label.offset = 1.1,
+                 axis.label.size = 5,
+                 background.circle.colour	= "#ac68e3",
+                 group.colours = "#118dc2",
+                 axis.line.colour	= "black",
+                 gridline.min.colour = "black",
+                 gridline.mid.colour = "black", 
+                 gridline.max.colour = "black",
+                 font.radar = "Segoe UI",
+                 group.point.size	= 3,
+                 group.line.width = 1,
+                 plot.extent.x.sf	= 1.1) +
+  theme(
+    panel.background = element_rect(fill = "transparent"), # bg of the panel
+    plot.background = element_rect(fill = "transparent", color = NA))
+}
