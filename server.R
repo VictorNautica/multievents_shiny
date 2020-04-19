@@ -85,21 +85,24 @@ function(input, output) {
           
 ## When it's not a run event I need to reverse the SliderInputId [1] and [2]          
           renderDataTable(
-            datatable({
+            DT::datatable({
+              
                 years <- input[[inputid]]
+                
+                df_removedate <- dfs_joined[[event]] %>% select(-Date)
                 
                 if (length(years) == 0) {
                   # reassign in the parent data frame!!!
-                  display_dfs <<- dfs[[event]][dfs[[event]][["100m"]] > dec_100m(input$filter_100m[2]) &
-                                                dfs[[event]][["100m"]] < dec_100m(input$filter_100m[1]),]
+                  display_dfs <<- df_removedate
                 } else {
-                  display_dfs <<- dfs[[event]][which(dfs[[event]]$Year %in% years), ]
+                  display_dfs <<- df_removedate[which(df_removedate[[event]]$Year %in% years), ]
                 }
                 
                 display_dfs
               },
-              options = list(pageLength = 25),
+              options = list(pageLength = 25, scrollX = TRUE),
               rownames = FALSE,
+              container = df_grouped_container,
               class = 'cell-border stripe'
             )
           )
@@ -108,6 +111,8 @@ function(input, output) {
         output$ex1 <- datatablecreation("olympics", "year_olympics")
         output$ex2 <- datatablecreation("world_championships", "year_wc")
         output$ex3 <- datatablecreation("gotzis", "year_gotzis")
+        
+        output$foobar <- renderDataTable(DT::datatable(dfs_joined[["olympics"]]))
         
         ## Visualisations ####
         
@@ -221,28 +226,28 @@ function(input, output) {
           })
         
         
-        output$individual_athlete_plot <- renderPlot({
-          foobar <-
-            for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select), ]
-
-          foobar %<>% pivot_longer(`Final Score`:`1500m`, "Event", values_to = "Score") %>% unite("Major Event", c(`Major Event`, Year), sep = " ") %>% arrange(Date)
-          foobar$`Major Event` %<>% as_factor()
-
-          this_plot <- foobar %>% ggplot(aes(`Major Event`, Score, group = Event, fill = `Major Event`)) +
-            geom_bar(stat = "identity", alpha = 2 / 3) +
-            facet_wrap("Event",
-                       nrow = 2,
-                       ncol = 6,
-                       scales = "free") +
-            theme(axis.text.x = element_text(
-              angle = 45,
-              hjust = 1,
-              vjust = 1
-            )) +
-            scale_fill_brewer(palette = "Set1")
-
-          return(this_plot)
-        })
+        # output$individual_athlete_plot <- renderPlot({
+        #   foobar <-
+        #     for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select), ]
+        # 
+        #   foobar %<>% pivot_longer(`Final Score`:`1500m`, "Event", values_to = "Score") %>% unite("Major Event", c(`Major Event`, Year), sep = " ") %>% arrange(Date)
+        #   foobar$`Major Event` %<>% as_factor()
+        # 
+        #   this_plot <- foobar %>% ggplot(aes(`Major Event`, Score, group = Event, fill = `Major Event`)) +
+        #     geom_bar(stat = "identity", alpha = 2 / 3) +
+        #     facet_wrap("Event",
+        #                nrow = 2,
+        #                ncol = 6,
+        #                scales = "free") +
+        #     theme(axis.text.x = element_text(
+        #       angle = 45,
+        #       hjust = 1,
+        #       vjust = 1
+        #     )) +
+        #     scale_fill_brewer(palette = "Set1")
+        # 
+        #   return(this_plot)
+        # })
         
         ## Scrapping ####
         
@@ -456,5 +461,56 @@ output$radar_athlete <- renderPlot(radar_function(input$athlete_select))
 
 ## https://stackoverflow.com/questions/47702624/shiny-unwanted-space-added-by-plotoutput-and-or-renderplot this might be relevant to get rid of the whitespace
 
+output$radar_speed <- renderText(radar_colourbar_func(input$athlete_select, "avg_speed__standardised__normalised"))
+output$radar_throws <- renderText(radar_colourbar_func(input$athlete_select, "avg_throws__standardised__normalised"))
+output$radar_jumps <- renderText(radar_colourbar_func(input$athlete_select, "avg_jumps__standardised__normalised"))
+output$radar_endurance <- renderText(radar_colourbar_func(input$athlete_select, "avg_endurance__standardised__normalised"))
+
+## 3d scatter ####
+
+output$scatterplot3d <- renderPlotly({
+  
+  df_scatter <- df_radar %>% 
+    mutate(select_athlete = case_when(Athlete == input$athlete_select ~ "Select", TRUE ~ "No")) %>% 
+    select(Athlete, select_athlete, everything()) ## maybe make this reactive if necessary
+  
+  x_choose <- switch(input$scatter3d_x,
+                     Speed = "avg_speed__standardised__normalised",
+                     Throws = "avg_throws__standardised__normalised",
+                     Jumps = "avg_jumps__standardised__normalised",
+                     Endurance = "avg_endurance__standardised__normalised")
+  
+  y_choose <- switch(input$scatter3d_y,
+                     Speed = "avg_speed__standardised__normalised",
+                     Throws = "avg_throws__standardised__normalised",
+                     Jumps = "avg_jumps__standardised__normalised",
+                     Endurance = "avg_endurance__standardised__normalised")
+  
+  z_choose <- switch(input$scatter3d_z,
+                     Speed = "avg_speed__standardised__normalised",
+                     Throws = "avg_throws__standardised__normalised",
+                     Jumps = "avg_jumps__standardised__normalised",
+                     Endurance = "avg_endurance__standardised__normalised")  
+  
+  plot_ly(df_scatter %>% group_by(select_athlete), 
+             x = ~get(x_choose), 
+             y = ~get(y_choose),
+             z = ~get(z_choose),
+             color = ~select_athlete,
+             colors = c('#757575', '#0C4B8E'),
+             text = ~ paste(Athlete),
+             alpha = 0.66,
+             hoverinfo = 'text',
+             showlegend = F) %>% 
+  layout(scene = list(xaxis = list(title = input$scatter3d_x),
+                      yaxis = list(title = input$scatter3d_y),
+                      zaxis = list(title = input$scatter3d_z)
+                      )
+         )
+  }
+  )
+
+
+## Closing server brackets ####
 
 }

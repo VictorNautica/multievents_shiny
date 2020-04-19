@@ -101,13 +101,8 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
     navbarPage(
       theme = "yeti",
       title = 'Select competition',
-      decathlon_tabs(
-        tab_label = "Olympics",
-        ex_id = "ex1",
-        select_year_label = "year_olympics",
-        dfs_proper_call = "olympics",
-        plotoutputlabel = "bar_olympics"
-      ),
+      tabPanel("Olympics",
+               div(DT::dataTableOutput("foobar"), style = "font-size: 25%; width: 25%")),
       decathlon_tabs(
         tab_label = "World Championships",
         ex_id = "ex2",
@@ -185,7 +180,7 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
            sidebarLayout(
              
              # Sidebar panel for inputs ----
-             sidebarPanel(
+             sidebarPanel(width = 2,
                
                # Input: Select a file ----
                fileInput("file1", "Choose CSV File",
@@ -227,6 +222,7 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
              
              # Main panel for displaying outputs ----
              mainPanel(
+               "Allow user to input complete decathlon in .csv/.xslx format and allow for plot creation. Think UX.",
                
                # Output: Data file ----
                tableOutput("contents")
@@ -264,19 +260,53 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
                  
                              )),
              tags$br(),
-             plotOutput("radar_athlete")
+             tabsetPanel(tabPanel("Radar Plot",
+             plotOutput("radar_athlete"),
+             tags$br(),
+             tags$b("Relative Performance:"),
+             tags$br(),
+             fluidRow(column(3,"Speed"), column(9, htmlOutput("radar_speed"))),
+             fluidRow(column(3,"Throws"), column(9, htmlOutput("radar_throws"))),
+             fluidRow(column(3,"Jumps"), column(9, htmlOutput("radar_jumps"))),
+             fluidRow(column(3,"Endurance"), column(9, htmlOutput("radar_endurance")))
+             ),
+             tabPanel("Scatter Plot",
+                      fluidRow(column(4, selectInput("scatter3d_x", "x-axis",
+                                                     choices = scatter3d_options,
+                                                     selected = "Speed")),
+                               column(4, selectInput("scatter3d_y", "y-axis",
+                                                     choices = scatter3d_options,
+                                                     selected = "Throws")),
+                               column(4, selectInput("scatter3d_z", "z-axis",
+                                                     choices = scatter3d_options,
+                                                     selected = "Jumps"))
+                               ),
+                      plotlyOutput("scatterplot3d"),
+                      tags$br(),
+                      "Note: requires a browser with WebGL compatibility to run"),
+             tabPanel("About",
+                      tags$br(),
+                      "The radar plot maps the relative performance of the athlete's average performance in the pre-defined categories against other athletes' average performance through standardisation. Post-transformation using 0-1 normalisation is applied to align the grid-rings.",
+                      tags$br(),tags$br(),
+                      "This can be notated by:",
+                      withMathJax("$$\\frac{\\sum_{i}^a\\sum_{j}^b x_{ij}}{ab}\\!$$'"),
+                      helpText("Where test test alpha latin ggibbe"))
+             )
              ),
            mainPanel(dataTableOutput("individual_athlete_profile"),
-                     plotOutput("individual_athlete_plot"))
+                     "What to include here..")
            )
            )
   , 
   tabPanel("About",
+           fluidRow(column(width = 6,
            HTML(
              paste(
-               h4("About"),
-               "<br/>",
-               "I previously competed in the decathlon at an amateur level. I mainly created this Shiny App to showcase some of the skills I have in this feature of R for work training and my CV.<br/>
+               h4("About the website"),
+              "This website features data from all decathlons at the three major world events (Olympics, World Championships, and Gotzis Hypomeeting) since 2000. It allows you to view relevant visualisations, calculate common points conversion for events, view trends, see athlete profiles, and allows you to upload your own combined events dataset.<br/>",
+               h4("About me"),
+               "I previously competed in the decathlon at an amateur level. I mainly created this Shiny App to showcase some of the skills I have in this feature of R for work training and my CV.<br/><br/>
+              
               If you have any queries or spot any inaccuracies in the data, please contact me through the form below:",
                "<br/>", "<br/>"
              )
@@ -308,5 +338,15 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
            HTML("<br/>"),
            "- Tom Jemmett for helping with some initial bugs on the dataset view tab",
            HTML("<br/>"),
-           "- Thomas Park for the gorgeous Yeti CSS theme")
+           "- Thomas Park for the gorgeous Yeti CSS theme"),
+           column(width = 6,
+                  HTML(paste(h4("More info:"),
+                             "For more general news about combined events you can visit:",
+                             "<br/><br/>",
+                             "-", tags$a(href = "http://decathlon2000.com", "decathlon2000"),
+                             "<br/>",
+                             "-", tags$a(href = "http://decathlonpedia.com", "decathlonpedia")))
+           )
+           )
+  )
 )

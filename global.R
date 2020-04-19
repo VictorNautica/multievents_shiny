@@ -12,6 +12,14 @@ dfs_score <- readRDS("dfs_score.Rds")
 ultimate_df_list <- readRDS("E:/clean_analysis/ultimate_df_list.Rds")
 athlete_info <- readRDS("athlete_info_tbl.Rds")
 
+## DF - Joined Cols ###
+
+dfs_joined <- list(olympics = NA,
+                   world_championships = NA,
+                   gotzis = NA)
+
+source("merge_df.R")
+
 ## UI - tab df modules ####
 
 decathlon_tabs <-
@@ -22,29 +30,22 @@ decathlon_tabs <-
            plotoutputlabel) {
       tabPanel(
         tab_label,
-        sidebarLayout(
-          mainPanel(dataTableOutput(ex_id)),
-          sidebarPanel(
-            style = "position:fixed;width:inherit;",
-            selectInput(
-              inputId = select_year_label,
-              label = "Select year of competition",
-              choices = c(unique(dfs[[dfs_proper_call]]$Year)),
-              multiple = TRUE,
-              selectize = TRUE
-            ),
-            sliderInput(
-                     inputId = "filter_100m",
-                     label = "Filter 100m time",
-                     min = min(dfs_score[[dfs_proper_call]]$`100m`),
-                     max = max(dfs_score[[dfs_proper_call]]$`100m`),
-                     value = c(min(dfs_score[[dfs_proper_call]]$`100m`), max(dfs_score[[dfs_proper_call]]$`100m`)),
-                     post = "s",
-                     dragRange = F
-                   ),
-            plotlyOutput(plotoutputlabel, height = "550")
-          )
-        )
+        # sidebarLayout(
+        #   mainPanel(
+            div(DT::dataTableOutput(ex_id), style = "font-size: 75%; width: 75%")
+        #     ),
+        #   sidebarPanel(
+        #   style = "position:fixed;width:inherit;",
+        #   selectInput(
+        #     inputId = select_year_label,
+        #     label = "Select year of competition",
+        #     choices = c(unique(dfs_joined[[dfs_proper_call]]$Year)),
+        #     multiple = TRUE,
+        #     selectize = TRUE
+        #   ),
+        #   plotlyOutput(plotoutputlabel, height = "550")
+        #   )
+        # )
       )
   }
 
@@ -53,6 +54,41 @@ decathlon_tabs <-
 padding <- function(calc_output) {
   column(6, tags$label("Score:"), tags$div(textOutput(calc_output), style = "padding-top:10px"))
 }
+
+## SERVER - grouped container for dfs ####
+
+df_grouped_container <- htmltools::withTags(table(
+  class = 'display',
+  thead(
+    tr(
+      th(rowspan = 2, 'Year'),
+      th(rowspan = 2, 'Athlete'),
+      th(rowspan = 2, 'Age at Comp'),
+      th(rowspan = 2, 'Country'),
+      th(rowspan = 2, 'Rank'),
+      th(rowspan = 2, 'Final Score'),
+      th(colspan = 2, '100m'),
+      th(colspan = 2, 'LJ'),
+      th(colspan = 2, 'SP'),
+      th(colspan = 2, 'HJ'),
+      th(colspan = 2, '400m'),
+      th(colspan = 2, '110mh'),
+      th(colspan = 2, 'DT'),
+      th(colspan = 2, 'PV'),
+      th(colspan = 2, 'JT'),
+      th(colspan = 2, '1500m'),
+    ),
+    tr(
+      lapply(rep(c('Score', 'Points'), 10), th)
+    )
+  )
+))
+
+## UI - 3d scatter options ####
+
+## for selectinput
+
+scatter3d_options <- c("Speed", "Throws", "Jumps", "Endurance")
 
 ## SERVER - shiny function for score to points function ####
 
@@ -221,18 +257,18 @@ df_radar <- ultimate_df_list[["ultimate_df_points"]] %>% select(Athlete, X100m:X
             avg_throws = sum(SP+DT+JT)/(n()*3),
             avg_jumps = sum(LJ+HJ+PV)/(n()*3),
             avg_endurance = sum(X1500m)/n())
-df_radar %<>% mutate_if(is.numeric, scale)
+df_radar %<>% mutate_if(is.numeric, list(`_standardised` = ~scale(.)))
 df_radar <- lapply(df_radar, function(x) { attributes(x) <- NULL; x }) %>% as_tibble() ## strip attributes otherwise normalize crashes rstudio
-df_radar %<>% mutate_if(is.numeric, BBmisc::normalize, method = "range")
+df_radar %<>% mutate_at(vars(contains("standardised")), list(`_normalised` = ~normalize(., method = "range")))
 
 radar_function <- function(athletename) {
   
   df_radar %>% filter(Athlete == athletename)
 
-ggradar::ggradar(df_radar %>% filter(Athlete == athletename), 
-                 grid.min = min(with(df_radar, c(avg_speed, avg_throws, avg_jumps, avg_endurance))),
+ggradar::ggradar(df_radar %>% filter(Athlete == athletename) %>% select("Athlete", contains("normalised")), 
+                 grid.min = 0,
                  grid.mid = 0.5,
-                 grid.max = max(with(df_radar, c(avg_speed, avg_throws, avg_jumps, avg_endurance))),
+                 grid.max = 1,
                  values.radar	= NA,
                  axis.labels = c("Speed",
                                  "Throws",
@@ -253,4 +289,27 @@ ggradar::ggradar(df_radar %>% filter(Athlete == athletename),
   theme(
     panel.background = element_rect(fill = "transparent"), # bg of the panel
     plot.background = element_rect(fill = "transparent", color = NA))
+}
+
+## SERVER - COLOUR INTERPOLATE ####
+
+hex_colours <- colorRampPalette(c("#d7191c", "#fdae61", "#ffffbf", "#a6d96a", "#1a9641"))(100)
+
+hexfillfunction <- function(hexfill) paste0('<svg width="50" height="10">
+                                            <rect width="50" height="10" style="fill:', hexfill, ';stroke-width:1;stroke:rgb(0,0,0)" />
+                                          </svg>')
+
+radar_colourbar_func <- function(athletename, grouping) {
+  
+  percentile <- df_radar %>% filter(Athlete == athletename) %>% pull(grouping)
+  percentile <- round(percentile*100, 0)
+  
+  if (percentile == 0) {
+    percentile <- 1
+  }
+  
+  usethishex <- hex_colours[percentile]
+  
+  return(hexfillfunction(usethishex))
+  
 }
