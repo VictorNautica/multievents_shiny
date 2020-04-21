@@ -1,10 +1,10 @@
-navbarPage(theme = shinythemes::shinytheme("yeti"), 
+navbarPage(theme = shinythemes::shinytheme("sandstone"), 
   title = "Multi-events repository",
   tabPanel(
+    ## 1) Calculator ####
     "Calculator",
     navbarPage(
       title = "",
-      theme = "yeti",
       tabPanel("Decathlon",
     sidebarLayout(sidebarPanel(width = 2,
       fluidRow(
@@ -49,10 +49,14 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
         ))
     ), 
     mainPanel(
-      # Output: Header + table of distribution ----
-      fluidRow(column(width = 6, h4("Summary statistics"),
-      tableOutput("dec_table"),
-      plotOutput("dec_plot")), fluidRow(width = 6))))
+      ## Output: Header + table of distribution ####
+      fluidRow(column(width = 6,
+                      h4("Summary statistics"),
+                      tableOutput("dec_table")),
+               column(width = 6, 
+                      h4(" "),
+                      plotOutput("dec_plot", height = "600px")))
+      ))
     ),
     tabPanel("Heptathlon",
              sidebarLayout(sidebarPanel(width = 2,
@@ -86,23 +90,31 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
                                           )),
                                         ),
                            mainPanel(
-                             fluidRow(column(width = 6, h4("Summary statistics"),
-                                             tableOutput("hept_table"),
-                                             plotOutput("hept_plot")), fluidRow(width = 6))))
+                             fluidRow(column(width = 6,
+                                             h4("Summary statistics"),
+                                             tableOutput("hept_table")),
+                                      column(width = 6, 
+                                             h4(" "),
+                                             plotOutput("hept_plot", height = "600px")))
+                             ))
   )
   )
   ),
   tabPanel(
+  ## 2) Previous events data ####  
     "Previous events data",
     navbarPage(
       title = "",
-      theme = "yeti",
     tabPanel("Decathlon", 
     navbarPage(
-      theme = "yeti",
       title = 'Select competition',
-      tabPanel("Olympics",
-               div(DT::dataTableOutput("foobar"), style = "font-size: 25%; width: 25%")),
+      decathlon_tabs(
+        tab_label = "Olympics",
+        ex_id = "ex1",
+        select_year_label = "year_olympics",
+        dfs_proper_call = "olympics",
+        plotoutputlabel = "bar_olympics"
+      ),
       decathlon_tabs(
         tab_label = "World Championships",
         ex_id = "ex2",
@@ -120,9 +132,9 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
     )),
     tabPanel("Heptathlon (coming soon)"))
   ),
+  ## 3) Score to Points #####
   tabPanel("Score to points",
-           navbarPage(theme = "yeti",
-                      title = "",
+           navbarPage(title = "",
                       tabPanel("Decathlon", navlistPanel(
                         widths = c(2, 10),
                         tabPanel("100m", 
@@ -161,8 +173,7 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
                       )
            ),
   tabPanel("Heat Plots",
-           navbarPage(theme = "yeti",
-                      title = "",
+           navbarPage(title = "",
                       tabPanel("Decathlon", 
                                radioButtons("decathlon_tile_choose", 
                                             label = NULL, 
@@ -173,6 +184,7 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
                       tabPanel("Heptathlon (coming soon)")
            )
   ),
+  ## 4) Custom Data ####
   tabPanel("Custom Data (coming soon)", 
            titlePanel(HTML(paste0("Upload completed multievents competition"))),
            
@@ -230,13 +242,13 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
              )
              
            )),
+  ## 5) Athlete Profile ####
   tabPanel("Athlete Profile (coming soon)",
            sidebarLayout(sidebarPanel(width = 3,
              selectInput(
                "athlete_select",
                "Athlete Name:",
-               lapply(dfs, function(x)
-                 x$`Athlete`) %>% unlist(use.names = F) %>% unique() %>% sort()
+               ultimate_df_list[["ultimate_df_points"]] %>% pull(Athlete) %>% unique() %>% sort()
              ),
              fluidRow(
                column(4, htmlOutput("use_this_athletename")),
@@ -293,7 +305,8 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
                       helpText("Where test test alpha latin ggibbe"))
              )
              ),
-           mainPanel(dataTableOutput("individual_athlete_profile"),
+           mainPanel(
+             div(DT::dataTableOutput("individual_athlete_profile"), style = "font-size: 82.5%; width: 110%"),
                      "What to include here..")
            )
            )
@@ -303,7 +316,8 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
            HTML(
              paste(
                h4("About the website"),
-              "This website features data from all decathlons at the three major world events (Olympics, World Championships, and Gotzis Hypomeeting) since 2000. It allows you to view relevant visualisations, calculate common points conversion for events, view trends, see athlete profiles, and allows you to upload your own combined events dataset.<br/>",
+              "This website features data from all decathlons at the three major world events (Olympics, World Championships, and Gotzis Hypomeeting) since 2000. It allows you to view relevant visualisations, calculate common points conversion for events, view trends, see athlete profiles, and allows you to upload your own combined events dataset.<br/><br/>
+              For best user experience use a browser with WebGL compatibility and a screen resolution of atleast 1920x1080.",
                h4("About me"),
                "I previously competed in the decathlon at an amateur level. I mainly created this Shiny App to showcase some of the skills I have in this feature of R for work training and my CV.<br/><br/>
               
@@ -348,5 +362,7 @@ navbarPage(theme = shinythemes::shinytheme("yeti"),
                              "-", tags$a(href = "http://decathlonpedia.com", "decathlonpedia")))
            )
            )
-  )
+  ),
+  tabPanel("test",
+           DT::dataTableOutput("foobar"))
 )

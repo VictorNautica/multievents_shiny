@@ -95,24 +95,23 @@ function(input, output) {
                   # reassign in the parent data frame!!!
                   display_dfs <<- df_removedate
                 } else {
-                  display_dfs <<- df_removedate[which(df_removedate[[event]]$Year %in% years), ]
+                  display_dfs <<- df_removedate[which(df_removedate$Year %in% years), ]
                 }
                 
                 display_dfs
               },
-              options = list(pageLength = 25, scrollX = TRUE),
               rownames = FALSE,
               container = df_grouped_container,
-              class = 'cell-border stripe'
-            )
+              class = 'cell-border stripe compact'
+            ) %>% 
+              formatString(~ `100m_Score` + `400m_Score` + `110mh_Score` + `1500m_Score`, suffix = "s") %>%
+              formatString(~ LJ_Score + SP_Score + HJ_Score + DT_Score + PV_Score + JT_Score, suffix = "m")
           )
         }
         
         output$ex1 <- datatablecreation("olympics", "year_olympics")
         output$ex2 <- datatablecreation("world_championships", "year_wc")
         output$ex3 <- datatablecreation("gotzis", "year_gotzis")
-        
-        output$foobar <- renderDataTable(DT::datatable(dfs_joined[["olympics"]]))
         
         ## Visualisations ####
         
@@ -201,13 +200,9 @@ function(input, output) {
         # output$wewew <- renderPrint(input$filter_100m)
         
 ## Athlete Profile ####
-
-
         
-        
-        for_indiv_athlete_tab <- readRDS("dfs.Rds")
         for_indiv_athlete_tab <-
-          bind_rows(for_indiv_athlete_tab,
+          bind_rows(dfs_joined,
                     .id = "Major Event")
         for_indiv_athlete_tab$`Major Event` <-
           as_factor(for_indiv_athlete_tab$`Major Event`)
@@ -220,10 +215,44 @@ function(input, output) {
         
         # for_indiv_athlete_tab <- as.data.frame(for_indiv_athlete_tab)
         output$individual_athlete_profile <-
-          renderDataTable({
-            within(for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select),],
-                   rm(Athlete, Country, Year)) ## remove unneeded columns
-          })
+          renderDataTable(
+            {
+              df <- within(for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select), ], rm(Athlete, Country, Year)) %>% arrange(Date) ## remove unneeded columns
+              
+              DT::datatable(df,
+                            class = 'cell-border compact',
+                            rownames = FALSE,
+                            options = list(pageLength = 25, scrollX = TRUE),
+                            container = htmltools::withTags(table(
+                              thead(
+                                tr(
+                                  th(rowspan = 2, 'Major Event'),
+                                  th(rowspan = 2, 'Date'),
+                                  th(rowspan = 2, 'Age at Comp'),
+                                  th(rowspan = 2, 'Rank'),
+                                  th(rowspan = 2, 'Final Score'),
+                                  th(colspan = 2, '100m'),
+                                  th(colspan = 2, 'LJ'),
+                                  th(colspan = 2, 'SP'),
+                                  th(colspan = 2, 'HJ'),
+                                  th(colspan = 2, '400m'),
+                                  th(colspan = 2, '110mh'),
+                                  th(colspan = 2, 'DT'),
+                                  th(colspan = 2, 'PV'),
+                                  th(colspan = 2, 'JT'),
+                                  th(colspan = 2, '1500m'),
+                                ),
+                                tr(
+                                  lapply(rep(c('Score', 'Points'), 10), th)
+                                )
+                              )
+                            ))) %>% 
+                formatString(~ `100m_Score` + `400m_Score` + `110mh_Score` + `1500m_Score`, suffix = "s") %>%
+                formatString(~ LJ_Score + SP_Score + HJ_Score + DT_Score + PV_Score + JT_Score, suffix = "m")
+              
+              
+          }
+          )
         
         
         # output$individual_athlete_plot <- renderPlot({

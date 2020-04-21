@@ -136,6 +136,24 @@ athlete_info_tbl <- athlete_info %>% lapply(as_tibble) %>% bind_rows(.id = "Athl
 athlete_info_tbl <- left_join(athlete_info_tbl, (dfs %>% lapply(function(x) x %>% select(Athlete, Country)) %>% bind_rows() %>% unique()), by = "Athlete") %>% select(Athlete, Country, everything())
 
 athlete_info_tbl$Country %<>% countrycode::countrycode("ioc", "country.name")
+
+athlete_info_tbl$Athlete <- athlete_info_tbl$Athlete %>% str_replace_all("Zachery Ziemek", "Zach Ziemek")
+
+athlete_info_tbl <- athlete_info_tbl %>% arrange(Athlete)
+
+fix_athlete_idx <- which(
+  ultimate_df_list[["ultimate_df_points"]] %>% pull(Athlete) %>% unique() %>% sort() !=
+    athlete_info_tbl$Athlete) ## compare
+# 1 Edgars Erinš     
+# 2 Janis Karlivans  
+# 3 Jirí Ryba        
+# 4 Pawel Wiesiolek  
+# 5 Slaven Dizdarevic
+# 6 Tomáš Dvorák   
+
+
+athlete_info_tbl[fix_athlete_idx,"Athlete"] <- ultimate_df_list[["ultimate_df_points"]] %>% pull(Athlete) %>% unique() %>% sort() %>% .[fix_athlete_idx]
+
 write_rds(athlete_info_tbl, "athlete_info_tbl.Rds")
 
 

@@ -6,6 +6,7 @@ library(magrittr)
 library(DT)
 library(plotly)
 library(lubridate)
+library(BBmisc)
 
 dfs <- readRDS("dfs.Rds")
 dfs_score <- readRDS("dfs_score.Rds")
@@ -14,11 +15,58 @@ athlete_info <- readRDS("athlete_info_tbl.Rds")
 
 ## DF - Joined Cols ###
 
+dfs <- map(dfs, ~ {
+  
+  .x$Athlete <- stringi::stri_enc_toutf8(.x$Athlete)
+  
+  if (any(.x$Athlete %in% "Edgars Erinš")){
+    .x[which(.x$Athlete == "Edgars Erinš"),"Athlete"] <- paste0("Edgars Eri\U0146š")}
+  if (any(.x$Athlete %in% "Janis Karlivans")){
+    .x[which(.x$Athlete == "Janis Karlivans"),"Athlete"] <- "J\U0101nis Karliv\U0101ns"}
+  if (any(.x$Athlete %in% "Jirí Ryba")){
+    .x[which(.x$Athlete == "Jirí Ryba"),"Athlete"] <- "Ji\U0159í Ryba"}
+  if (any(.x$Athlete %in% "Pawel Wiesiolek")){
+    .x[which(.x$Athlete == "Pawel Wiesiolek"),"Athlete"] <- paste0("Pawe\U0142 Wiesio\U0142", "ek")}
+  if (any(.x$Athlete %in% "Slaven Dizdarevic")){
+    .x[which(.x$Athlete == "Slaven Dizdarevic"),"Athlete"] <- "Slaven Dizdarevi\U010D"}
+  if (any(.x$Athlete %in% "Tomáš Dvorák")){
+    .x[which(.x$Athlete == "Tomáš Dvorák"),"Athlete"] <- "Tomáš Dvo\U0159ák"
+  }
+  return(.x)
+}
+)
+
+dfs_score <- map(dfs_score, ~ {
+  
+  .x$Athlete <- stringi::stri_enc_toutf8(.x$Athlete)
+  
+  if (any(.x$Athlete %in% "Edgars Erinš")){
+    .x[which(.x$Athlete == "Edgars Erinš"),"Athlete"] <- paste0("Edgars Eri\U0146š")}
+  if (any(.x$Athlete %in% "Janis Karlivans")){
+    .x[which(.x$Athlete == "Janis Karlivans"),"Athlete"] <- "J\U0101nis Karliv\U0101ns"}
+  if (any(.x$Athlete %in% "Jirí Ryba")){
+    .x[which(.x$Athlete == "Jirí Ryba"),"Athlete"] <- "Ji\U0159í Ryba"}
+  if (any(.x$Athlete %in% "Pawel Wiesiolek")){
+    .x[which(.x$Athlete == "Pawel Wiesiolek"),"Athlete"] <- paste0("Pawe\U0142 Wiesio\U0142", "ek")}
+  if (any(.x$Athlete %in% "Slaven Dizdarevic")){
+    .x[which(.x$Athlete == "Slaven Dizdarevic"),"Athlete"] <- "Slaven Dizdarevi\U010D"}
+  if (any(.x$Athlete %in% "Tomáš Dvorák")){
+    .x[which(.x$Athlete == "Tomáš Dvorák"),"Athlete"] <- "Tomáš Dvo\U0159ák"
+  }
+  return(.x)
+}
+) ## ultimately need to inc this in the dfs lists in the pkg, this code doesn't work when I source it from ugly_fix_dfs.R for whatever reason
+
+
 dfs_joined <- list(olympics = NA,
                    world_championships = NA,
                    gotzis = NA)
 
 source("merge_df.R")
+
+## CRITICAL ####
+
+athlete_names <- ultimate_df_list[["ultimate_df_points"]] %>% pull(Athlete) %>% unique() %>% sort()
 
 ## UI - tab df modules ####
 
@@ -30,22 +78,24 @@ decathlon_tabs <-
            plotoutputlabel) {
       tabPanel(
         tab_label,
-        # sidebarLayout(
-        #   mainPanel(
-            div(DT::dataTableOutput(ex_id), style = "font-size: 75%; width: 75%")
-        #     ),
-        #   sidebarPanel(
-        #   style = "position:fixed;width:inherit;",
-        #   selectInput(
-        #     inputId = select_year_label,
-        #     label = "Select year of competition",
-        #     choices = c(unique(dfs_joined[[dfs_proper_call]]$Year)),
-        #     multiple = TRUE,
-        #     selectize = TRUE
-        #   ),
-        #   plotlyOutput(plotoutputlabel, height = "550")
-        #   )
-        # )
+        sidebarLayout(
+          mainPanel(
+            div(DT::dataTableOutput(ex_id), style = "font-size: 80%; width: 70%"),
+            width = 9
+            ),
+          sidebarPanel(
+          # style = "position:fixed;width:inherit;",
+          selectInput(
+            inputId = select_year_label,
+            label = "Select year of competition",
+            choices = c(unique(dfs_joined[[dfs_proper_call]]$Year)),
+            multiple = TRUE,
+            selectize = TRUE
+          ),
+          plotlyOutput(plotoutputlabel, height = "550"),
+          width = 3
+          )
+        )
       )
   }
 
