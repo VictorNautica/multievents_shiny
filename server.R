@@ -102,7 +102,9 @@ function(input, output) {
               },
               rownames = FALSE,
               container = df_grouped_container,
-              class = 'cell-border stripe compact'
+              class = 'cell-border stripe compact',
+              options = list(fixedHeader = TRUE),
+              extensions = "FixedHeader"
             ) %>% 
               formatString(~ `100m_Score` + `400m_Score` + `110mh_Score` + `1500m_Score`, suffix = "s") %>%
               formatString(~ LJ_Score + SP_Score + HJ_Score + DT_Score + PV_Score + JT_Score, suffix = "m")
