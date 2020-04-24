@@ -7,6 +7,7 @@ library(DT)
 library(plotly)
 library(lubridate)
 library(BBmisc)
+library(shinycssloaders)
 
 dfs <- readRDS("dfs.Rds")
 dfs_score <- readRDS("dfs_score.Rds")
@@ -105,6 +106,13 @@ padding <- function(calc_output) {
   column(6, tags$label("Score:"), tags$div(textOutput(calc_output), style = "padding-top:10px"))
 }
 
+## UI - S2P panels ####
+
+s2ppanel <- function(event, plot_reference) {
+  tabPanel(event, 
+         plotlyOutput(plot_reference, height = "800px") %>% withSpinner())
+}
+
 ## SERVER - grouped container for dfs ####
 
 df_grouped_container <- htmltools::withTags(table(
@@ -171,12 +179,11 @@ eventpointsfull_func <-
       )
     
     
-    p <- ggplot(foob, mapping = aes(x, Points, text = paste("Athlete: ", Athlete,
-                                                            "\nEvent: ", Event)
-    )
+    p <- ggplot(
+      foob, mapping = aes(x, Points, colour = Event, text = paste("Athlete: ", Athlete))
     ) +
-      # geom_jitter(shape = 4, alpha = 0.5, width = 0, height = 50) +
-      geom_point(shape = 1, alpha = 0.5) +
+      # geom_jitter(shape = 3, alpha = 0.5, width = 0, height = 50) +
+      geom_point(shape = 3, alpha = 0.5) +
       stat_function(
         fun = function(x)
           alpha * ((if (eventtype == "runs") {
@@ -189,12 +196,13 @@ eventpointsfull_func <-
           }) ^ delta)
       ) +
       geom_rug(alpha = 1 / 10) +
-    scale_y_continuous(breaks = seq(0, 1500, 100)) +
+      scale_y_continuous(breaks = seq(0, 1500, 100)) +
       theme(
         text = element_text(size = 18, family = "Segoe UI"),
         legend.title = element_blank(),
         legend.position = "none"
       ) +
+      scale_colour_manual(values = rep("black", nrow(ultimate_df_points))) +
       
       if (eventtype == "jumps") {
         scale_x_continuous(
@@ -218,12 +226,18 @@ eventpointsfull_func <-
       }
     # p <- ggMarginal(p)
     p <- plotly::ggplotly(p) %>% 
-      plotly::layout(hovermode = "x")
-    p$x$data[[2]]$hoverinfo <- "none"
+      plotly::layout(hovermode = "x", hoverdistance = 1)
     
-    p[["x"]][["data"]][[1]][["text"]] <- str_replace_all(p[["x"]][["data"]][[1]][["text"]], "x:", paste0(short_measure, ":")) ## points
-    p[["x"]][["data"]][[3]][["text"]] <- str_replace_all(p[["x"]][["data"]][[1]][["text"]], "x:", paste0(short_measure, ":")) ## rug
-    p[["x"]][["data"]][[4]][["text"]] <- str_replace_all(p[["x"]][["data"]][[1]][["text"]], "x:", paste0(short_measure, ":")) ## rug
+    
+    p$x$data <- map(p$x$data, ~ {
+      
+      if (.x$mode == "lines") .x$hoverinfo <- "none" ## eliminate hover for rugs
+      
+      if (.x$mode == "markers") .x$text <- .x$text %>% str_replace_all("x:", paste0(short_measure, ":"))
+      
+      return(.x)
+      
+    })
     
     return(p)
   }

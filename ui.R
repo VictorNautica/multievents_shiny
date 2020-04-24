@@ -1,4 +1,5 @@
-navbarPage(theme = shinythemes::shinytheme("sandstone"), 
+navbarPage(
+  theme = shinythemes::shinytheme("sandstone"),
   title = "Multi-events repository",
   tabPanel(
     ## 1) Calculator ####
@@ -11,6 +12,7 @@ navbarPage(theme = shinythemes::shinytheme("sandstone"),
         fluidRow(column(6, numericInput("event_one", "100m (s):", 10.87, min = 0, max = 100, step = 0.1, width = "80%")),
                  padding("value_one")
       )),
+      fluidRow(checkboxInput("handtime_100m", "Hand timed", value = F)),
       fluidRow(
         fluidRow(column(6, numericInput("event_two", "Long jump (m):", 7.6, min = 0, max = 100, step = 0.1, width = "80%")),
                  padding("value_two")
@@ -27,10 +29,12 @@ navbarPage(theme = shinythemes::shinytheme("sandstone"),
         fluidRow(column(6, numericInput("event_five", "400m (s)", 50, min = 0, max = 100, step = 0.2, width = "80%")),
                  padding("value_five")
         )),
+      fluidRow(checkboxInput("handtime_400m", "Hand timed", value = F)),
       fluidRow(
         fluidRow(column(6, numericInput("event_six", "110m hurdles (s):", 16, min = 0, max = 100, step = 0.1, width = "80%")),
                  padding("value_six")
         )),
+      fluidRow(checkboxInput("handtime_110mh", "Hand timed", value = F)),
       fluidRow(
         fluidRow(column(6, numericInput("event_seven", "Discus throw (m):", 42, min = 0, max = 100, step = 0.5, width = "80%")),
                  padding("value_seven")
@@ -137,28 +141,16 @@ navbarPage(theme = shinythemes::shinytheme("sandstone"),
            navbarPage(title = "",
                       tabPanel("Decathlon", navlistPanel(
                         widths = c(2, 10),
-                        tabPanel("100m", 
-                                 plotlyOutput("plotly_dec100m", height = "800px")),
-                        tabPanel("Long jump",
-                                 plotlyOutput("plotly_declj", height = "800px")),
-                        tabPanel("Shot put",
-                                 plotlyOutput("plotly_decsp", height = "800px")),
-                        tabPanel("High jump",
-                                 plotlyOutput("plotly_dechj", height = "800px")),
-                        tabPanel("400m",
-                                 plotlyOutput("plotly_dec400m", height = "800px")),
-                        tabPanel("110m hurdles",
-                                 plotlyOutput("plotly_dec110mh", height = "800px")),
-                        tabPanel("Discus throw",
-                                 plotlyOutput("plotly_decdt", height = "800px")),
-                        tabPanel("Pole vault",
-                                 plotlyOutput("plotly_decpv", height = "800px")),
-                        tabPanel("Javelin throw",
-                                 plotlyOutput("plotly_decjt", height = "800px")),
-                        tabPanel("1500m",
-                                 plotlyOutput("plotly_dec1500m", height = "800px")),
-                        h6("Note: may take a few seconds to load")
-                      ),
+                        s2ppanel("100m", "plotly_dec100m"),
+                        s2ppanel("Long Jump", "plotly_declj"),
+                        s2ppanel("Shot put", "plotly_decsp"),
+                        s2ppanel("High jump", "plotly_dechj"),
+                        s2ppanel("400m", "plotly_dec400m"),
+                        s2ppanel("110m hurdles", "plotly_dec110mh"),
+                        s2ppanel("Discus throw", "plotly_decdt"),
+                        s2ppanel("Pole vault", "plotly_decpv"),
+                        s2ppanel("Javelin throw", "plotly_decjt"),
+                        s2ppanel("1500m", "plotly_dec1500m"))
                       ),
                       tabPanel("Heptathlon (coming soon)", navlistPanel(
                         widths = c(2, 10),
@@ -172,18 +164,32 @@ navbarPage(theme = shinythemes::shinytheme("sandstone"),
                       ))
                       )
            ),
-  tabPanel("Heat Plots",
-           navbarPage(title = "",
-                      tabPanel("Decathlon", 
-                               radioButtons("decathlon_tile_choose", 
-                                            label = NULL, 
-                                            inline = T,
-                                            choices = c("Score" = "score",
-                                              "Points" = "points")),
-                               plotOutput("decathlon_heatplot_points", height = "800px")),
-                      tabPanel("Heptathlon (coming soon)")
-           )
-  ),
+  ## 4) Data Visualisations####
+  tabPanel("Data Visualisations",
+           navlistPanel(
+             widths = c(2, 10),
+             tabPanel("Heat Plots",
+                      tabsetPanel(
+                        tabPanel(
+                          "Decathlon",
+                          radioButtons(
+                            "decathlon_tile_choose",
+                            label = NULL,
+                            inline = T,
+                            choices = c("Score" = "score",
+                                        "Points" = "points")
+                          ),
+                          plotOutput("decathlon_heatplot_points", height = "800px")
+                        ),
+                        tabPanel("Heptathlon (coming soon)")
+                      )),
+             tabPanel(
+               "Final Score Ordered Bar Plots",
+               tabsetPanel(tabPanel("Decathlon", 
+                                    plotlyOutput("OFSP_plot_decathlon")),
+                           tabPanel("Heptathlon (coming soon)"))
+             )
+           )),   
   ## 4) Custom Data ####
   tabPanel("Custom Data (coming soon)", 
            titlePanel(HTML(paste0("Upload completed multievents competition"))),
@@ -195,8 +201,7 @@ navbarPage(theme = shinythemes::shinytheme("sandstone"),
              sidebarPanel(width = 2,
                
                # Input: Select a file ----
-               fileInput("file1", "Choose CSV File",
-                         multiple = TRUE,
+               fileInput("file1", "Upload CSV File",
                          accept = c("text/csv",
                                     "text/comma-separated-values,text/plain",
                                     ".csv")),
@@ -234,11 +239,19 @@ navbarPage(theme = shinythemes::shinytheme("sandstone"),
              
              # Main panel for displaying outputs ----
              mainPanel(
+               tabsetPanel(
+                 tabPanel("Instructions",
                "Allow user to input complete decathlon in .csv/.xslx format and allow for plot creation. Think UX.",
+               tags$br(),tags$br(),
+               "Step 1) Upload a .csv or .xslx file in the following format:",tags$br(),tags$br(),
+               "<Screenshot of excel spreadsheet here>",tags$br(),tags$br(),
+               "The primary requirement for this feature to function is that the dataset has to have points the athletes have scored in in sequential columns, in the order the decathlon/heptathlon events take place. Ranking order, points conversion, or other miscellaneous columns not required."),
                
                # Output: Data file ----
+               tabPanel("Output",
                tableOutput("contents")
-               
+               )
+             )
              )
              
            )),
@@ -268,7 +281,7 @@ navbarPage(theme = shinythemes::shinytheme("sandstone"),
                  fluidRow(column(
                    6, div(style = "text-align:right", tags$b("Height: "))
                  ),
-                 column(6, "Coming soon")),
+                 column(6, "Scrape from sports-reference")),
                  
                              )),
              tags$br(),
@@ -301,13 +314,23 @@ navbarPage(theme = shinythemes::shinytheme("sandstone"),
                       "The radar plot maps the relative performance of the athlete's average performance in the pre-defined categories against other athletes' average performance through standardisation. Post-transformation using 0-1 normalisation is applied to align the grid-rings.",
                       tags$br(),tags$br(),
                       "This can be notated by:",
-                      withMathJax("$$\\frac{\\sum_{i}^a\\sum_{j}^b x_{ij}}{ab}\\!$$'"),
-                      helpText("Where test test alpha latin ggibbe"))
+                      withMathJax("$$\\frac{\\sum_{i}^a\\sum_{j}^b x_{ij}}{|a||b|}\\!$$'"),
+             tags$div(HTML("<script type='text/x-mathjax-config' >
+            MathJax.Hub.Config({
+            tex2jax: {inlineMath: [['$','$']]}
+            });
+            </script >
+            ")),
+             ## tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]} remove the brackets otherwise it fucks up the formatting in the app globally
+             paste0("Where $a$ = the set of the unique events in each category and $b$ = the set of the number of competitions the athlete has participated in. Thus $x_{ij}$ is simply the number of points the athlete received in the $i$th event of $j$th competition.")
+             ## If we let Z represent the set of athletes featured in the dataset, and Y for one of our four categories 
+             )
              )
              ),
            mainPanel(
              div(DT::dataTableOutput("individual_athlete_profile"), style = "font-size: 82.5%; width: 110%"),
-                     "What to include here..")
+                     "What to include here..",
+             textOutput("athlete_df_idx"))
            )
            )
   , 
@@ -364,5 +387,15 @@ navbarPage(theme = shinythemes::shinytheme("sandstone"),
            )
   ),
   tabPanel("test",
-           DT::dataTableOutput("foobar"))
+           DT::dataTableOutput("foobar")),
+  tabPanel("To do",
+           "Update hand timed checkbox for table and plot",
+           tags$br(),
+           "Fix sidebar plots on datasets page",
+           tags$br(),
+           "Think of plot for athlete page",
+           tags$br(),
+           "Create customer user upload",
+           tags$br(),
+           "Convert 1500m to display mm:ss")
 )

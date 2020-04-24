@@ -4,12 +4,32 @@ function(input, output) {
 
 
       ## 1)  Decathlon ####
-        output$value_one <- renderText({ dec_100m(input$event_one) })
+        output$value_one <- renderText({dec_100m(if (input$handtime_100m == T) {
+          input$event_one + 0.24
+        } else {
+          input$event_one
+        }
+                                                  )})
         output$value_two <- renderText({ dec_lj(input$event_two) })
         output$value_three <- renderText({ dec_sp(input$event_three) })
         output$value_four <- renderText({ dec_hj(input$event_four) })
-        output$value_five <- renderText({ dec_400m(input$event_five) })
-        output$value_six <- renderText({ dec_110mh(input$event_six) })
+        
+        output$value_five <- renderText({dec_400m(if (input$handtime_400m == T) {
+          input$event_five + 0.14
+        } else {
+          input$event_five
+        }
+        )})
+        
+        
+        output$value_six <- renderText({dec_110mh(if (input$handtime_110mh == T) {
+          input$event_six + 0.24
+        } else {
+          input$event_six
+        }
+        )})
+        
+        
         output$value_seven <- renderText({ dec_dt(input$event_seven) })
         output$value_eight <- renderText({ dec_pv(input$event_eight) })
         output$value_nine <- renderText({ dec_jt(input$event_nine) })
@@ -117,62 +137,63 @@ function(input, output) {
         
         ## Visualisations ####
         
-        barplotcreation <- function(event, event_text, exnum_rows_selected) {renderPlotly({
-          
-          hasClick <- input[[exnum_rows_selected]]
-          
-          if (is.null(hasClick)) return(NULL) ## shows blank plot otherwise
-          
-          temp_shiny <- display_dfs[hasClick, ] %>%
-            gather(key = "event", value = "points", `100m`:`1500m`) %>%
-            mutate_at(.vars = "event", .funs = as_factor)
-          
-          if (length(hasClick) == 1) {
-          
-            
-            foobar <- temp_shiny %>% 
-            ggplot(aes(event, points)) + 
-            geom_bar(stat = "identity", alpha = 0.75) +
-            scale_y_continuous(limits = c(0,1100),
-                               breaks = seq(0, 1200, 200)) +
-            labs(x = "Event",
-                 y = "Points",
-                 title = paste0(unique(temp_shiny$Year), " ", event_text, ", ", unique(temp_shiny$Athlete)),
-                 subtitle = paste0(unique(temp_shiny$Country), "\n", "Final rank: ", unique(temp_shiny$Rank))
-            )
-            
-            ggplotly(foobar)
-            
-            } else {
-              temp_shiny$Athlete <- paste0(temp_shiny$Year, " | ", temp_shiny$Rank, " | ", temp_shiny$Country, " | ", temp_shiny$Athlete)
-              
-              foobar <- temp_shiny %>%
-                ggplot(aes(event, points, fill = Athlete)) +
-                geom_bar(stat = "identity", alpha = 0.66, colour = "black", size = 0.25, position = "dodge") +
-                scale_y_continuous(limits = c(0, 1100),
-                                   breaks = seq(0, 1200, 200),
-                                   expand = c(0,0)) +
-                scale_fill_brewer(name = "Year | Rank | Country | Athlete",
-                                  palette = "Set1") +
-                labs(
-                  x = "Event",
-                  y = "Points",
-                  title = event_text) +
-                coord_flip()
-              
-              ggplotly(foobar)
-              
-              
-            } ## selecting 2+ rows
-          
-          
-          
-        })}
+        # barplotcreation <- function(event, event_text, exnum_rows_selected) {renderPlotly({
+        #   
+        #   hasClick <- input[[exnum_rows_selected]]
+        #   
+        #   if (is.null(hasClick)) return(NULL) ## shows blank plot otherwise
+        #   
+        #   temp_shiny <- display_dfs[hasClick, ] %>%
+        #     gather(key = "event", value = "points", `100m`:`1500m`) %>%
+        #     mutate_at(.vars = "event", .funs = as_factor)
+        #   
+        #   if (length(hasClick) == 1) {
+        #   
+        #     
+        #     foobar <- temp_shiny %>% 
+        #     ggplot(aes(event, points)) + 
+        #     geom_bar(stat = "identity", alpha = 0.75) +
+        #     scale_y_continuous(limits = c(0,1100),
+        #                        breaks = seq(0, 1200, 200)) +
+        #     labs(x = "Event",
+        #          y = "Points",
+        #          title = paste0(unique(temp_shiny$Year), " ", event_text, ", ", unique(temp_shiny$Athlete)),
+        #          subtitle = paste0(unique(temp_shiny$Country), "\n", "Final rank: ", unique(temp_shiny$Rank))
+        #     )
+        #     
+        #     ggplotly(foobar)
+        #     
+        #     } else {
+        #       temp_shiny$Athlete <- paste0(temp_shiny$Year, " | ", temp_shiny$Rank, " | ", temp_shiny$Country, " | ", temp_shiny$Athlete)
+        #       
+        #       foobar <- temp_shiny %>%
+        #         ggplot(aes(event, points, fill = Athlete)) +
+        #         geom_bar(stat = "identity", alpha = 0.66, colour = "black", size = 0.25, position = "dodge") +
+        #         scale_y_continuous(limits = c(0, 1100),
+        #                            breaks = seq(0, 1200, 200),
+        #                            expand = c(0,0)) +
+        #         scale_fill_brewer(name = "Year | Rank | Country | Athlete",
+        #                           palette = "Set1") +
+        #         labs(
+        #           x = "Event",
+        #           y = "Points",
+        #           title = event_text) +
+        #         coord_flip()
+        #       
+        #       ggplotly(foobar)
+        #       
+        #       
+        #     } ## selecting 2+ rows
+        #   
+        #   
+        #   
+        # })}
         
         
-        output$bar_olympics <- barplotcreation("olympics", "Olympics", "ex1_rows_selected")
-        output$bar_wc <- barplotcreation("world_championships", "World Championships", "ex2_rows_selected")
-        output$bar_gotzis <- barplotcreation("gotzis", "Gotzis Hypomeeting", "ex3_rows_selected")
+        # output$bar_olympics <- barplotcreation("olympics", "Olympics", "ex1_rows_selected")
+        # output$bar_wc <- barplotcreation("world_championships", "World Championships", "ex2_rows_selected")
+        # output$bar_gotzis <- barplotcreation("gotzis", "Gotzis Hypomeeting", "ex3_rows_selected")
+        ## Heatplot ####
         
         output$decathlon_heatplot_points <- renderPlot({
           
@@ -182,6 +203,42 @@ function(input, output) {
           
           tile_function(choose)
           })
+        
+        ## Final Score ####
+        
+        ultimate_df_list[["ultimate_df_points_with_cats"]] -> OFSP_plot
+        OFSP_plot$usethis <- with(OFSP_plot, paste0(Year, " ", comp, ", ", Athlete))
+        OFSP_plot$rank_cat_extended %<>% fct_recode("Non-Medallist" = "Other")
+        
+        OFSP_plot_p <- OFSP_plot %>% ggplot(aes(reorder(usethis, finalscore), finalscore, fill = rank_cat_extended, text = 
+                                                  paste0("Competition: ", Year, " ", comp, "\n",
+                                                         "Athlete: ", Athlete))) + 
+          theme_bw() +
+          labs(y = "Final Score") +
+          geom_bar(stat = "identity") +
+          theme(axis.text.x = element_blank(), 
+                axis.ticks.x = element_blank(),
+                panel.background = element_rect(fill = 'black', colour = 'red'),
+                panel.grid.major.x = element_blank(), 
+                axis.title.x = element_blank(), 
+                legend.title = element_blank()) +
+          scale_y_continuous(expand = expansion(mult = c(0, .1)),
+                             limits = c(7000, 9200),
+                             breaks = seq(7000, 9500, 100),
+                             oob = scales::rescale_none) +
+          scale_fill_manual(values = c("darkgoldenrod1", "azure3", "darkgoldenrod4", "lightpink"))
+        
+        OFSP_plot_p <- OFSP_plot_p %>% plotly::ggplotly(tooltip = c("text", "y"))
+        
+        OFSP_plot_p[["x"]][["data"]] <- map(OFSP_plot_p[["x"]][["data"]],
+                                          ~ {
+                                            .x$text <- str_replace_all(.x$text,"finalscore","Final Score")
+                                            # .x$marker$line$width <- 1 ## bar outline width
+                                            
+                                            return(.x)
+                                          })
+        
+        output$OFSP_plot_decathlon <- renderPlotly(OFSP_plot_p)
         
   ## Upload custom Files ####
         
@@ -199,8 +256,6 @@ function(input, output) {
           read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote)
         })
       
-        # output$wewew <- renderPrint(input$filter_100m)
-        
 ## Athlete Profile ####
         
         for_indiv_athlete_tab <-
@@ -224,7 +279,8 @@ function(input, output) {
               DT::datatable(df,
                             class = 'cell-border compact',
                             rownames = FALSE,
-                            options = list(pageLength = 25, scrollX = TRUE),
+                            options = list(pageLength = 10, scrollX = TRUE,
+                                           dom = "ltipr"),
                             container = htmltools::withTags(table(
                               thead(
                                 tr(
@@ -279,6 +335,8 @@ function(input, output) {
         # 
         #   return(this_plot)
         # })
+        
+        output$athlete_df_idx <-  renderText(input$individual_athlete_profile_rows_selected)
         
         ## Scrapping ####
         
@@ -527,8 +585,10 @@ output$scatterplot3d <- renderPlotly({
              x = ~get(x_choose), 
              y = ~get(y_choose),
              z = ~get(z_choose),
-             color = ~select_athlete,
-             colors = c('#757575', '#0C4B8E'),
+          symbol =  ~select_athlete,
+          symbols = c("diamond", "circle"),
+          color = ~get(x_choose),
+          colors = RColorBrewer::brewer.pal(11, "Spectral")[c(1:4, 8:11)],
              text = ~ paste(Athlete),
              alpha = 0.66,
              hoverinfo = 'text',
@@ -537,6 +597,10 @@ output$scatterplot3d <- renderPlotly({
                       yaxis = list(title = input$scatter3d_y),
                       zaxis = list(title = input$scatter3d_z)
                       )
+         # ,
+         # paper_bgcolor = 'rgb(0, 0, 0)',
+         # plot_bgcolor = 'rgb(0, 0, 0)',
+         # xaxis = list(color = "rgb(255, 255, 255)")
          )
   }
   )
