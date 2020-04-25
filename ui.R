@@ -281,7 +281,7 @@ navbarPage(
                  fluidRow(column(
                    6, div(style = "text-align:right", tags$b("Height: "))
                  ),
-                 column(6, "Scrape from sports-reference")),
+                 column(6, htmlOutput("height", inline = T), "cm")),
                  
                              )),
              tags$br(),
@@ -328,9 +328,15 @@ navbarPage(
              )
              ),
            mainPanel(
-             div(DT::dataTableOutput("individual_athlete_profile"), style = "font-size: 82.5%; width: 110%"),
-                     "What to include here..",
-             textOutput("athlete_df_idx"))
+             div(DT::dataTableOutput("individual_athlete_profile"), 
+                 style = "font-size: 82.5%; width: 110%"),
+             tags$br(),
+             tabsetPanel(tabPanel("Avg Cumulative Plot", plotlyOutput("athlete_cumulative_plot", height = "400px")),
+                         tabPanel("About", 
+                                  tags$br(),
+                                  "This plot shows the change in the cumulative average of the athlete's points over the selected competition(s)")
+                         )
+             )
            )
            )
   , 
@@ -387,13 +393,15 @@ navbarPage(
            )
   ),
   tabPanel("test",
-           DT::dataTableOutput("foobar")),
+           DT::dataTableOutput("foobar"),
+           textOutput("text_test"),
+           textOutput("athlete_df_idx")),
   tabPanel("To do",
            "Update hand timed checkbox for table and plot",
            tags$br(),
-           "Fix sidebar plots on datasets page",
+           "Fix sidebar plots on datasets page - DONE",
            tags$br(),
-           "Think of plot for athlete page",
+           "Think of plot for athlete page - DONE",
            tags$br(),
            "Create customer user upload",
            tags$br(),

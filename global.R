@@ -14,7 +14,7 @@ dfs_score <- readRDS("dfs_score.Rds")
 ultimate_df_list <- readRDS("E:/clean_analysis/ultimate_df_list.Rds")
 athlete_info <- readRDS("athlete_info_tbl.Rds")
 
-## DF - Joined Cols ###
+## DF - Joined Cols ####
 
 dfs <- map(dfs, ~ {
   
@@ -69,6 +69,10 @@ source("merge_df.R")
 
 athlete_names <- ultimate_df_list[["ultimate_df_points"]] %>% pull(Athlete) %>% unique() %>% sort()
 
+## UI - For tab df plot ####
+
+source("FF.R")
+
 ## UI - tab df modules ####
 
 decathlon_tabs <-
@@ -94,6 +98,8 @@ decathlon_tabs <-
             selectize = TRUE
           ),
           plotlyOutput(plotoutputlabel, height = "550"),
+          tags$br(),
+          "Maximum of 10 athletes allowed for plot",
           width = 3
           )
         )
@@ -377,3 +383,41 @@ radar_colourbar_func <- function(athletename, grouping) {
   return(hexfillfunction(usethishex))
   
 }
+
+## SERVER - +11 athletes plot ####
+
+plus11athletes <- ultimate_df_standardised_global %>% ggplot(aes(event)) +
+  geom_hline(yintercept = 0, linetype = "dotdash") +
+  geom_linerange(aes(ymin = min, ymax = max)) +
+  labs(y = "z-score") +
+  scale_y_continuous(breaks = seq(-5, 4, 1)) +
+  scale_x_discrete(limits = rev(levels(ultimate_df_standardised_global$event))) +
+  theme(axis.title.y = element_blank()) +
+  coord_flip()
+
+plus11athletes <- plotly::ggplotly(plus11athletes) %>% 
+  layout(title = list(text = "Warning: More than 10 athletes selected",
+                      font = list(color = "red",
+                                  size = 12)))
+
+plus11athletes[["x"]][["data"]][[2]][["line"]]$width <- 1
+
+## SERVER - Athlete Cum DF ####
+
+voop <- ultimate_df_list[["ultimate_df_cum"]] %>%
+  mutate(
+    LJ = LJ / 2,
+    SP = SP / 3,
+    HJ = HJ / 4,
+    X400m = X400m / 5,
+    X110mh = X110mh / 6,
+    DT = DT / 7,
+    PV = PV / 8,
+    JT = JT / 9,
+    X1500m = X1500m / 10,
+    Event_Athlete_ID = paste(Year, comp, Athlete),
+    EventOnly = paste(Year, comp)
+  ) %>%
+  pivot_longer(cols = c(X100m:X1500m), names_to = "event") %>%
+  mutate_at("event", str_replace_all, "X", "") %>%
+  mutate_at("event", as_factor)

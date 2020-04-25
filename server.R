@@ -4,58 +4,94 @@ function(input, output) {
 
 
       ## 1)  Decathlon ####
-        output$value_one <- renderText({dec_100m(if (input$handtime_100m == T) {
-          input$event_one + 0.24
-        } else {
-          input$event_one
-        }
-                                                  )})
-        output$value_two <- renderText({ dec_lj(input$event_two) })
-        output$value_three <- renderText({ dec_sp(input$event_three) })
-        output$value_four <- renderText({ dec_hj(input$event_four) })
-        
-        output$value_five <- renderText({dec_400m(if (input$handtime_400m == T) {
-          input$event_five + 0.14
-        } else {
-          input$event_five
-        }
-        )})
-        
-        
-        output$value_six <- renderText({dec_110mh(if (input$handtime_110mh == T) {
-          input$event_six + 0.24
-        } else {
-          input$event_six
-        }
-        )})
-        
-        
-        output$value_seven <- renderText({ dec_dt(input$event_seven) })
-        output$value_eight <- renderText({ dec_pv(input$event_eight) })
-        output$value_nine <- renderText({ dec_jt(input$event_nine) })
-        output$value_ten <- renderText({ dec_1500m(input$event_ten) })
+  
+## Raw Calculations ####
+  
+  custom_100m <- reactive({
+    if (input$handtime_100m == T) {
+    input$event_one + 0.24
+  } else {
+    input$event_one
+  }
+  })
+  custom_400m <- reactive({if (input$handtime_400m == T) {
+    input$event_five + 0.14
+  } else {
+    input$event_five
+  }
+  })
+  custom_110mh <- reactive({if (input$handtime_110mh == T) {
+    input$event_six + 0.24
+  } else {
+    input$event_six
+  }
+  })
+  
+  ## These have hand-times
+  output$value_one <-
+    renderText({
+      dec_100m(custom_100m())
+    })
+  output$value_five <-
+    renderText({
+      dec_400m(custom_400m())
+    })
+  output$value_six <-
+    renderText({
+      dec_110mh(custom_110mh())
+    })
+  
+  output$value_two <- renderText({
+    dec_lj(input$event_two)
+  })
+  output$value_three <-
+    renderText({
+      dec_sp(input$event_three)
+    })
+  output$value_four <-
+    renderText({
+      dec_hj(input$event_four)
+    })
+  output$value_seven <-
+    renderText({
+      dec_dt(input$event_seven)
+    })
+  output$value_eight <-
+    renderText({
+      dec_pv(input$event_eight)
+    })
+  output$value_nine <-
+    renderText({
+      dec_jt(input$event_nine)
+    })
+  output$value_ten <-
+    renderText({
+      dec_1500m(input$event_ten)
+    })
         
         output$dec_table <- renderTable({
-    decathlon_s2p(input$event_one,
-                               input$event_two,
-                               input$event_three,
-                               input$event_four,
-                               input$event_five,
-                               input$event_six,
-                               input$event_seven,
-                               input$event_eight,
-                               input$event_nine,
-                               input$event_ten)
+          decathlon_s2p(
+            custom_100m(),
+            input$event_two,
+            input$event_three,
+            input$event_four,
+            custom_400m(),
+            custom_110mh(),
+            input$event_seven,
+            input$event_eight,
+            input$event_nine,
+            input$event_ten
+          )
   })
         
         output$dec_plot <- renderPlot({
           decathlon_vis(
-            input$event_one,
+            custom_100m(),
             input$event_two,
             input$event_three,
             input$event_four,
-            input$event_five,
-            input$event_six,
+            custom_400m(),
+            custom_110mh(),
             input$event_seven,
             input$event_eight,
             input$event_nine,
@@ -137,62 +173,148 @@ function(input, output) {
         
         ## Visualisations ####
         
-        # barplotcreation <- function(event, event_text, exnum_rows_selected) {renderPlotly({
-        #   
-        #   hasClick <- input[[exnum_rows_selected]]
-        #   
-        #   if (is.null(hasClick)) return(NULL) ## shows blank plot otherwise
-        #   
-        #   temp_shiny <- display_dfs[hasClick, ] %>%
-        #     gather(key = "event", value = "points", `100m`:`1500m`) %>%
-        #     mutate_at(.vars = "event", .funs = as_factor)
-        #   
-        #   if (length(hasClick) == 1) {
-        #   
-        #     
-        #     foobar <- temp_shiny %>% 
-        #     ggplot(aes(event, points)) + 
-        #     geom_bar(stat = "identity", alpha = 0.75) +
-        #     scale_y_continuous(limits = c(0,1100),
-        #                        breaks = seq(0, 1200, 200)) +
-        #     labs(x = "Event",
-        #          y = "Points",
-        #          title = paste0(unique(temp_shiny$Year), " ", event_text, ", ", unique(temp_shiny$Athlete)),
-        #          subtitle = paste0(unique(temp_shiny$Country), "\n", "Final rank: ", unique(temp_shiny$Rank))
-        #     )
-        #     
-        #     ggplotly(foobar)
-        #     
-        #     } else {
-        #       temp_shiny$Athlete <- paste0(temp_shiny$Year, " | ", temp_shiny$Rank, " | ", temp_shiny$Country, " | ", temp_shiny$Athlete)
-        #       
-        #       foobar <- temp_shiny %>%
-        #         ggplot(aes(event, points, fill = Athlete)) +
-        #         geom_bar(stat = "identity", alpha = 0.66, colour = "black", size = 0.25, position = "dodge") +
-        #         scale_y_continuous(limits = c(0, 1100),
-        #                            breaks = seq(0, 1200, 200),
-        #                            expand = c(0,0)) +
-        #         scale_fill_brewer(name = "Year | Rank | Country | Athlete",
-        #                           palette = "Set1") +
-        #         labs(
-        #           x = "Event",
-        #           y = "Points",
-        #           title = event_text) +
-        #         coord_flip()
-        #       
-        #       ggplotly(foobar)
-        #       
-        #       
-        #     } ## selecting 2+ rows
-        #   
-        #   
-        #   
-        # })}
+        barplotcreation <-
+          function(event_name_in_df, exnum_rows_selected) {
+            renderPlotly({
+              hasClick <- input[[exnum_rows_selected]]
+              
+              if (is.null(hasClick)) {
+                
+                df_selected <- ultimate_df_standardised_global %>% ggplot(aes(event)) +
+                  geom_hline(yintercept = 0, linetype = "dotdash") +
+                  geom_linerange(aes(ymin = min, ymax = max)) +
+                  labs(y = "z-score") +
+                  scale_y_continuous(breaks = seq(-5, 4, 1)) +
+                  scale_x_discrete(limits = rev(levels(ultimate_df_standardised_global$event))) +
+                  theme(axis.title.y = element_blank()) +
+                  coord_flip()
+                
+                plot <- plotly::ggplotly(df_selected)
+                plot[["x"]][["data"]][[2]][["line"]]$width <- 1
+                
+                return(plot)
+                
+                
+              }
+              
+              if (length(hasClick) >= 1 & length(hasClick) < 11) {
+                
+                df <- ultimate_df_standardised_global %>% filter(comp == event_name_in_df)
+                
+                athlete_names <- display_dfs[hasClick, "Athlete"]
+                years <- display_dfs[hasClick, "Year"]
+                
+                df <- map2_dfr(athlete_names, years, ~ df %>% filter(Athlete == .x, Year == .y))
+                
+                plot <-
+                  df %>%
+                  filter(comp == event_name_in_df, Athlete %in% athlete_names) %>%
+                  ggplot(aes(event, score, group = Athlete)) +
+                  geom_hline(yintercept = 0, linetype = "dotdash") +
+                  geom_linerange(aes(ymin = min, ymax = max)) +
+                  geom_point(aes(colour = Athlete), size = 2) +
+                  geom_line(aes(colour = Athlete)) +
+                  labs(y = "z-score") +
+                  scale_y_continuous(breaks = seq(-5, 4, 1)) +
+                  scale_x_discrete(limits = rev(levels(
+                    df$event
+                  ))) +
+                  theme(axis.title.y = element_blank()) +
+                  coord_flip()
+                
+                plot <- plot %>% plotly::ggplotly() %>%
+                         layout(legend = list(
+                           orientation = "h",
+                           x = 0.25,
+                           y = 10
+                         ))
+                plot[["x"]][["data"]][[2]][["line"]]$width <- 1
+                return(plot)
+                
+                
+              }
+                
+                if (length(hasClick) >= 11) {
+                  
+                  return(plus11athletes)
+                  
+                }
+                
+            })
+          }
         
+          output$bar_olympics <- barplotcreation("Olympics", "ex1_rows_selected")
+          output$bar_wc <- barplotcreation("Worlds", "ex2_rows_selected")
+          output$bar_gotzis <- barplotcreation("Gotzis", "ex3_rows_selected")
+          
+          output$text_test <- renderText({
+
+            hasClick <- input[["ex1_rows_selected"]]
+
+            if (is.null(hasClick))
+              return(NULL)
+
+            if (length(hasClick) >= 1) {
+              athlete_names <- display_dfs[hasClick, "Athlete"]
+              years <- display_dfs[hasClick, "Year"]
+            }
+
+            return(paste0(athlete_names, years))
+
+          }
+          )
+          
+          
+          
+################################  depreciated code for old plots  
+     # if (length(hasClick) == 1) {
+          # 
+          # 
+          #   foobar <- temp_shiny %>%
+          #   ggplot(aes(event, points)) +
+          #   geom_bar(stat = "identity", alpha = 0.75) +
+          #   scale_y_continuous(limits = c(0,1100),
+          #                      breaks = seq(0, 1200, 200)) +
+          #   labs(x = "Event",
+          #        y = "Points",
+          #        title = paste0(unique(temp_shiny$Year), " ", event_text, ", ", unique(temp_shiny$Athlete)),
+          #        subtitle = paste0(unique(temp_shiny$Country), "\n", "Final rank: ", unique(temp_shiny$Rank))
+          #   )
+          # 
+          #   ggplotly(foobar)
+          # 
+          #   } else {
+          #     temp_shiny$Athlete <- paste0(temp_shiny$Year, " | ", temp_shiny$Rank, " | ", temp_shiny$Country, " | ", temp_shiny$Athlete)
+          # 
+          #     foobar <- temp_shiny %>%
+          #       ggplot(aes(event, points, fill = Athlete)) +
+          #       geom_bar(stat = "identity", alpha = 0.66, colour = "black", size = 0.25, position = "dodge") +
+          #       scale_y_continuous(limits = c(0, 1100),
+          #                          breaks = seq(0, 1200, 200),
+          #                          expand = c(0,0)) +
+          #       scale_fill_brewer(name = "Year | Rank | Country | Athlete",
+          #                         palette = "Set1") +
+          #       labs(
+          #         x = "Event",
+          #         y = "Points",
+          #         title = event_text) +
+          #       coord_flip()
+          # 
+          #     ggplotly(foobar)
+          # 
+          # 
+          #   } ## selecting 2+ rows
+
+
+
+        # })}
         
         # output$bar_olympics <- barplotcreation("olympics", "Olympics", "ex1_rows_selected")
         # output$bar_wc <- barplotcreation("world_championships", "World Championships", "ex2_rows_selected")
         # output$bar_gotzis <- barplotcreation("gotzis", "Gotzis Hypomeeting", "ex3_rows_selected")
+        
+################################  DEPRECIATED ^^^^^^^^^^      
+        
         ## Heatplot ####
         
         output$decathlon_heatplot_points <- renderPlot({
@@ -269,14 +391,18 @@ function(input, output) {
           "World Championships" = "world_championships",
           "G\u00f6tzis" = "gotzis"
         )
+        for_indiv_athlete_tab %<>% arrange(Date)
         
         # for_indiv_athlete_tab <- as.data.frame(for_indiv_athlete_tab)
+        
+        athlete_df <- NULL
+        
         output$individual_athlete_profile <-
           renderDataTable(
             {
-              df <- within(for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select), ], rm(Athlete, Country, Year)) %>% arrange(Date) ## remove unneeded columns
+              athlete_df <<- within(for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select), ], rm(Athlete, Country, Year)) ## remove unneeded columns
               
-              DT::datatable(df,
+              DT::datatable(athlete_df,
                             class = 'cell-border compact',
                             rownames = FALSE,
                             options = list(pageLength = 10, scrollX = TRUE,
@@ -312,31 +438,46 @@ function(input, output) {
           }
           )
         
+        ## Athlete Profile - Cum Plot ####
         
-        # output$individual_athlete_plot <- renderPlot({
-        #   foobar <-
-        #     for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select), ]
-        # 
-        #   foobar %<>% pivot_longer(`Final Score`:`1500m`, "Event", values_to = "Score") %>% unite("Major Event", c(`Major Event`, Year), sep = " ") %>% arrange(Date)
-        #   foobar$`Major Event` %<>% as_factor()
-        # 
-        #   this_plot <- foobar %>% ggplot(aes(`Major Event`, Score, group = Event, fill = `Major Event`)) +
-        #     geom_bar(stat = "identity", alpha = 2 / 3) +
-        #     facet_wrap("Event",
-        #                nrow = 2,
-        #                ncol = 6,
-        #                scales = "free") +
-        #     theme(axis.text.x = element_text(
-        #       angle = 45,
-        #       hjust = 1,
-        #       vjust = 1
-        #     )) +
-        #     scale_fill_brewer(palette = "Set1")
-        # 
-        #   return(this_plot)
-        # })
+        output$athlete_cumulative_plot <- renderPlotly({
+          
+          if (is.null(input$individual_athlete_profile_rows_selected)) {
+            voop_plot <-
+              voop %>%
+              ggplot(aes(event, value, group = Event_Athlete_ID)) +
+              geom_line(alpha = 0.05) +
+              labs(y = "Average Points") +
+              theme(legend.title = element_blank(), 
+                    axis.title.x = element_blank())
+
+            voop_plot <- ggplotly(voop_plot)
+            voop_plot[["x"]][["data"]][[1]][["line"]][["width"]] <- 1
+            voop_plot
+          } else {
+          dates <- athlete_df[input$individual_athlete_profile_rows_selected,] %>% pull("Date")
+
+          voop_plot <-
+            voop %>% filter(!(Athlete == input$athlete_select & date %in% c(dates))) %>%
+            ggplot(aes(event, value, group = Event_Athlete_ID)) +
+            geom_line(alpha = 0.05) +
+            geom_line(data = voop %>% filter(Athlete == input$athlete_select &
+                                               date %in% c(dates)), aes(colour = EventOnly)) +
+            labs(y = "Average Points") +
+            scale_color_brewer(palette = "Paired") +
+            theme(legend.title = element_blank(),
+                  axis.title.x = element_blank())
+
+          voop_plot <- ggplotly(voop_plot)
+          voop_plot[["x"]][["data"]][[1]][["line"]][["width"]] <- 1
+          voop_plot
+          }
+
+        })
         
-        output$athlete_df_idx <-  renderText(input$individual_athlete_profile_rows_selected)
+        output$athlete_df_idx <-  renderText({
+          athlete_df[input$individual_athlete_profile_rows_selected,] %>% pull("Date")
+        })
         
         ## Scrapping ####
         
@@ -348,6 +489,7 @@ function(input, output) {
         output$iaaf_code <- renderText(athlete_info[[which(athlete_info$Athlete == input$athlete_select),"iaaf_code"]])
         output$athlete_specific <- renderText(input$athlete_select)
         output$athlete_country <- renderText(athlete_info[[which(athlete_info$Athlete == input$athlete_select),"Country"]])
+        output$height <- renderText(athlete_info[[which(athlete_info$Athlete == input$athlete_select),"Height"]])
 
 ## S2P functions ####
 

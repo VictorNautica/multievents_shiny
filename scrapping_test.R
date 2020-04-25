@@ -154,6 +154,18 @@ fix_athlete_idx <- which(
 
 athlete_info_tbl[fix_athlete_idx,"Athlete"] <- ultimate_df_list[["ultimate_df_points"]] %>% pull(Athlete) %>% unique() %>% sort() %>% .[fix_athlete_idx]
 
+athlete_info_tbl$Height <- NA
+
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Adam Helcelet"), "Height"] <- 190
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Ashton Eaton"), "Height"] <- 185
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Bryan Clay"), "Height"] <- 178
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Ashley Bryant"), "Height"] <- 178
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Kévin Mayer"), "Height"] <- 186
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Keisuke Ushiro"), "Height"] <- 196
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Attila Zsivoczky"), "Height"] <- 193
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Tom Pappas"), "Height"] <- 196
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Trey Hardee"), "Height"] <- 196
+
 write_rds(athlete_info_tbl, "athlete_info_tbl.Rds")
 
 
