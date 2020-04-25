@@ -397,7 +397,7 @@ navbarPage(
            textOutput("text_test"),
            textOutput("athlete_df_idx")),
   tabPanel("To do",
-           "Update hand timed checkbox for table and plot",
+           "Update hand timed checkbox for table and plot - DONE",
            tags$br(),
            "Fix sidebar plots on datasets page - DONE",
            tags$br(),
