@@ -747,6 +747,116 @@ output$scatterplot3d <- renderPlotly({
   }
   )
 
+## Testing stuff goes here ####
+
+output$my_example <- renderImage({
+  list(src = "example.png",
+       contentType = "image/png")
+},
+deleteFile = F)
+
+output$example_athlete_bumpplot <- renderPlot({
+  
+  ready_plot %>% ggplot(aes(
+  name,
+  value,
+  group = Athlete
+)) +
+  theme_bw() +
+  theme(text = element_text(family = "Segoe UI", size = 18), 
+        panel.grid.minor.y = element_blank()) +
+  geom_text(data = ready_plot[1,], aes(5.5, 10, label = "victoryu.co.uk"), size = 40, alpha = .2, family = "Segoe UI") +
+    geom_text(data = ready_plot[1,], aes(5.5, 20, label = "victoryu.co.uk"), size = 40, alpha = .2, family = "Segoe UI") +
+  geom_line(colour = "black", size = 1.5) +
+  geom_point(colour = "black", size = 1.5) +
+  geom_point(aes(colour = fct_reorder(Athlete, final_rank)), size = 1) +
+  geom_line(aes(colour = fct_reorder(Athlete, final_rank)), size = 1) +
+  geom_text(data = ready_plot %>% filter(name == "1500m"), aes(label = Athlete), nudge_x = 0.1, hjust = 0, family = "Segoe UI", size = 6) +
+  scale_y_reverse(breaks = 1:36) +
+  scale_x_discrete(expand = expansion(mult = c(.05, .2))) +
+  scale_color_manual(values = c(rev(colorRampPalette(RColorBrewer::brewer.pal(11, "Spectral"))(max(list_tidy[["df_rank"]]$X, na.rm = T))), 
+                                rep("white", nrow(list_tidy[["df_rank"]])-max(list_tidy[["df_rank"]]$X, na.rm = T))
+  ),
+  guide = F) +
+  labs(y = "Rank",
+       x = "Event")
+})
+
+output$example_athlete_avg_points <- renderPlot({
+  
+  list_tidy[["df_avg"]] %>% 
+    ggplot(aes(event, value, group = Athlete)) +
+    geom_rect(data = list_tidy[["df_avg"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 1.5, xmax = 2.5, alpha = 0.2/5) + ## select 10 rows otherwise it interferes with x axis order despite being factor'ed already
+    geom_rect(data = list_tidy[["df_avg"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 3.5, xmax = 4.5, alpha = 0.2/5) +
+    geom_rect(data = list_tidy[["df_avg"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 5.5, xmax = 6.5, alpha = 0.2/5) +
+    geom_rect(data = list_tidy[["df_avg"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 7.5, xmax = 8.5, alpha = 0.2/5) +
+    geom_rect(data = list_tidy[["df_avg"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 9.5, xmax = 10.5, alpha = 0.2/5) +
+    geom_text(data = function(x) x[1,], aes(5.5, 600, label = "victoryu.co.uk"), size = 48, alpha = .1, family = "Segoe UI", angle = 45) +
+    # geom_tile(colour = "black", height = 2) +
+    # geom_point(aes(fill = fct_reorder(Athlete, final_rank)), size = 5, shape = 22, position = myjit) +
+    geom_tile(aes(fill = Athlete), height = 12, width = 7.5, position=myjit) +
+    geom_text(aes(label = Athlete_abbr, colour = Athlete), position = myjit, size = 4.5, family = "Segoe UI", show.legend = F) +
+    labs(y = "Average Points") +
+    theme(legend.title = element_blank(), 
+          axis.title.x = element_blank(),
+          text = element_text(family = "Segoe UI", size = 18)) +
+    guides(fill = guide_legend(ncol = 1)) +
+    scale_fill_manual(values = pull(summarise(list_tidy[["df_avg"]], unique_colour = unique(Colour)))) +
+    scale_colour_manual(values = pull(summarise(list_tidy[["df_avg"]], unique_colour = unique(BorW))))  
+  
+}
+)
+
+output$example_athete_ranktileplot <- renderPlot({
+  ready_plot %>% 
+    ggplot(aes(
+      name,
+      value,
+      group = Athlete
+    )) +
+    # theme_bw() +
+    theme(text = element_text(family = "Segoe UI", size = 18), 
+          panel.grid.minor.y = element_blank()) +
+    geom_text(data = ready_plot[1,], aes(11.5, 20, label = "victoryu.co.uk"), size = 30, alpha = .2, family = "Segoe UI", angle = 285) +
+    geom_line(data = ready_plot_line, aes(x = event_as_integer), colour = "black", size = 1.5) +
+    geom_line(data = ready_plot_line, aes(x = event_as_integer, colour = Athlete), size = 1) +
+    geom_tile(aes(fill = Athlete), width = 0.5, height = 0.9) +
+    geom_text(data = ready_plot %>% filter(name == "1500m"), aes(label = Athlete), nudge_x = 0.6, hjust = 0, family = "Segoe UI", size = 6) +
+    scale_y_reverse(breaks = 1:36) +
+    scale_x_discrete(expand = expansion(mult = c(.05, .3))) +
+    scale_fill_manual(values = pull(summarise(ready_plot, unique_colour = unique(Colour))),
+                      guide = F) +
+    scale_colour_manual(values = pull(summarise(ready_plot, unique_colour = unique(Colour))),
+                        guide = F) +
+    ggnewscale::new_scale_colour() +
+    geom_text(aes(label = Athlete_abbr, colour = Athlete), size = 4.5, family = "Segoe UI", show.legend = F) +
+    scale_colour_manual(values = pull(summarise(ready_plot, unique_colour = unique(BorW)))) +
+    labs(y = "Rank",
+         x = "Event")
+})
+
+output$exampledf <- renderDataTable(datatable(exampledf,
+                                              class = 'cell-border stripe compact', 
+                                              rownames = F,
+                                              options = list(pageLength = nrow(exampledf),
+                                                             dom = "tir"), 
+                                              selection = "none"))
+
+output$users_dataset <- renderDataTable({
+  
+  req(input$file1)
+  
+  df <- read.csv(input$file1$datapath,
+                 header = input$header)
+  
+  datatable(df,
+    class = 'cell-border stripe compact', 
+    editable = T,
+    rownames = F,
+    options = list(pageLength = nrow(exampledf),
+                   dom = "tir"))
+  
+})
 
 ## Closing server brackets ####
 

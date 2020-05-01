@@ -210,48 +210,79 @@ navbarPage(
                tags$hr(),
                
                # Input: Checkbox if file has header ----
-               checkboxInput("header", "Header", TRUE),
-               
-               # Input: Select separator ----
-               radioButtons("sep", "Separator",
-                            choices = c(Comma = ",",
-                                        Semicolon = ";",
-                                        Tab = "\t"),
-                            selected = ","),
-               
-               # Input: Select quotes ----
-               radioButtons("quote", "Quote",
-                            choices = c(None = "",
-                                        "Double Quote" = '"',
-                                        "Single Quote" = "'"),
-                            selected = '"'),
-               
-               # Horizontal line ----
-               tags$hr(),
-               
-               # Input: Select number of rows to display ----
-               radioButtons("disp", "Display",
-                            choices = c(Head = "head",
-                                        All = "all"),
-                            selected = "head")
+               checkboxInput("header", "Header", TRUE)
                
              ),
              
              # Main panel for displaying outputs ----
              mainPanel(
                tabsetPanel(
-                 tabPanel("Instructions",
-               "Allow user to input complete decathlon in .csv/.xslx format and allow for plot creation. Think UX.",
-               tags$br(),tags$br(),
-               "Step 1) Upload a .csv or .xslx file in the following format:",tags$br(),tags$br(),
-               "<Screenshot of excel spreadsheet here>",tags$br(),tags$br(),
-               "The primary requirement for this feature to function is that the dataset has to have points the athletes have scored in in sequential columns, in the order the decathlon/heptathlon events take place. Ranking order, points conversion, or other miscellaneous columns not required."),
-               
-               # Output: Data file ----
-               tabPanel("Output",
-               tableOutput("contents")
+                 tabPanel(
+                   "Instructions",
+                   tags$br(),
+                   "This tab allows you to upload your own completed multi events dataset and generate useful graphics and summary statistics. At the moment, it only supports functionality for the decathlon.",
+                   tags$br(),
+                   tags$br(),
+                   tags$b("Step 1)"),
+                   "Upload a .csv file in the following format:",
+                   tags$br(),
+                   tags$br(),
+                   div(dataTableOutput("exampledf", width = "1500"), style = "font-size: 80%"),
+                   tags$br(),
+                   
+                   "The primary requirement for this feature to function is that your dataset has to have a column denoting the athlete's name, and then columns for points the athletes have scored in in sequential order of the decathlon/heptathlon. Jumps and throws should be measured in the metric system. 1500m times can be recorded either in the format mm:ss.s or purely as seconds. Ranking order, points conversion, or other miscellaneous columns are not required.",
+                   tags$br(),
+                   tags$br(),
+                   "Events with no marks should be labelled as ",
+                   tags$b("NMR", .noWS	= "after") ,
+                   ". Events where the athlete did not start with ",
+                   tags$b("DNS"),
+                   "and should be the final entry in the respective athlete's series. If there are blank entries before the end of the competition or before a ",
+                   tags$b("DNS", .noWS	= "after"),
+                   ", for example in Deo Milandu's and Thomas Grantham's High Jump entry, this will be considered as a ",
+                   tags$b("NMR"),
+                   " for jumps/throws events and ",
+                   tags$b("DNF"),
+                   " for running events.",
+                   tags$br(),
+                   tags$br(),
+                   tags$b("Step 2 (optional))"),
+                   "In the ",
+                   tags$em("Your dataset"),
+                   " tab, you can make ad hoc edits to cells if there are inaccuracies."
+                 ),
+                 tabPanel(
+                   "Your dataset",
+                   div(dataTableOutput("users_dataset", width = "1500"), style = "font-size: 80%; width: 70%")
+                 ),
+                 # Bumps Plot ####
+                 tabPanel(
+                   "Bumps Plot (Ranking)",
+                   plotOutput(
+                     "example_athlete_bumpplot",
+                     width = "1525",
+                     height = "725"
+                   )
+                 ),
+                 tabPanel(
+                   "Tile Plot (Ranking)",
+                   plotOutput(
+                     "example_athete_ranktileplot",
+                     width = "1525",
+                     height = "725"
+                   )
+                 ),
+                 tabPanel(
+                   "Average Points",
+                   plotOutput(
+                     "example_athlete_avg_points",
+                     width = "1525",
+                     height = "725"
+                   )
+                 ),
+                 tabPanel("Violin Plot"),
+                 tabPanel("About Plots")
                )
-             )
              )
              
            )),
@@ -405,5 +436,16 @@ navbarPage(
            tags$br(),
            "Create customer user upload",
            tags$br(),
-           "Convert 1500m to display mm:ss")
+           "Convert 1500m to display mm:ss",
+           tags$br(),
+           "Add average points flow to calculator plot",
+           tags$br(),
+           "Finish custom user upload, points dot plot (stuff in notebook)",
+           tags$br(),
+           "Avg points in calculator",
+           "Change previous events data plot back to ggplot",
+           "Constrain width of pictures in athlete profile",
+           "Remove faded lines for avg points, move to data visualisations",
+           "Look at plotly options for 3d scatter plot"
+           )
 )

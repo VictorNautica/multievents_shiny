@@ -13,6 +13,7 @@ dfs <- readRDS("dfs.Rds")
 dfs_score <- readRDS("dfs_score.Rds")
 ultimate_df_list <- readRDS("E:/clean_analysis/ultimate_df_list.Rds")
 athlete_info <- readRDS("athlete_info_tbl.Rds")
+source("testing.R")
 
 ## DF - Joined Cols ####
 
@@ -421,3 +422,7 @@ voop <- ultimate_df_list[["ultimate_df_cum"]] %>%
   pivot_longer(cols = c(X100m:X1500m), names_to = "event") %>%
   mutate_at("event", str_replace_all, "X", "") %>%
   mutate_at("event", as_factor)
+
+## SERVER - Example DF ####
+
+exampledf <- read_csv("scrapenglandaltheits_withoutpoints.csv")
