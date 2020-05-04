@@ -161,7 +161,7 @@ function(input, output) {
               
                 years <- input[[inputid]]
                 
-                df_removedate <- dfs_joined[[event]] %>% select(-Date)
+                df_removedate <- dfs_joined[[event]] %>% select(-Date, -"1500m_Score")
                 
                 if (length(years) == 0) {
                   # reassign in the parent data frame!!!
@@ -178,7 +178,7 @@ function(input, output) {
               options = list(fixedHeader = TRUE),
               extensions = "FixedHeader"
             ) %>% 
-              formatString(~ `100m_Score` + `400m_Score` + `110mh_Score` + `1500m_Score`, suffix = "s") %>%
+              formatString(~ `100m_Score` + `400m_Score` + `110mh_Score` + `1500m_ScoreMMSS`, suffix = "s") %>%
               formatString(~ LJ_Score + SP_Score + HJ_Score + DT_Score + PV_Score + JT_Score, suffix = "m")
           )
         }
@@ -416,7 +416,7 @@ function(input, output) {
         output$individual_athlete_profile <-
           renderDataTable(
             {
-              athlete_df <<- within(for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select), ], rm(Athlete, Country, Year)) ## remove unneeded columns
+              athlete_df <<- within(for_indiv_athlete_tab[which(for_indiv_athlete_tab$Athlete == input$athlete_select), ], rm(Athlete, Country, Year, `1500m_Score`)) ## remove unneeded columns
               
               DT::datatable(athlete_df,
                             class = 'cell-border compact',
@@ -447,7 +447,7 @@ function(input, output) {
                                 )
                               )
                             ))) %>% 
-                formatString(~ `100m_Score` + `400m_Score` + `110mh_Score` + `1500m_Score`, suffix = "s") %>%
+                formatString(~ `100m_Score` + `400m_Score` + `110mh_Score` + `1500m_ScoreMMSS`, suffix = "s") %>%
                 formatString(~ LJ_Score + SP_Score + HJ_Score + DT_Score + PV_Score + JT_Score, suffix = "m")
               
               

@@ -442,7 +442,7 @@ navbarPage(
            tags$br(),
            "Create customer user upload",
            tags$br(),
-           "Convert 1500m to display mm:ss",
+           "Convert 1500m to display mm:ss - DONE",
            tags$br(),
            "Add average points flow to calculator plot - DONE",
            tags$br(),
