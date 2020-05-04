@@ -68,6 +68,7 @@ navbarPage(
                                           fluidRow(column(6, numericInput("hept_one", "100m hurdles (s):", 13.36, min = 0, step = 0.1, width = "80%")),
                                                    padding("valueh_one")
                                           )),
+                                        fluidRow(checkboxInput("handtime_100mh", "Hand timed", value = F)),
                                         fluidRow(
                                           fluidRow(column(6, numericInput("hept_two", "High jump (m):", 1.77, min = 0, step = 0.3, width = "80%")),
                                                    padding("valueh_two")
@@ -80,6 +81,7 @@ navbarPage(
                                           fluidRow(column(6, numericInput("hept_four", "200m (s):",  	24.29, min = 0, max = 100, step = 0.1, width = "80%")),
                                                    padding("valueh_four")
                                           )),
+                                        fluidRow(checkboxInput("handtime_200m", "Hand timed", value = F)),
                                         fluidRow(
                                           fluidRow(column(6, numericInput("hept_five", "Long jump (m):", 6.28, min = 0, max = 100, step = 0.1, width = "80%")),
                                                    padding("valueh_five")
@@ -186,8 +188,12 @@ navbarPage(
              tabPanel(
                "Final Score Ordered Bar Plots",
                tabsetPanel(tabPanel("Decathlon", 
-                                    plotlyOutput("OFSP_plot_decathlon")),
-                           tabPanel("Heptathlon (coming soon)"))
+                                    plotlyOutput("OFSP_plot_decathlon", height = "800px")),
+                           tabPanel("Heptathlon (coming soon)"))),
+             tabPanel("Average Points",
+                      tabsetPanel(tabPanel("Decathlon",
+                                  plotlyOutput("full_average_decathlon", height = "800px")),
+                      tabPanel("Heptathlon (coming soon"))
              )
            )),   
   ## 4) Custom Data ####
@@ -227,7 +233,7 @@ navbarPage(
                    "Upload a .csv file in the following format:",
                    tags$br(),
                    tags$br(),
-                   div(dataTableOutput("exampledf", width = "1500"), style = "font-size: 80%"),
+                   div(dataTableOutput("exampledf"), style = "height:300px; width:1500px; font-size: 80%; overflow-y: scroll"),
                    tags$br(),
                    
                    "The primary requirement for this feature to function is that your dataset has to have a column denoting the athlete's name, and then columns for points the athletes have scored in in sequential order of the decathlon/heptathlon. Jumps and throws should be measured in the metric system. 1500m times can be recorded either in the format mm:ss.s or purely as seconds. Ranking order, points conversion, or other miscellaneous columns are not required.",
@@ -235,7 +241,7 @@ navbarPage(
                    tags$br(),
                    "Events with no marks should be labelled as ",
                    tags$b("NMR", .noWS	= "after") ,
-                   ". Events where the athlete did not start with ",
+                   ", events where the athlete did not start with ",
                    tags$b("DNS"),
                    "and should be the final entry in the respective athlete's series. If there are blank entries before the end of the competition or before a ",
                    tags$b("DNS", .noWS	= "after"),
@@ -249,7 +255,10 @@ navbarPage(
                    tags$b("Step 2 (optional))"),
                    "In the ",
                    tags$em("Your dataset"),
-                   " tab, you can make ad hoc edits to cells if there are inaccuracies."
+                   " tab, you can make ad hoc edits to cells if there are inaccuracies.",
+                   tags$br(), tags$br(),
+                   tags$b("Step 3)"),
+                   "If you're happy with the dataset, click the submit button to send the data to the server to generate the plots.", HTML('&emsp;'), actionButton("goButton", "Submit", width = "100px") ## tab whitespace in html code
                  ),
                  tabPanel(
                    "Your dataset",
@@ -280,7 +289,14 @@ navbarPage(
                      height = "725"
                    )
                  ),
-                 tabPanel("Violin Plot"),
+                 tabPanel("Points Plot",
+                          plotlyOutput("example_user_points_boxplot",
+                                       width = "1525",
+                                       height = "725")),
+                 tabPanel("Cumulative Points Plot",
+                          plotlyOutput("example_user_cum_points_boxplot",
+                                       width = "1525",
+                                       height = "725")),
                  tabPanel("About Plots")
                )
              )
@@ -381,21 +397,11 @@ navbarPage(
                h4("About me"),
                "I previously competed in the decathlon at an amateur level. I mainly created this Shiny App to showcase some of the skills I have in this feature of R for work training and my CV.<br/><br/>
               
-              If you have any queries or spot any inaccuracies in the data, please contact me through the form below:",
-               "<br/>", "<br/>"
+              If you have any queries or spot any inaccuracies in the data, please contact me at victoryu@sent.com"
              )
            ),
-           textAreaInput(
-             "form",
-             NULL,
-             placeholder = "Enter text",
-             width = "500px",
-             height = "150px",
-             resize = "none"
-           ), 
-           actionButton("goButton", "Submit", width = "200px"),
-           HTML("<br/><br/>"),
-           "If you like the app than feel free to give a small donation through the Paypal button below to support future development/my hosting costs.",
+           h4("Support"),
+           "If you like the app than feel free to give a small donation through the Paypal button below to support future development/my hosting costs. You can also support the site by sharing it among those interested in combined ebvents.",
            HTML(paste('<br/><br/><form action="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DV63U2B9R7FE6&source=url" method="post" target="_top">
 <input type="hidden" name="cmd" value="_s-xclick" />
 <input type="hidden" name="hosted_button_id" value="DV63U2B9R7FE6" />
@@ -403,7 +409,7 @@ navbarPage(
 <img alt="" border="0" src="https://www.paypal.com/en_GB/i/scr/pixel.gif" width="1" height="1" />
 </form>
 ')),
-           HTML("<br/><br/>"),
+           HTML("<br/>"),
            h4("Credits"),
            HTML("<br/>"),
            "- decathlon2000.com for providing the scores/points data",
@@ -438,14 +444,24 @@ navbarPage(
            tags$br(),
            "Convert 1500m to display mm:ss",
            tags$br(),
-           "Add average points flow to calculator plot",
+           "Add average points flow to calculator plot - DONE",
            tags$br(),
            "Finish custom user upload, points dot plot (stuff in notebook)",
            tags$br(),
-           "Avg points in calculator",
+           "Avg points in calculator - DONE",
+           tags$br(),
            "Change previous events data plot back to ggplot",
-           "Constrain width of pictures in athlete profile",
-           "Remove faded lines for avg points, move to data visualisations",
-           "Look at plotly options for 3d scatter plot"
+           tags$br(),
+           "Constrain width of pictures in athlete profile - DONE",
+           tags$br(),
+           "Remove faded lines for avg points, move to data visualisations - DONE",
+           tags$br(),
+           "Look at plotly options for 3d scatter plot",
+           tags$br(),
+           "Left align data tables in custom data - DONE",
+           tags$br(),
+           "Add hand times to heptathlon calculator - DONE",
+           tags$br(),
+           "Check plotly radar function"
            )
 )

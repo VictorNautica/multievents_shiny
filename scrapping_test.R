@@ -165,8 +165,17 @@ athlete_info_tbl[which(athlete_info_tbl$Athlete == "Keisuke Ushiro"), "Height"] 
 athlete_info_tbl[which(athlete_info_tbl$Athlete == "Attila Zsivoczky"), "Height"] <- 193
 athlete_info_tbl[which(athlete_info_tbl$Athlete == "Tom Pappas"), "Height"] <- 196
 athlete_info_tbl[which(athlete_info_tbl$Athlete == "Trey Hardee"), "Height"] <- 196
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Cedric Dubler"), "Height"] <- 191
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Dmitriy Karpov"), "Height"] <- 198
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Aleksandr Pogorelov"), "Height"] <- 201
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Arthur Abele"), "Height"] <- 184
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Karl Robert Saluri"), "Height"] <- 178
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Maicel Uibo"), "Height"] <- 194
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Qi Haifeng"), "Height"] <- 189
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Oleksiy Kasyanov"), "Height"] <- 191
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Hamdi Dhouibi"),"Country"] <- "Tunisia"
 
-write_rds(athlete_info_tbl, "athlete_info_tbl.Rds")
+readr::write_rds(athlete_info_tbl, "athlete_info_tbl.Rds")
 
 
 ## athlete_info[["Bryan Clay"]][["birth_date"]] %>% as.Date("%d %B %Y")
