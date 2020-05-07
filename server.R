@@ -7,95 +7,118 @@ function(input, output) {
   
 ## Raw Calculations ####
   
-  custom_100m <- reactive({
+  custom_dec_100m <- reactive({
     if (input$handtime_100m == T) {
-    input$event_one + 0.24
+    req(input$event_one) + 0.24
   } else {
-    input$event_one
+    req(input$event_one)
   }
   })
-  custom_400m <- reactive({if (input$handtime_400m == T) {
-    input$event_five + 0.14
+  custom_dec_400m <- reactive({if (input$handtime_400m == T) {
+    req(input$event_five) + 0.14
   } else {
-    input$event_five
+    req(input$event_five)
   }
   })
-  custom_110mh <- reactive({if (input$handtime_110mh == T) {
-    input$event_six + 0.24
+  custom_dec_110mh <- reactive({if (input$handtime_110mh == T) {
+    req(input$event_six) + 0.24
   } else {
-    input$event_six
+    req(input$event_six)
   }
   })
+  
+  custom_dec_lj <- reactive(
+    req(input$event_two)
+  )
+  custom_dec_sp <- reactive(
+    req(input$event_three)
+  )
+  custom_dec_hj <- reactive(
+    req(input$event_four)
+  )
+  custom_dec_dt <- reactive(
+    req(input$event_seven)
+  )
+  custom_dec_pv <- reactive(
+    req(input$event_eight)
+  )
+  custom_dec_jt <- reactive(
+    req(input$event_nine)
+  )
+  
+  custom_dec_1500m <- reactive(
+  (req(input$event_ten_minutes)*60)+req(input$event_ten_seconds)
+  )
   
   ## These have hand-times
   output$value_one <-
     renderText({
-      dec_100m(custom_100m())
+      dec_100m(custom_dec_100m())
     })
   output$value_five <-
     renderText({
-      dec_400m(custom_400m())
+      dec_400m(custom_dec_400m())
     })
   output$value_six <-
     renderText({
-      dec_110mh(custom_110mh())
+      dec_110mh(custom_dec_110mh())
     })
   
   output$value_two <- renderText({
-    dec_lj(input$event_two)
+    dec_lj(custom_dec_lj())
   })
   output$value_three <-
     renderText({
-      dec_sp(input$event_three)
+      dec_sp(custom_dec_sp())
     })
   output$value_four <-
     renderText({
-      dec_hj(input$event_four)
+      dec_hj(custom_dec_hj())
     })
   output$value_seven <-
     renderText({
-      dec_dt(input$event_seven)
+      dec_dt(custom_dec_dt())
     })
   output$value_eight <-
     renderText({
-      dec_pv(input$event_eight)
+      dec_pv(custom_dec_pv())
     })
   output$value_nine <-
     renderText({
-      dec_jt(input$event_nine)
+      dec_jt(custom_dec_jt())
     })
   output$value_ten <-
     renderText({
-      dec_1500m(input$event_ten)
+      dec_1500m(custom_dec_1500m())
     })
         
         output$dec_table <- renderTable({
           decathlon_s2p(
-            custom_100m(),
-            input$event_two,
-            input$event_three,
-            input$event_four,
-            custom_400m(),
-            custom_110mh(),
-            input$event_seven,
-            input$event_eight,
-            input$event_nine,
-            input$event_ten
+            custom_dec_100m(),
+            custom_dec_lj(),
+            custom_dec_sp(),
+            custom_dec_hj(),
+            custom_dec_400m(),
+            custom_dec_110mh(),
+            custom_dec_dt(),
+            custom_dec_pv(),
+            custom_dec_jt(),
+            custom_dec_1500m()
           )
   })
         
         output$dec_plot <- renderPlot({
           decathlon_vis(
-            custom_100m(),
-            input$event_two,
-            input$event_three,
-            input$event_four,
-            custom_400m(),
-            custom_110mh(),
-            input$event_seven,
-            input$event_eight,
-            input$event_nine,
-            input$event_ten
+            custom_dec_100m(),
+            custom_dec_lj(),
+            custom_dec_sp(),
+            custom_dec_hj(),
+            custom_dec_400m(),
+            custom_dec_110mh(),
+            custom_dec_dt(),
+            custom_dec_pv(),
+            custom_dec_jt(),
+            custom_dec_1500m()
           )
         })
         
@@ -379,20 +402,26 @@ function(input, output) {
         output$OFSP_plot_decathlon <- renderPlotly(OFSP_plot_p)
         
   ## Upload custom Files ####
-        
-        output$contents <- renderTable({
-          
-          # input$file1 will be NULL initially. After the user selects and uploads a 
-          # file, it will be a data frame with 'name', 'size', 'type', and 'datapath' 
-          # columns. The 'datapath' column will contain the local filenames where the 
-          # data can be found.
-          
-          inFile <- input$file1
-          
-          if (is.null(inFile)) return(NULL)
-          
-          read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote)
-        })
+        # 
+        # output$contents <- renderTable({
+        #   
+        #   # input$file1 will be NULL initially. After the user selects and uploads a 
+        #   # file, it will be a data frame with 'name', 'size', 'type', and 'datapath' 
+        #   # columns. The 'datapath' column will contain the local filenames where the 
+        #   # data can be found.
+        #   
+        #   inFile <- input$file1
+        #   
+        #   if (is.null(inFile)) return(NULL)
+        #   
+        #   read.csv(
+        #     inFile$datapath,
+        #     header = input$header,
+        #     sep = input$sep,
+        #     quote = input$quote, 
+        #     stringsAsFactors = F
+        #   )
+        # })
       
 ## Athlete Profile ####
         
@@ -492,7 +521,7 @@ function(input, output) {
 
         })
         
-        output$athlete_df_idx <-  renderText({
+        output$athlete_df_idx <- renderText({
           athlete_df[input$individual_athlete_profile_rows_selected,] %>% pull("Date")
         })
         
@@ -855,21 +884,24 @@ output$example_athete_ranktileplot <- renderPlot({
 })
 
 output$exampledf <- renderDataTable(datatable(exampledf,
-                                              class = 'cell-border stripe compact', 
+                                              class = 'cell-border stripe compact',
+                                              editable = T,
                                               rownames = F,
                                               options = list(pageLength = nrow(exampledf),
                                                              dom = "tir",
                                                              columnDefs = list(list(className = 'dt-body-right', targets = 2:11))), ## index starts from 0
                                               selection = "none"))
 
+user_df <- reactive({
+  req(input$file1)
+  read.csv(input$file1$datapath,
+           header = input$header,
+           stringsAsFactors = F)
+})
+  
 output$users_dataset <- renderDataTable({
   
-  req(input$file1)
-  
-  df <- read.csv(input$file1$datapath,
-                 header = input$header)
-  
-  datatable(df,
+  datatable(user_df(),
     class = 'cell-border stripe compact', 
     editable = T,
     rownames = F,
@@ -950,6 +982,22 @@ output$example_user_cum_points_boxplot <- renderPlotly({
     labs(y = "Points")
   plotly::ggplotly(foo, tooltip = "text")
   
+})
+
+
+## testing obs/reactive of custom submit button
+
+observeEvent(input$goButton, 
+             {
+               text_reactive$text <- user_df() %>% pull(Athlete)
+               }
+             )
+             
+text_reactive <- reactiveValues(text = "NOT SUBMITTED")
+
+
+output$editabletest <-  renderText({
+  text_reactive$text
 })
 
 ## Closing server brackets ####

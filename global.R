@@ -73,6 +73,11 @@ source("merge_df.R")
 
 athlete_names <- ultimate_df_list[["ultimate_df_points"]] %>% pull(Athlete) %>% unique() %>% sort()
 
+smallInput <- function(tag) {
+  tag$children[[2]] <- htmltools::tagAppendAttributes(tag$children[[2]], class = "input-sm")
+  tag
+} ## https://www.w3schools.com/bootstrap/bootstrap_forms_sizing.asp
+
 ## UI - For tab df plot ####
 
 source("FF.R")

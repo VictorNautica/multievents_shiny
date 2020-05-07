@@ -7,57 +7,58 @@ navbarPage(
     navbarPage(
       title = "",
       tabPanel("Decathlon",
-    sidebarLayout(sidebarPanel(width = 2,
+    sidebarLayout(sidebarPanel(width = 3,
       fluidRow(
-        fluidRow(column(6, numericInput("event_one", "100m (s):", 10.87, min = 0, max = 100, step = 0.1, width = "80%")),
+        fluidRow(column(6, smallInput(numericInput("event_one", "100m (s):", 10.87, min = 0, max = 100, step = 0.1, width = "80%"))),
                  padding("value_one")
       )),
       fluidRow(checkboxInput("handtime_100m", "Hand timed", value = F)),
       fluidRow(
-        fluidRow(column(6, numericInput("event_two", "Long jump (m):", 7.6, min = 0, max = 100, step = 0.1, width = "80%")),
+        fluidRow(column(6, smallInput(numericInput("event_two", "Long jump (m):", 7.6, min = 0, max = 100, step = 0.1, width = "80%"))),
                  padding("value_two")
         )),
       fluidRow(
-        fluidRow(column(6, numericInput("event_three", "Shot put (m):", 14, min = 0, max = 100, step = 0.1, width = "80%")),
+        fluidRow(column(6, smallInput(numericInput("event_three", "Shot put (m):", 14, min = 0, max = 100, step = 0.1, width = "80%"))),
                  padding("value_three")
         )),
       fluidRow(
-        fluidRow(column(6, numericInput("event_four", "High jump (m):", 2.00, min = 0, max = 100, step = 0.03, width = "80%")),
+        fluidRow(column(6, smallInput(numericInput("event_four", "High jump (m):", 2.00, min = 0, max = 100, step = 0.03, width = "80%"))),
                  padding("value_four")
         )),
       fluidRow(
-        fluidRow(column(6, numericInput("event_five", "400m (s)", 50, min = 0, max = 100, step = 0.2, width = "80%")),
+        fluidRow(column(6, smallInput(numericInput("event_five", "400m (s)", 50, min = 0, max = 100, step = 0.2, width = "80%"))),
                  padding("value_five")
         )),
       fluidRow(checkboxInput("handtime_400m", "Hand timed", value = F)),
       fluidRow(
-        fluidRow(column(6, numericInput("event_six", "110m hurdles (s):", 16, min = 0, max = 100, step = 0.1, width = "80%")),
+        fluidRow(column(6, smallInput(numericInput("event_six", "110m hurdles (s):", 16, min = 0, max = 100, step = 0.1, width = "80%"))),
                  padding("value_six")
         )),
       fluidRow(checkboxInput("handtime_110mh", "Hand timed", value = F)),
       fluidRow(
-        fluidRow(column(6, numericInput("event_seven", "Discus throw (m):", 42, min = 0, max = 100, step = 0.5, width = "80%")),
+        fluidRow(column(6, smallInput(numericInput("event_seven", "Discus throw (m):", 42, min = 0, max = 100, step = 0.5, width = "80%"))),
                  padding("value_seven")
         )),
       fluidRow(
-        fluidRow(column(6, numericInput("event_eight", "Pole vault (m):", 4.70, min = 0, max = 100, step = 0.1, width = "80%")),
+        fluidRow(column(6, smallInput(numericInput("event_eight", "Pole vault (m):", 4.70, min = 0, max = 100, step = 0.1, width = "80%"))),
                  padding("value_eight")
         )),
       fluidRow(
-        fluidRow(column(6, numericInput("event_nine", "Javelin throw (m):", 62, min = 0, max = 100, step = 1, width = "80%")),
+        fluidRow(column(6, smallInput(numericInput("event_nine", "Javelin throw (m):", 62, min = 0, max = 100, step = 1, width = "80%"))),
                  padding("value_nine")
         )),
       fluidRow(
-        fluidRow(column(6, numericInput("event_ten", "1500m (s):", 290, min = 0, max = 500, step = 1, width = "80%")),
+        fluidRow(column(3, smallInput(numericInput("event_ten_minutes", "1500m (m):", 5, min = 0, max = 99, step = 1, width = "80%"))),
+                 column(3, smallInput(numericInput("event_ten_seconds", "(s):", 0, min = 0, max = 59.99, step = 0.1, width = "80%"))),
                  padding("value_ten")
         ))
     ), 
     mainPanel(
       ## Output: Header + table of distribution ####
-      fluidRow(column(width = 6,
+      fluidRow(column(width = 4,
                       h4("Summary statistics"),
                       tableOutput("dec_table")),
-               column(width = 6, 
+               column(width = 4, 
                       h4(" "),
                       plotOutput("dec_plot", height = "600px")))
       ))
@@ -200,27 +201,21 @@ navbarPage(
   tabPanel("Custom Data (coming soon)", 
            titlePanel(HTML(paste0("Upload completed multievents competition"))),
            
-           # Sidebar layout with input and output definitions ----
            sidebarLayout(
              
-             # Sidebar panel for inputs ----
              sidebarPanel(width = 2,
                
-               # Input: Select a file ----
                fileInput("file1", "Upload CSV File",
                          accept = c("text/csv",
                                     "text/comma-separated-values,text/plain",
                                     ".csv")),
                
-               # Horizontal line ----
                tags$hr(),
                
-               # Input: Checkbox if file has header ----
                checkboxInput("header", "Header", TRUE)
                
              ),
              
-             # Main panel for displaying outputs ----
              mainPanel(
                tabsetPanel(
                  tabPanel(
@@ -297,6 +292,7 @@ navbarPage(
                           plotlyOutput("example_user_cum_points_boxplot",
                                        width = "1525",
                                        height = "725")),
+                 tabPanel("Individual Athlete (coming soon)"),
                  tabPanel("About Plots")
                )
              )
@@ -401,7 +397,7 @@ navbarPage(
              )
            ),
            h4("Support"),
-           "If you like the app than feel free to give a small donation through the Paypal button below to support future development/my hosting costs. You can also support the site by sharing it among those interested in combined ebvents.",
+           "If you like the app, feel free to give a small donation through the Paypal button below to support future development/my hosting costs. You can also support the site by sharing it among those interested in combined ebvents.",
            HTML(paste('<br/><br/><form action="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DV63U2B9R7FE6&source=url" method="post" target="_top">
 <input type="hidden" name="cmd" value="_s-xclick" />
 <input type="hidden" name="hosted_button_id" value="DV63U2B9R7FE6" />
@@ -414,11 +410,11 @@ navbarPage(
            HTML("<br/>"),
            "- decathlon2000.com for providing the scores/points data",
            HTML("<br/>"),
-           "- Stack Overflow for being an amazing resource for coding Q&A",
+           "- Stack Overflow for coding Q&A",
            HTML("<br/>"),
            "- Tom Jemmett for helping with some initial bugs on the dataset view tab",
            HTML("<br/>"),
-           "- Thomas Park for the gorgeous Yeti CSS theme"),
+           "- Thomas Park for the Yeti CSS theme"),
            column(width = 6,
                   HTML(paste(h4("More info:"),
                              "For more general news about combined events you can visit:",
@@ -432,7 +428,8 @@ navbarPage(
   tabPanel("test",
            DT::dataTableOutput("foobar"),
            textOutput("text_test"),
-           textOutput("athlete_df_idx")),
+           textOutput("athlete_df_idx"),
+           textOutput("editabletest")),
   tabPanel("To do",
            "Update hand timed checkbox for table and plot - DONE",
            tags$br(),
