@@ -6,61 +6,65 @@ navbarPage(
     "Calculator",
     navbarPage(
       title = "",
+      ## ++++ Dec ####
       tabPanel("Decathlon",
     sidebarLayout(sidebarPanel(width = 3,
       fluidRow(
-        fluidRow(column(6, smallInput(numericInput("event_one", "100m (s):", 10.87, min = 0, max = 100, step = 0.1, width = "80%"))),
+        fluidRow(column(4, smallInput(numericInput("event_one", "100m (s):", 10.87, min = 0, max = 100, step = 0.1, width = "80%"))),
+                 column(4, checkboxInput("handtime_100m", "Hand timed", value = F)),
                  padding("value_one")
       )),
-      fluidRow(checkboxInput("handtime_100m", "Hand timed", value = F)),
+      hr_calculator("black"),
       fluidRow(
-        fluidRow(column(6, smallInput(numericInput("event_two", "Long jump (m):", 7.6, min = 0, max = 100, step = 0.1, width = "80%"))),
+        fluidRow(column(8, smallInput(numericInput("event_two", "Long jump (m):", 7.6, min = 0, max = 100, step = 0.1, width = "35.5%"))),
                  padding("value_two")
         )),
       fluidRow(
-        fluidRow(column(6, smallInput(numericInput("event_three", "Shot put (m):", 14, min = 0, max = 100, step = 0.1, width = "80%"))),
+        fluidRow(column(8, smallInput(numericInput("event_three", "Shot put (m):", 14, min = 0, max = 100, step = 0.1, width = "35.5%"))),
                  padding("value_three")
         )),
       fluidRow(
-        fluidRow(column(6, smallInput(numericInput("event_four", "High jump (m):", 2.00, min = 0, max = 100, step = 0.03, width = "80%"))),
+        fluidRow(column(8, smallInput(numericInput("event_four", "High jump (m):", 2.00, min = 0, max = 100, step = 0.03, width = "35.5%"))),
                  padding("value_four")
         )),
       fluidRow(
-        fluidRow(column(6, smallInput(numericInput("event_five", "400m (s)", 50, min = 0, max = 100, step = 0.2, width = "80%"))),
+        fluidRow(column(4, smallInput(numericInput("event_five", "400m (s)", 50, min = 0, max = 100, step = 0.2, width = "80%"))),
+                 column(4, checkboxInput("handtime_400m", "Hand timed", value = F)),
                  padding("value_five")
         )),
-      fluidRow(checkboxInput("handtime_400m", "Hand timed", value = F)),
       fluidRow(
-        fluidRow(column(6, smallInput(numericInput("event_six", "110m hurdles (s):", 16, min = 0, max = 100, step = 0.1, width = "80%"))),
+        fluidRow(column(4, smallInput(numericInput("event_six", "110m hurdles (s):", 16, min = 0, max = 100, step = 0.1, width = "95%"))),
+                 column(4, checkboxInput("handtime_110mh", "Hand timed", value = F)),
                  padding("value_six")
         )),
-      fluidRow(checkboxInput("handtime_110mh", "Hand timed", value = F)),
       fluidRow(
-        fluidRow(column(6, smallInput(numericInput("event_seven", "Discus throw (m):", 42, min = 0, max = 100, step = 0.5, width = "80%"))),
+        fluidRow(column(8, smallInput(numericInput("event_seven", "Discus throw (m):", 42, min = 0, max = 100, step = 0.5, width = "35.5%"))),
                  padding("value_seven")
         )),
       fluidRow(
-        fluidRow(column(6, smallInput(numericInput("event_eight", "Pole vault (m):", 4.70, min = 0, max = 100, step = 0.1, width = "80%"))),
+        fluidRow(column(8, smallInput(numericInput("event_eight", "Pole vault (m):", 4.70, min = 0, max = 100, step = 0.1, width = "35.5%"))),
                  padding("value_eight")
         )),
       fluidRow(
-        fluidRow(column(6, smallInput(numericInput("event_nine", "Javelin throw (m):", 62, min = 0, max = 100, step = 1, width = "80%"))),
+        fluidRow(column(8, smallInput(numericInput("event_nine", "Javelin throw (m):", 62, min = 0, max = 100, step = 1, width = "35.5%"))),
                  padding("value_nine")
         )),
       fluidRow(
-        fluidRow(column(3, smallInput(numericInput("event_ten_minutes", "1500m (m):", 5, min = 0, max = 99, step = 1, width = "80%"))),
-                 column(3, smallInput(numericInput("event_ten_seconds", "(s):", 0, min = 0, max = 59.99, step = 0.1, width = "80%"))),
+        fluidRow(
+                 column(8, splitLayout(smallInput(numericInput("event_ten_minutes", "1500m (m):", 5, min = 0, max = 99, step = 1, width = "100%")),
+                                       smallInput(numericInput("event_ten_seconds", "(s):", 0, min = 0, max = 59.99, step = 0.1, width = "50%")))),
                  padding("value_ten")
         ))
     ), 
     mainPanel(
-      ## Output: Header + table of distribution ####
+      ## ++++ Main Panel ####
       fluidRow(width = 9,
                       h4("Summary statistics"),
                       tableOutput("dec_table"),
                       plotOutput("dec_plot", height = "400px", width = "800px"))
       ))
     ),
+    ## ++++ Hept ####
     tabPanel("Heptathlon",
              sidebarLayout(sidebarPanel(width = 2,
                                         fluidRow(
@@ -94,6 +98,7 @@ navbarPage(
                                                    padding("valueh_seven")
                                           )),
                                         ),
+                           ## ++++ Main Panel ####
                            mainPanel(
                              fluidRow(column(width = 6,
                                              h4("Summary statistics"),
@@ -110,6 +115,7 @@ navbarPage(
     "Previous events data",
     navbarPage(
       title = "",
+      ## ++++ Dec ####
     tabPanel("Decathlon", 
     navbarPage(
       title = 'Select competition',
@@ -135,6 +141,7 @@ navbarPage(
         plotoutputlabel = "bar_gotzis"
       )
     )),
+    ## ++++ Hept ####
     tabPanel("Heptathlon (coming soon)"))
   ),
   ## 3) Score to Points #####
@@ -307,7 +314,7 @@ navbarPage(
              )
              
            )),
-  ## 5) Athlete Profile ####
+  ## 6) Athlete Profile ####
   tabPanel("Athlete Profile (coming soon)",
            sidebarLayout(sidebarPanel(width = 3,
              selectInput(
@@ -379,6 +386,7 @@ navbarPage(
              )
              )
              ),
+             ## ++++ Main Panel ####
            mainPanel(
              div(DT::dataTableOutput("individual_athlete_profile"), 
                  style = "font-size: 82.5%; width: 110%"),
@@ -456,7 +464,7 @@ navbarPage(
            tags$br(),
            "Avg points in calculator - DONE",
            tags$br(),
-           "Change previous events data plot back to ggplot",
+           "Change previous events data plot back to ggplot - DONE",
            tags$br(),
            "Constrain width of pictures in athlete profile - DONE",
            tags$br(),

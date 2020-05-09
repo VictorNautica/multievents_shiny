@@ -118,7 +118,13 @@ decathlon_tabs <-
 ## UI - tags padding test ####
 
 padding <- function(calc_output) {
-  column(6, tags$label("Score:"), tags$div(textOutput(calc_output), style = "padding-top:10px"))
+  column(4, tags$label("Score:"), tags$div(textOutput(calc_output), style = "padding-top:3px"))
+}
+
+## UI - custom hr for calculator tab ####
+
+hr_calculator <- function(colour) {
+  tags$hr(style=paste0("border-color: ", colour, ";margin-top: 0px;margin-bottom: 10px"))
 }
 
 ## UI - S2P panels ####

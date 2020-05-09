@@ -1043,7 +1043,7 @@ output$custom_dec_plot <- renderPlot({
                 custom_athlete_data$score_num()[8],
                 custom_athlete_data$score_num()[9],
                 custom_athlete_data$score()[10]
-  )
+  ) + theme(axis.text.x = element_text(size = 11))
 }
 )
 
