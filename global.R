@@ -106,7 +106,7 @@ decathlon_tabs <-
             multiple = TRUE,
             selectize = TRUE
           ),
-          plotlyOutput(plotoutputlabel, height = "550"),
+          plotOutput(plotoutputlabel, height = "550"),
           tags$br(),
           "Maximum of 10 athletes allowed for plot",
           width = 3
@@ -401,15 +401,10 @@ plus11athletes <- ultimate_df_standardised_global %>% ggplot(aes(event)) +
   labs(y = "z-score") +
   scale_y_continuous(breaks = seq(-5, 4, 1)) +
   scale_x_discrete(limits = rev(levels(ultimate_df_standardised_global$event))) +
+  annotate("text", x = 3, y = -1, size = 14, colour = "red", label = "Warning: More than\n10 athletes selected") +
   theme(axis.title.y = element_blank()) +
   coord_flip()
 
-plus11athletes <- plotly::ggplotly(plus11athletes) %>% 
-  layout(title = list(text = "Warning: More than 10 athletes selected",
-                      font = list(color = "red",
-                                  size = 12)))
-
-plus11athletes[["x"]][["data"]][[2]][["line"]]$width <- 1
 
 ## SERVER - Athlete Cum DF ####
 

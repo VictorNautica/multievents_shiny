@@ -50,7 +50,7 @@ function(input, output) {
   (req(input$event_ten_minutes)*60)+req(input$event_ten_seconds)
   )
   
-  ## These have hand-times
+  ## Raw Score ####
   output$value_one <-
     renderText({
       dec_100m(custom_dec_100m())
@@ -91,7 +91,9 @@ function(input, output) {
     renderText({
       dec_1500m(custom_dec_1500m())
     })
-        
+      
+  
+  ## Table ####  
         output$dec_table <- renderTable({
           decathlon_s2p(
             custom_dec_100m(),
@@ -105,7 +107,10 @@ function(input, output) {
             custom_dec_jt(),
             custom_dec_1500m()
           )
-  })
+  }, spacing = 'xs',
+  bordered = TRUE)
+  
+  ## Plot ####
         
         output$dec_plot <- renderPlot({
           decathlon_vis(
@@ -156,11 +161,12 @@ function(input, output) {
                         input$hept_five,
                         input$hept_six,
                         input$hept_seven)
-        })
+        },  spacing = 'xs',
+        bordered = TRUE)
         
         output$hept_plot <- renderPlot({
           heptathlon_vis(
-            custom_110mh(),
+            custom_100mh(),
             input$hept_two,
             input$hept_three,
             custom_200m(),
@@ -214,7 +220,7 @@ function(input, output) {
         
         barplotcreation <-
           function(event_name_in_df, exnum_rows_selected) {
-            renderPlotly({
+            renderPlot({
               hasClick <- input[[exnum_rows_selected]]
               
               if (is.null(hasClick)) {
@@ -228,10 +234,7 @@ function(input, output) {
                   theme(axis.title.y = element_blank()) +
                   coord_flip()
                 
-                plot <- plotly::ggplotly(df_selected)
-                plot[["x"]][["data"]][[2]][["line"]]$width <- 1
-                
-                return(plot)
+                return(df_selected)
                 
                 
               }
@@ -258,16 +261,11 @@ function(input, output) {
                   scale_x_discrete(limits = rev(levels(
                     df$event
                   ))) +
-                  theme(axis.title.y = element_blank()) +
+                  theme(axis.title.y = element_blank(), 
+                        legend.position = "bottom") +
+                  guides(col = guide_legend(ncol = 2)) +
                   coord_flip()
                 
-                plot <- plot %>% plotly::ggplotly() %>%
-                         layout(legend = list(
-                           orientation = "h",
-                           x = 0.25,
-                           y = 10
-                         ))
-                plot[["x"]][["data"]][[2]][["line"]]$width <- 1
                 return(plot)
                 
                 
@@ -402,26 +400,7 @@ function(input, output) {
         output$OFSP_plot_decathlon <- renderPlotly(OFSP_plot_p)
         
   ## Upload custom Files ####
-        # 
-        # output$contents <- renderTable({
-        #   
-        #   # input$file1 will be NULL initially. After the user selects and uploads a 
-        #   # file, it will be a data frame with 'name', 'size', 'type', and 'datapath' 
-        #   # columns. The 'datapath' column will contain the local filenames where the 
-        #   # data can be found.
-        #   
-        #   inFile <- input$file1
-        #   
-        #   if (is.null(inFile)) return(NULL)
-        #   
-        #   read.csv(
-        #     inFile$datapath,
-        #     header = input$header,
-        #     sep = input$sep,
-        #     quote = input$quote, 
-        #     stringsAsFactors = F
-        #   )
-        # })
+
       
 ## Athlete Profile ####
         
@@ -525,13 +504,13 @@ function(input, output) {
           athlete_df[input$individual_athlete_profile_rows_selected,] %>% pull("Date")
         })
         
-        ## Scrapping ####
+        ## Athlete Profile - Profile pic ####
         
         output$use_this_athletename <- renderText({
           c('<img src="', athlete_info[[which(athlete_info$Athlete == input$athlete_select), "image_url"]], '" height="150" style="border:1px solid black" >')
         })
         
-        ## Birth data ####
+        ## Athlete Profile - Rest of profile ####
         
         output$athlete_birth <- renderText(as.character(athlete_info[[which(athlete_info$Athlete == input$athlete_select),"birth_date"]]))
         output$iaaf_code <- renderText(athlete_info[[which(athlete_info$Athlete == input$athlete_select),"iaaf_code"]])
@@ -797,12 +776,6 @@ output$scatterplot3d <- renderPlotly({
 
 ## Testing stuff goes here ####
 
-output$my_example <- renderImage({
-  list(src = "example.png",
-       contentType = "image/png")
-},
-deleteFile = F)
-
 output$example_athlete_bumpplot <- renderPlot({
   
   preproc_forcustomplot %>% ggplot(aes(
@@ -815,10 +788,10 @@ output$example_athlete_bumpplot <- renderPlot({
         panel.grid.minor.y = element_blank()) +
   geom_text(data = preproc_forcustomplot[1,], aes(5.5, 10, label = "victoryu.co.uk"), size = 40, alpha = .2, family = "Segoe UI") +
     geom_text(data = preproc_forcustomplot[1,], aes(5.5, 20, label = "victoryu.co.uk"), size = 40, alpha = .2, family = "Segoe UI") +
-  geom_line(colour = "black", size = 1.5) +
-  geom_point(colour = "black", size = 1.5) +
-  geom_point(aes(colour = fct_reorder(Athlete, final_rank)), size = 1) +
-  geom_line(aes(colour = fct_reorder(Athlete, final_rank)), size = 1) +
+  geom_line(colour = "black", size = 2.5) +
+  geom_point(colour = "black", size = 2.5) +
+  geom_point(aes(colour = Athlete), size = 2) +
+  geom_line(aes(colour = Athlete), size = 2) +
   geom_text(data = preproc_forcustomplot %>% filter(name == "1500m"), aes(label = Athlete), nudge_x = 0.1, hjust = 0, family = "Segoe UI", size = 6) +
   scale_y_reverse(breaks = 1:36) +
   scale_x_discrete(expand = expansion(mult = c(.05, .2))) +
@@ -892,24 +865,55 @@ output$exampledf <- renderDataTable(datatable(exampledf,
                                                              columnDefs = list(list(className = 'dt-body-right', targets = 2:11))), ## index starts from 0
                                               selection = "none"))
 
-user_df <- reactive({
-  req(input$file1)
-  read.csv(input$file1$datapath,
-           header = input$header,
-           stringsAsFactors = F)
+##################################################
+
+
+## test custom user modify ####
+
+x = reactiveValues(user_df = NULL)
+
+## user upload ####
+observe({
+    req(input$file1)
+    x$user_df <- read.csv(input$file1$datapath,
+                          header = input$header,
+                          stringsAsFactors = F)
 })
-  
+
+
+## initial user df displayed ####
+
 output$users_dataset <- renderDataTable({
   
-  datatable(user_df(),
-    class = 'cell-border stripe compact', 
-    editable = T,
-    rownames = F,
-    options = list(pageLength = nrow(exampledf),
-                   dom = "tir",
-                   columnDefs = list(list(className = 'dt-body-right', targets = 2:11))))
+  datatable(x$user_df,
+            class = 'cell-border stripe compact', 
+            editable = T,
+            rownames = F,
+            options = list(pageLength = nrow(exampledf),
+                           dom = "tir",
+                           columnDefs = list(list(className = 'dt-body-right', targets = 2:11))))
   
 })
+
+##############
+
+observeEvent(input$users_dataset_cell_edit, {
+  info = input$users_dataset_cell_edit
+  str(info)
+  i = info$row
+  j = info$col + 1
+  v = info$value
+  
+  # problem starts here
+  x$user_df[i, j] <- isolate(DT::coerceValue(v, x$user_df[i, j]))
+})
+
+output$print <- renderPrint({
+  x$user_df
+})
+
+#####################################################
+####
 
 output$full_average_decathlon <- renderPlotly({
   voop_plot <-
@@ -999,6 +1003,102 @@ text_reactive <- reactiveValues(text = "NOT SUBMITTED")
 output$editabletest <-  renderText({
   text_reactive$text
 })
+
+## custom summary table
+
+custom_athlete_data <- list()
+custom_athlete_data$score <- reactive(
+  list_tidy[["base_df"]] %>% filter(Athlete == input$custom_athlete_select) %>% select("100m":"1500m") %>% as_vector())
+custom_athlete_data$score_num <- reactive(as.numeric(custom_athlete_data$score()[1:9]))
+
+  
+output$custom_dec_table <- renderTable({
+ 
+
+    decathlon_s2p(custom_athlete_data$score_num()[1],
+                custom_athlete_data$score_num()[2],
+                custom_athlete_data$score_num()[3],
+                custom_athlete_data$score_num()[4],
+                custom_athlete_data$score_num()[5],
+                custom_athlete_data$score_num()[6],
+                custom_athlete_data$score_num()[7],
+                custom_athlete_data$score_num()[8],
+                custom_athlete_data$score_num()[9],
+                custom_athlete_data$score()[10]
+                )
+  
+}, spacing = 'xs',
+bordered = TRUE)
+
+output$custom_dec_plot <- renderPlot({
+
+
+  decathlon_vis(custom_athlete_data$score_num()[1],
+                custom_athlete_data$score_num()[2],
+                custom_athlete_data$score_num()[3],
+                custom_athlete_data$score_num()[4],
+                custom_athlete_data$score_num()[5],
+                custom_athlete_data$score_num()[6],
+                custom_athlete_data$score_num()[7],
+                custom_athlete_data$score_num()[8],
+                custom_athlete_data$score_num()[9],
+                custom_athlete_data$score()[10]
+  )
+}
+)
+
+output$custom_rank_tile <- renderPlot({
+  
+  custom_indiv_athlete_rank <- preproc_forcustomplot %>%
+    mutate(select_athlete = case_when(Athlete == input$custom_athlete_select ~ "Select",
+                                      TRUE ~ "Other")) %>%
+    ungroup() %>%
+    mutate_at("select_athlete", as_factor) %>%
+    mutate_at("select_athlete", fct_relevel, "Select", "Other")
+  
+  filtered_athlete <- custom_indiv_athlete_rank %>% filter(Athlete == input$custom_athlete_select)
+  
+  custom_indiv_athlete_rank %>%
+    ggplot(aes(name,
+               value,
+               group = Athlete)) +
+    theme_bw() +
+    theme(text = element_text(family = "Segoe UI", size = 18),
+          panel.grid.minor.y = element_blank(),
+          legend.position = "none", 
+          axis.ticks.y = element_blank(),
+          axis.text.y = element_blank()) +
+    geom_text(
+      data = custom_indiv_athlete_rank[1,],
+      aes(5.5, 10, label = "victoryu.co.uk"),
+      size = 20,
+      alpha = .05,
+      family = "Segoe UI"
+    ) +
+    geom_text(
+      data = custom_indiv_athlete_rank[1,],
+      aes(5.5, 20, label = "victoryu.co.uk"),
+      size = 20,
+      alpha = .05,
+      family = "Segoe UI"
+    ) +
+    geom_line(data = filtered_athlete, colour = "black", size = 2.5) +
+    geom_point(data = filtered_athlete, colour = "black", size = 7.5) +
+    geom_point(data = filtered_athlete, colour = "#347deb", size = 7) +
+    geom_line(aes(colour = select_athlete, alpha = select_athlete), size = 2) +
+    geom_text(data = filtered_athlete,
+              aes(label = value), colour = "white", size = 5) +
+    scale_y_reverse(breaks = 1:nrow(custom_indiv_athlete_rank)) +
+    scale_x_discrete() +
+    scale_alpha_manual(values = c(1, 0.2)) +
+    scale_colour_manual(values = c("#347deb", "#b3b3b3")) +
+    labs(y = "Rank",
+         x = "Event")
+  
+})
+
+
+## custom plot
 
 ## Closing server brackets ####
 

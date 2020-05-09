@@ -55,12 +55,10 @@ navbarPage(
     ), 
     mainPanel(
       ## Output: Header + table of distribution ####
-      fluidRow(column(width = 4,
+      fluidRow(width = 9,
                       h4("Summary statistics"),
-                      tableOutput("dec_table")),
-               column(width = 4, 
-                      h4(" "),
-                      plotOutput("dec_plot", height = "600px")))
+                      tableOutput("dec_table"),
+                      plotOutput("dec_plot", height = "400px", width = "800px"))
       ))
     ),
     tabPanel("Heptathlon",
@@ -197,7 +195,7 @@ navbarPage(
                       tabPanel("Heptathlon (coming soon"))
              )
            )),   
-  ## 4) Custom Data ####
+  ## 5) Custom Data ####
   tabPanel("Custom Data (coming soon)", 
            titlePanel(HTML(paste0("Upload completed multievents competition"))),
            
@@ -218,6 +216,7 @@ navbarPage(
              
              mainPanel(
                tabsetPanel(
+                 ## ++++ Instructions ####
                  tabPanel(
                    "Instructions",
                    tags$br(),
@@ -255,6 +254,7 @@ navbarPage(
                    tags$b("Step 3)"),
                    "If you're happy with the dataset, click the submit button to send the data to the server to generate the plots.", HTML('&emsp;'), actionButton("goButton", "Submit", width = "100px") ## tab whitespace in html code
                  ),
+                 ## ++++ User Dataset ####
                  tabPanel(
                    "Your dataset",
                    div(dataTableOutput("users_dataset", width = "1500"), style = "font-size: 80%; width: 70%")
@@ -292,7 +292,16 @@ navbarPage(
                           plotlyOutput("example_user_cum_points_boxplot",
                                        width = "1525",
                                        height = "725")),
-                 tabPanel("Individual Athlete (coming soon)"),
+                 tabPanel("Individual Athlete (coming soon)",
+                          selectInput(
+                            "custom_athlete_select",
+                            "Athlete Name:",
+                            list_tidy[["base_df"]]$Athlete %>% sort()
+                          ),
+                          fluidRow(column(width = 6, tableOutput("custom_dec_table")),
+                          column(width = 6, plotOutput("custom_dec_plot"))),
+                          fluidRow(column(width = 6, plotOutput("custom_rank_tile")))
+                          ),
                  tabPanel("About Plots")
                )
              )
@@ -357,7 +366,7 @@ navbarPage(
                       "The radar plot maps the relative performance of the athlete's average performance in the pre-defined categories against other athletes' average performance through standardisation. Post-transformation using 0-1 normalisation is applied to align the grid-rings.",
                       tags$br(),tags$br(),
                       "This can be notated by:",
-                      withMathJax("$$\\frac{\\sum_{i}^a\\sum_{j}^b x_{ij}}{|a||b|}\\!$$'"),
+                      withMathJax("$$\\frac{\\sum_{i}^a\\sum_{j}^b x_{ij}}{|a||b|}\\!$$"),
              tags$div(HTML("<script type='text/x-mathjax-config' >
             MathJax.Hub.Config({
             tex2jax: {inlineMath: [['$','$']]}
@@ -429,7 +438,7 @@ navbarPage(
            DT::dataTableOutput("foobar"),
            textOutput("text_test"),
            textOutput("athlete_df_idx"),
-           textOutput("editabletest")),
+           verbatimTextOutput("print")),
   tabPanel("To do",
            "Update hand timed checkbox for table and plot - DONE",
            tags$br(),
@@ -459,6 +468,8 @@ navbarPage(
            tags$br(),
            "Add hand times to heptathlon calculator - DONE",
            tags$br(),
-           "Check plotly radar function"
+           "Check plotly radar function",
+           tags$br(),
+           "Update limits in decathlon/hetathlon_viz"
            )
 )
