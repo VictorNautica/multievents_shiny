@@ -1,4 +1,4 @@
-function(input, output) {
+function(input, output, session) {
   
   ## For calculator ####
 
@@ -778,40 +778,38 @@ output$scatterplot3d <- renderPlotly({
 
 output$example_athlete_bumpplot <- renderPlot({
   
-  preproc_forcustomplot %>% ggplot(aes(
-  name,
-  value,
-  group = Athlete
-)) +
-  theme_bw() +
-  theme(text = element_text(family = "Segoe UI", size = 18), 
-        panel.grid.minor.y = element_blank()) +
-  geom_text(data = preproc_forcustomplot[1,], aes(5.5, 10, label = "victoryu.co.uk"), size = 40, alpha = .2, family = "Segoe UI") +
-    geom_text(data = preproc_forcustomplot[1,], aes(5.5, 20, label = "victoryu.co.uk"), size = 40, alpha = .2, family = "Segoe UI") +
-  geom_line(colour = "black", size = 2.5) +
-  geom_point(colour = "black", size = 2.5) +
-  geom_point(aes(colour = Athlete), size = 2) +
-  geom_line(aes(colour = Athlete), size = 2) +
-  geom_text(data = preproc_forcustomplot %>% filter(name == "1500m"), aes(label = Athlete), nudge_x = 0.1, hjust = 0, family = "Segoe UI", size = 6) +
-  scale_y_reverse(breaks = 1:36) +
-  scale_x_discrete(expand = expansion(mult = c(.05, .2))) +
-  scale_color_manual(values = c(rev(colorRampPalette(RColorBrewer::brewer.pal(11, "Spectral"))(last_fullentry_idx)), 
-                                rep("white", nrow(list_tidy[["df_rank"]])-last_fullentry_idx)
-  ),
-  guide = F) +
-  labs(y = "Rank",
-       x = "Event")
+  yyy()[["preproc_forcustomplot"]] %>% ggplot(aes(
+    name,
+    value,
+    group = Athlete
+  )) +
+    theme_bw() +
+    theme(text = element_text(family = "Segoe UI", size = 18), 
+          panel.grid.minor.y = element_blank()) +
+    geom_text(data = yyy()[["preproc_forcustomplot"]][1,], aes(5.5, 10, label = "victoryu.co.uk"), size = 40, alpha = .2, family = "Segoe UI") +
+    geom_text(data = yyy()[["preproc_forcustomplot"]][1,], aes(5.5, 20, label = "victoryu.co.uk"), size = 40, alpha = .2, family = "Segoe UI") +
+    geom_line(colour = "black", size = 2.5) +
+    geom_point(colour = "black", size = 2.5) +
+    geom_point(aes(colour = Athlete), size = 2) +
+    geom_line(aes(colour = Athlete), size = 2) +
+    geom_text(data = yyy()[["preproc_forcustomplot"]] %>% filter(name == "1500m"), aes(label = Athlete), nudge_x = 0.1, hjust = 0, family = "Segoe UI", size = 6) +
+    scale_y_reverse(breaks = 1:36) +
+    scale_x_discrete(expand = expansion(mult = c(.05, .2))) +
+    scale_color_manual(values = yyy()[["preproc_forcustomplot"]] %>% summarise(colour = unique(Colour)) %>% pull(colour),
+                       guide = F) +
+    labs(y = "Rank",
+         x = "Event")
 })
 
 output$example_athlete_avg_points <- renderPlot({
   
-  list_tidy[["df_avg_pivot"]] %>% 
+  yyy()[["df_avg_pivot"]] %>% 
     ggplot(aes(event, value, group = Athlete)) +
-    geom_rect(data = list_tidy[["df_avg_pivot"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 1.5, xmax = 2.5, alpha = 0.2/5) + ## select 10 rows otherwise it interferes with x axis order despite being factor'ed already
-    geom_rect(data = list_tidy[["df_avg_pivot"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 3.5, xmax = 4.5, alpha = 0.2/5) +
-    geom_rect(data = list_tidy[["df_avg_pivot"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 5.5, xmax = 6.5, alpha = 0.2/5) +
-    geom_rect(data = list_tidy[["df_avg_pivot"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 7.5, xmax = 8.5, alpha = 0.2/5) +
-    geom_rect(data = list_tidy[["df_avg_pivot"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 9.5, xmax = 10.5, alpha = 0.2/5) +
+    geom_rect(data = yyy()[["df_avg_pivot"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 1.5, xmax = 2.5, alpha = 0.2/5) + ## select 10 rows otherwise it interferes with x axis order despite being factor'ed already
+    geom_rect(data = yyy()[["df_avg_pivot"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 3.5, xmax = 4.5, alpha = 0.2/5) +
+    geom_rect(data = yyy()[["df_avg_pivot"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 5.5, xmax = 6.5, alpha = 0.2/5) +
+    geom_rect(data = yyy()[["df_avg_pivot"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 7.5, xmax = 8.5, alpha = 0.2/5) +
+    geom_rect(data = yyy()[["df_avg_pivot"]][1:10,], aes(ymin = -Inf, ymax = Inf), fill = "lightgrey", xmin = 9.5, xmax = 10.5, alpha = 0.2/5) +
     geom_text(data = function(x) x[1,], aes(5.5, 600, label = "victoryu.co.uk"), size = 48, alpha = .1, family = "Segoe UI", angle = 45) +
     # geom_tile(colour = "black", height = 2) +
     # geom_point(aes(fill = fct_reorder(Athlete, final_rank)), size = 5, shape = 22, position = myjit) +
@@ -822,14 +820,14 @@ output$example_athlete_avg_points <- renderPlot({
           axis.title.x = element_blank(),
           text = element_text(family = "Segoe UI", size = 18)) +
     guides(fill = guide_legend(ncol = 1)) +
-    scale_fill_manual(values = pull(summarise(list_tidy[["df_avg_pivot"]], unique_colour = unique(Colour)))) +
-    scale_colour_manual(values = pull(summarise(list_tidy[["df_avg_pivot"]], unique_colour = unique(BorW))))  
+    scale_fill_manual(values = pull(summarise(yyy()[["df_avg_pivot"]], unique_colour = unique(Colour)))) +
+    scale_colour_manual(values = pull(summarise(yyy()[["df_avg_pivot"]], unique_colour = unique(BorW))))  
   
 }
 )
 
 output$example_athete_ranktileplot <- renderPlot({
-  preproc_forcustomplot %>% 
+  yyy()[["preproc_forcustomplot"]] %>% 
     ggplot(aes(
       name,
       value,
@@ -838,27 +836,26 @@ output$example_athete_ranktileplot <- renderPlot({
     # theme_bw() +
     theme(text = element_text(family = "Segoe UI", size = 18), 
           panel.grid.minor.y = element_blank()) +
-    geom_text(data = preproc_forcustomplot[1,], aes(11.5, 20, label = "victoryu.co.uk"), size = 30, alpha = .2, family = "Segoe UI", angle = 285) +
-    geom_line(data = preproc_forcustomplot_line, aes(x = event_as_integer), colour = "black", size = 1.5) +
-    geom_line(data = preproc_forcustomplot_line, aes(x = event_as_integer, colour = Athlete), size = 1) +
+    geom_text(data = yyy()[["preproc_forcustomplot"]][1,], aes(11.5, 20, label = "victoryu.co.uk"), size = 30, alpha = .2, family = "Segoe UI", angle = 285) +
+    geom_line(data = yyy()[["preproc_forcustomplot_line"]], aes(x = event_as_integer), colour = "black", size = 1.5) +
+    geom_line(data = yyy()[["preproc_forcustomplot_line"]], aes(x = event_as_integer, colour = Athlete), size = 1) +
     geom_tile(aes(fill = Athlete), width = 0.5, height = 0.9) +
-    geom_text(data = preproc_forcustomplot %>% filter(name == "1500m"), aes(label = Athlete), nudge_x = 0.6, hjust = 0, family = "Segoe UI", size = 6) +
+    geom_text(data = yyy()[["preproc_forcustomplot"]] %>% filter(name == "1500m"), aes(label = Athlete), nudge_x = 0.6, hjust = 0, family = "Segoe UI", size = 6) +
     scale_y_reverse(breaks = 1:36) +
     scale_x_discrete(expand = expansion(mult = c(.05, .3))) +
-    scale_fill_manual(values = pull(summarise(preproc_forcustomplot, unique_colour = unique(Colour))),
+    scale_fill_manual(values = pull(summarise(yyy()[["preproc_forcustomplot"]], unique_colour = unique(Colour))),
                       guide = F) +
-    scale_colour_manual(values = pull(summarise(preproc_forcustomplot, unique_colour = unique(Colour))),
+    scale_colour_manual(values = pull(summarise(yyy()[["preproc_forcustomplot"]], unique_colour = unique(Colour))),
                         guide = F) +
     ggnewscale::new_scale_colour() +
     geom_text(aes(label = Athlete_abbr, colour = Athlete), size = 4.5, family = "Segoe UI", show.legend = F) +
-    scale_colour_manual(values = pull(summarise(preproc_forcustomplot, unique_colour = unique(BorW)))) +
+    scale_colour_manual(values = pull(summarise(yyy()[["preproc_forcustomplot"]], unique_colour = unique(BorW)))) +
     labs(y = "Rank",
          x = "Event")
 })
 
 output$exampledf <- renderDataTable(datatable(exampledf,
                                               class = 'cell-border stripe compact',
-                                              editable = T,
                                               rownames = F,
                                               options = list(pageLength = nrow(exampledf),
                                                              dom = "tir",
@@ -875,19 +872,38 @@ x = reactiveValues(user_df = NULL)
 ## user upload ####
 observe({
     req(input$file1)
-    x$user_df <- read.csv(input$file1$datapath,
-                          header = input$header,
+    x$user_df <- read.csv(input$file1$datapath, 
                           stringsAsFactors = F)
 })
-
 
 ## initial user df displayed ####
 
 output$users_dataset <- renderDataTable({
-  
   datatable(x$user_df,
-            class = 'cell-border stripe compact', 
+            class = 'cell-border stripe compact',
             editable = T,
+            rownames = F,
+            options = list(pageLength = nrow(exampledf),
+                           dom = "tir",
+                           columnDefs = list(list(className = 'dt-body-right', targets = 2:11))))
+}
+)
+
+
+## initial user df displayed ####
+
+output$users_dataset_calculated <- renderDataTable({
+  
+  custom_df_view <- switch(input$custom_datasetview_select,
+                   Score = "base_df",
+                   Points = "df_points",
+                   `Cumulative Points` = "df_cum",
+                   Rank = "df_rank",
+                   Average = "df_avg",
+                   Standardised = )
+  
+  datatable(yyy()[[custom_df_view]],
+            class = 'cell-border stripe compact', 
             rownames = F,
             options = list(pageLength = nrow(exampledf),
                            dom = "tir",
@@ -931,7 +947,7 @@ output$full_average_decathlon <- renderPlotly({
 
 output$example_user_points_boxplot <- renderPlotly({
   
-  foo <- list_tidy[["df_points"]] %>% 
+  foo <- yyy()[["df_points"]] %>% 
     pivot_longer(cols = `100m`:`1500m`, names_to = "event", values_to = "points") %>%
     mutate_at(vars("event", "Athlete"), as_factor) %>% 
     ggplot(aes(event, points)) +
@@ -947,7 +963,7 @@ output$example_user_points_boxplot <- renderPlotly({
       size = 2.5,
       alpha = 0.75
     ) +
-    scale_colour_manual(values = colorRampPalette(brewer.pal(9, "Set1"))(nrow(list_tidy[["base_df"]]))) +
+    scale_colour_manual(values = colorRampPalette(brewer.pal(9, "Set1"))(nrow(yyy()[["base_df"]]))) +
     theme(axis.title.x = element_blank(),
           text = element_text(family = "Segoe UI", size = 18), 
           legend.text = element_text(size = 10), 
@@ -961,7 +977,7 @@ output$example_user_points_boxplot <- renderPlotly({
 
 output$example_user_cum_points_boxplot <- renderPlotly({
   
-  foo <- list_tidy[["df_cum"]] %>% 
+  foo <- yyy()[["df_cum"]] %>% 
     pivot_longer(cols = `100m`:`1500m`, names_to = "event", values_to = "points") %>% 
     mutate_at(vars("event", "Athlete"), as_factor) %>% 
     ggplot(aes(event, points)) +
@@ -972,7 +988,7 @@ output$example_user_cum_points_boxplot <- renderPlotly({
                                           "\nCumulative Points: ", points)),
       height = 0, width = 0.2, shape = 18, size = 1, alpha = 0.75) +
     facet_wrap(~ event, scales = "free", ncol = 10, strip.position = "bottom") +
-    scale_colour_manual(values = colorRampPalette(brewer.pal(9, "Set1"))(nrow(list_tidy[["base_df"]]))) +
+    scale_colour_manual(values = colorRampPalette(brewer.pal(9, "Set1"))(nrow(yyy()[["base_df"]]))) +
     theme(
       axis.title.x = element_blank(),
       axis.ticks.x = element_blank(),
@@ -993,22 +1009,28 @@ output$example_user_cum_points_boxplot <- renderPlotly({
 
 observeEvent(input$goButton, 
              {
-               text_reactive$text <- user_df() %>% pull(Athlete)
+               make_reactive$value <- T
+               make_reactive$custom_df <- x$user_df
                }
              )
              
-text_reactive <- reactiveValues(text = "NOT SUBMITTED")
+make_reactive <- reactiveValues(value = F)
 
 
-output$editabletest <-  renderText({
-  text_reactive$text
-})
+yyy <-
+  reactive(
+    scrape_function(
+      custom_csv_activate = make_reactive$value,
+      custom_df = make_reactive$custom_df
+    )
+  )
+
 
 ## custom summary table
 
 custom_athlete_data <- list()
 custom_athlete_data$score <- reactive(
-  list_tidy[["base_df"]] %>% filter(Athlete == input$custom_athlete_select) %>% select("100m":"1500m") %>% as_vector())
+  yyy()[["base_df"]] %>% filter(Athlete == input$custom_athlete_select) %>% select("100m":"1500m") %>% as_vector())
 custom_athlete_data$score_num <- reactive(as.numeric(custom_athlete_data$score()[1:9]))
 
   
@@ -1049,7 +1071,7 @@ output$custom_dec_plot <- renderPlot({
 
 output$custom_rank_tile <- renderPlot({
   
-  custom_indiv_athlete_rank <- preproc_forcustomplot %>%
+  custom_indiv_athlete_rank <- yyy()[["preproc_forcustomplot"]] %>%
     mutate(select_athlete = case_when(Athlete == input$custom_athlete_select ~ "Select",
                                       TRUE ~ "Other")) %>%
     ungroup() %>%
@@ -1097,8 +1119,15 @@ output$custom_rank_tile <- renderPlot({
   
 })
 
+outVar <- reactive(yyy()[["base_df"]]$Athlete %>% sort())
 
-## custom plot
+observe({
+  updateSelectInput(session, "custom_athlete_select",
+                    choices = outVar()
+  )})
+
+## 
+
 
 ## Closing server brackets ####
 

@@ -216,8 +216,26 @@ navbarPage(
                                     ".csv")),
                
                tags$hr(),
-               
-               checkboxInput("header", "Header", TRUE)
+               selectInput(
+                 "custom_competition_select",
+                 "Select competition:",
+                 c("Decathlon", "Heptathlon")
+               ),
+               tags$hr(),
+               tags$b("Submit data:"),
+               actionButton("goButton", "Submit", width = "250px"),
+               tags$hr(),
+               selectInput(
+                 "custom_datasetview_select",
+                 "Select dataset view:",
+                 c("Score", "Points", "Cumulative Points", "Rank", "Average", "Standardised")
+               ),
+               tags$hr(),
+               selectInput(
+                 "custom_athlete_select",
+                 "Athlete Name:",
+                 ""
+               )
                
              ),
              
@@ -237,7 +255,7 @@ navbarPage(
                    div(dataTableOutput("exampledf"), style = "height:300px; width:1500px; font-size: 80%; overflow-y: scroll"),
                    tags$br(),
                    
-                   "The primary requirement for this feature to function is that your dataset has to have a column denoting the athlete's name, and then columns for points the athletes have scored in in sequential order of the decathlon/heptathlon. Jumps and throws should be measured in the metric system. 1500m times can be recorded either in the format mm:ss.s or purely as seconds. Ranking order, points conversion, or other miscellaneous columns are not required.",
+                   "The primary requirement for this feature to function is that your dataset has to have a column denoting the athlete's name, and then columns for points the athletes have scored in in sequential order of the decathlon/heptathlon. Jumps and throws should be measured in the metric system. 1500m times can be recorded either in the format mm:ss or purely as seconds. Ranking order, points conversion, or other miscellaneous columns are not required.",
                    tags$br(),
                    tags$br(),
                    "Events with no marks should be labelled as ",
@@ -253,18 +271,22 @@ navbarPage(
                    " for running events.",
                    tags$br(),
                    tags$br(),
-                   tags$b("Step 2 (optional))"),
+                   tags$b("Step 2"), " (optional)", tags$b(")", .noWS = "before"),
                    "In the ",
                    tags$em("Your dataset"),
                    " tab, you can make ad hoc edits to cells if there are inaccuracies.",
                    tags$br(), tags$br(),
                    tags$b("Step 3)"),
-                   "If you're happy with the dataset, click the submit button to send the data to the server to generate the plots.", HTML('&emsp;'), actionButton("goButton", "Submit", width = "100px") ## tab whitespace in html code
+                   "When you're happy with the dataset, click the submit button to send the data to the server to generate the plots."
                  ),
                  ## ++++ User Dataset ####
                  tabPanel(
                    "Your dataset",
                    div(dataTableOutput("users_dataset", width = "1500"), style = "font-size: 80%; width: 70%")
+                 ),
+                 tabPanel(
+                   "Your dataset (calculated)",
+                   div(dataTableOutput("users_dataset_calculated", width = "1500"), style = "font-size: 80%; width: 70%")
                  ),
                  # Bumps Plot ####
                  tabPanel(
@@ -300,11 +322,6 @@ navbarPage(
                                        width = "1525",
                                        height = "725")),
                  tabPanel("Individual Athlete (coming soon)",
-                          selectInput(
-                            "custom_athlete_select",
-                            "Athlete Name:",
-                            list_tidy[["base_df"]]$Athlete %>% sort()
-                          ),
                           fluidRow(column(width = 6, tableOutput("custom_dec_table")),
                           column(width = 6, plotOutput("custom_dec_plot"))),
                           fluidRow(column(width = 6, plotOutput("custom_rank_tile")))
@@ -446,7 +463,8 @@ navbarPage(
            DT::dataTableOutput("foobar"),
            textOutput("text_test"),
            textOutput("athlete_df_idx"),
-           verbatimTextOutput("print")),
+           verbatimTextOutput("print"),
+           verbatimTextOutput("editabletest")),
   tabPanel("To do",
            "Update hand timed checkbox for table and plot - DONE",
            tags$br(),

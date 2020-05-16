@@ -23,17 +23,62 @@ hex_bw <- Vectorize(function(hex_code) {
   
 })
 
-## Initial scrape ####
+## Function for aligned jitters in diff geoms ####
 
+myjit <- ggproto("fixJitter", PositionDodge,
+                 width = 0.5,
+                 dodge.width = 0.15,
+                 jit = NULL,
+                 compute_panel =  function (self, data, params, scales) 
+                 {
+                   
+                   #Generate Jitter if not yet
+                   if(is.null(self$jit) ) {
+                     self$jit <-jitter(rep(0, nrow(data)), amount=self$dodge.width)
+                   }
+                   
+                   data <- ggproto_parent(PositionDodge, self)$compute_panel(data, params, scales)
+                   
+                   data$x <- data$x + self$jit
+                   #For proper error extensions
+                   if("xmin" %in% colnames(data)) data$xmin <- data$xmin + self$jit
+                   if("xmax" %in% colnames(data)) data$xmax <- data$xmax + self$jit
+                   data
+                 } )
 
+## Scrape Function ####
+
+scrape_function <- function(custom_csv_activate = FALSE,
+                            custom_df) {
+  
 list_tidy <- list()
-list_tidy[["base_df"]] <- read_csv("scrapenglandaltheits_withoutpoints.csv") %>% select(!contains("Points"))
+
+if (custom_csv_activate == T) {
+list_tidy[["base_df"]] <- custom_df
+} else {
+list_tidy[["base_df"]] <- read_csv("scrapenglandathletics_withoutpoints.csv") %>% select(!contains("Points"))
+}
 
 # which(list_tidy[["base_df"]]$Athlete == "George HEPPINSTALL [U23]") ## sorted this manually, I will need to automate it next time
 
 idx_100m <- str_which(names(list_tidy[["base_df"]]), pattern = "100m")
 
-last_entry <- list_tidy[["base_df"]][,idx_100m:(idx_100m+9)] %>% t %>% as_tibble() %>% map_int( ~ max(which(!is.na(.x)))) ## return last valid entry index before NA or complete series
+last_entry <-
+  list_tidy[["base_df"]][, idx_100m:(idx_100m + 9)] %>% 
+  t() %>% 
+  as_tibble() %>% 
+  map_int(~ {
+    
+    max_init <- max(which(!is.na(.x)))
+    
+    if (.x[max_init] == "DNS") {
+      max_init <- max_init-1L
+    }
+    
+    return(max_init)
+    
+  }
+  ) ## return last valid entry index before NA or complete series
 
 list_tidy[["base_df"]] <- list_tidy[["base_df"]][order(last_entry, decreasing = T), ] ## rearrange
 
@@ -51,56 +96,62 @@ list_tidy[["base_df"]] <-
     return(.x)
   }) %>% map_dfr(as.list) %>% 
   bind_cols(list_tidy[["base_df"]][, 1:(idx_100m-1)], .)
-colnames(list_tidy[["base_df"]]) %<>% str_replace_all("_Score", "")
+
+
+colnames(list_tidy[["base_df"]])[idx_100m:(idx_100m+9)] <- c("100m","LJ","SP","HJ","400m","110mh","DT","PV","JT","1500m")
+list_tidy[["base_df"]]$PV <- str_replace_all(list_tidy[["base_df"]]$PV, "nhc", "NMR")
 
 ## Calculate Points ####
 
 list_tidy[["df_points"]] <- list_tidy[["base_df"]] %>% select("100m":"1500m") %>% imap_dfc(~ {
   
   use_this_func <- switch(.y,
-                             "100m" = multievents::dec_100m,
-                             "LJ" = multievents::dec_lj,
-                             "SP" = multievents::dec_sp,
-                             "HJ" = multievents::dec_hj,
-                             "400m" = multievents::dec_400m,
-                             "110mh" = multievents::dec_110mh,
-                             "DT" = multievents::dec_dt,
-                             "PV" = multievents::dec_pv,
-                             "JT" = multievents::dec_jt,
-                             "1500m" = multievents::dec_1500m)
-
+                          "100m" = multievents::dec_100m,
+                          "LJ" = multievents::dec_lj,
+                          "SP" = multievents::dec_sp,
+                          "HJ" = multievents::dec_hj,
+                          "400m" = multievents::dec_400m,
+                          "110mh" = multievents::dec_110mh,
+                          "DT" = multievents::dec_dt,
+                          "PV" = multievents::dec_pv,
+                          "JT" = multievents::dec_jt,
+                          "1500m" = multievents::dec_1500m)
+  
   mod_function <- possibly(use_this_func, otherwise = NA_integer_)
   
   if (.y == "1500m") {
-    if (str_detect(.x, ":")) .x %>% map_dbl(~ mod_function(.x))
-    } else {
+    if (any(str_detect(.x, ":"))) .x %>% map_dbl(~ mod_function(.x))
+  } else {
     mod_function(as.numeric(.x))
-    }
-  
   }
-  ) %>% bind_cols(list_tidy[["base_df"]][, 1:(idx_100m-1)], .)
-
-last_fullentry_idx <- max(which(list_tidy[["base_df"]]$`1500m` %>% str_detect("[:digit:]")))
-
-list_tidy[["df_points"]][1:last_fullentry_idx,] %<>% mutate_at(vars("100m":"1500m"),
-                                                                                    replace_na, 0) ## replace missing points in anyone with a rank with 0
-
-unranked_with_letter <- list_tidy[["base_df"]][(last_fullentry_idx+1):nrow(list_tidy[["base_df"]]),] %>% select("100m":"1500m") %>% map(~ {
-  
-  .x %>% str_which("NMR|UNKNOWN|DNF")
-  
-})
-
-list_tidy[["df_points"]][(last_fullentry_idx+1):nrow(list_tidy[["base_df"]]),idx_100m:(idx_100m+9)] %<>% imap_dfc( ~ {
- 
-  if (length(unranked_with_letter[[.y]]) > 0) {
-    .x[unranked_with_letter[[.y]]] <- 0
-  }
-  
-  return(.x)
   
 }
-)
+) %>% bind_cols(list_tidy[["base_df"]][, 1:(idx_100m-1)], .)
+
+last_fullentry_idx <- max(which(list_tidy[["base_df"]][[idx_100m+9]] %>% str_detect("[:digit:]")))
+
+
+list_tidy[["df_points"]][1:last_fullentry_idx,] %<>% mutate_at(vars("100m":"1500m"),
+                                                               replace_na, 0) ## replace missing points in anyone with a final rank with 0
+
+
+if (last_fullentry_idx < nrow(list_tidy[["base_df"]])) {
+  unranked_with_letter <-
+    list_tidy[["base_df"]][(last_fullentry_idx + 1):nrow(list_tidy[["base_df"]]), ] %>% select("100m":"1500m") %>% map( ~ {
+      .x %>% str_which("NMR|UNKNOWN|DNF")
+    }) ## locate string match positions
+  
+  list_tidy[["df_points"]][(last_fullentry_idx+1):nrow(list_tidy[["base_df"]]),idx_100m:(idx_100m+9)] %<>% imap_dfc( ~ {
+    
+    if (length(unranked_with_letter[[.y]]) > 0) {
+      .x[unranked_with_letter[[.y]]] <- 0
+    }
+    
+    return(.x)
+    
+  }
+  )
+}
 
 ## Calculate Cumulative Points ####
 
@@ -115,6 +166,8 @@ list_tidy[["df_cum"]] <- list_tidy[["df_points"]][,idx_100m:(idx_100m+9)] %>%
 
 colnames(list_tidy[["df_cum"]])[idx_100m:(idx_100m+9)] <- colnames(list_tidy[["df_points"]])[idx_100m:(idx_100m+9)]
 
+list_tidy[["df_cum"]] %<>% arrange(-`1500m`)
+
 ## Calculate Rank ####
 
 list_tidy[["df_rank"]] <- list_tidy[["df_cum"]] %>% mutate_at(idx_100m:(idx_100m+9),
@@ -124,15 +177,15 @@ list_tidy[["df_rank"]] <- list_tidy[["df_cum"]] %>% mutate_at(idx_100m:(idx_100m
 
 list_tidy[["df_avg"]] <- list_tidy[["df_cum"]] %>%
   mutate(
-    LJ = LJ / 2,
-    SP = SP / 3,
-    HJ = HJ / 4,
-    `400m` = `400m` / 5,
-    `110mh` = `110mh` / 6,
-    DT = DT / 7,
-    PV = PV / 8,
-    JT = JT / 9,
-    `1500m` = `1500m` / 10
+    LJ = round(LJ / 2, 0),
+    SP = round(SP / 3, 0),
+    HJ = round(HJ / 4, 0),
+    `400m` = round(`400m` / 5, 0), 
+    `110mh` = round(`110mh` / 6, 0), 
+    DT = round(DT / 7, 0), 
+    PV = round(PV / 8, 0), 
+    JT = round(JT / 9, 0), 
+    `1500m` = round(`1500m` / 10, 0)
   )
 
 ## Average Points Pivot for Plot ####
@@ -157,11 +210,11 @@ list_tidy[["df_avg_pivot"]] <- list_tidy[["df_avg"]] %>%
   ) %>% pivot_longer(cols = c(`100m`:`1500m`), names_to = "event") %>%
   mutate_at("event", as_factor)
 
-
 ## Pre-processing for custom line plot ####
 
-preproc_forcustomplot <-
+list_tidy[["preproc_forcustomplot"]] <-
   list_tidy[["df_rank"]] %>%
+  arrange(`1500m`) %>% 
   mutate(
     "Colour" = c(
       colorRampPalette(RColorBrewer::brewer.pal(11, "Spectral"))(last_fullentry_idx),
@@ -181,9 +234,9 @@ preproc_forcustomplot <-
 
 ## Line modification in the rank tile plot ####
 
-preproc_forcustomplot_line <- preproc_forcustomplot %>% mutate(event_as_integer = as.integer(name),
-                                         duplicate = case_when(as.integer(name) %in% c(1,10) ~ 1,
-                                                               TRUE ~ 2)) %>% 
+list_tidy[["preproc_forcustomplot_line"]] <- list_tidy[["preproc_forcustomplot"]] %>% mutate(event_as_integer = as.integer(name),
+                                                               duplicate = case_when(as.integer(name) %in% c(1,10) ~ 1,
+                                                                                     TRUE ~ 2)) %>% 
   uncount(duplicate) %>%
   group_by(Athlete, event_as_integer) %>% mutate(test = 1:n()) %>%
   ungroup() %>% 
@@ -193,28 +246,17 @@ preproc_forcustomplot_line <- preproc_forcustomplot %>% mutate(event_as_integer 
                         . %in% 2:9 & test == 1 ~ . - 0.4,
                         . %in% 2:9 & test == 2 ~ . + 0.4))
 
-## Function for aligned jitters in diff geoms ####
+## Sort other dfs ####
 
-myjit <- ggproto("fixJitter", PositionDodge,
-                 width = 0.5,
-                 dodge.width = 0.15,
-                 jit = NULL,
-                 compute_panel =  function (self, data, params, scales) 
-                 {
-                   
-                   #Generate Jitter if not yet
-                   if(is.null(self$jit) ) {
-                     self$jit <-jitter(rep(0, nrow(data)), amount=self$dodge.width)
-                   }
-                   
-                   data <- ggproto_parent(PositionDodge, self)$compute_panel(data, params, scales)
-                   
-                   data$x <- data$x + self$jit
-                   #For proper error extensions
-                   if("xmin" %in% colnames(data)) data$xmin <- data$xmin + self$jit
-                   if("xmax" %in% colnames(data)) data$xmax <- data$xmax + self$jit
-                   data
-                 } )
+list_tidy[["base_df"]] <- list_tidy[["base_df"]][match(list_tidy[["df_rank"]]$Athlete, list_tidy[["base_df"]]$Athlete),]
+list_tidy[["df_points"]] <- list_tidy[["df_points"]][match(list_tidy[["df_rank"]]$Athlete, list_tidy[["df_points"]]$Athlete),]
+
+## Final Return ####
+
+return(list_tidy)
+
+}
+
 
 ## OLD CODE ####
 
