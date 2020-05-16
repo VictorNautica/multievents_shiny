@@ -235,6 +235,10 @@ navbarPage(
                  "custom_athlete_select",
                  "Athlete Name:",
                  ""
+               ),
+               tags$hr(),
+               downloadButton("download_custom_athlete",
+                              label = paste0(stringi::stri_dup(intToUtf8(160), 6),"Download Indiv. Athlete Profile")
                )
                
              ),

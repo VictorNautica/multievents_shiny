@@ -774,6 +774,37 @@ output$scatterplot3d <- renderPlotly({
   }
   )
 
+## PDF individual athlete generator ####
+
+output$download_custom_athlete = downloadHandler(
+  filename = function() {
+    paste0(str_replace_all(input$custom_athlete_select, "[:punct:]", "") %>% 
+             str_replace_all("[:blank:]", " _"),
+           "_plots.pdf")
+  },
+  
+  content = function(file) {
+    pdf(file, onefile = TRUE)
+    renderPlot({
+      
+      
+      decathlon_vis(custom_athlete_data$score_num()[1],
+                    custom_athlete_data$score_num()[2],
+                    custom_athlete_data$score_num()[3],
+                    custom_athlete_data$score_num()[4],
+                    custom_athlete_data$score_num()[5],
+                    custom_athlete_data$score_num()[6],
+                    custom_athlete_data$score_num()[7],
+                    custom_athlete_data$score_num()[8],
+                    custom_athlete_data$score_num()[9],
+                    custom_athlete_data$score()[10]
+      ) + theme(axis.text.x = element_text(size = 11))
+    }
+    )
+    dev.off()
+  }
+)
+
 ## Testing stuff goes here ####
 
 output$example_athlete_bumpplot <- renderPlot({
