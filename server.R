@@ -802,7 +802,9 @@ output$download_custom_athlete = downloadHandler(
                               text = element_text(size = 10),
                               legend.margin = margin(-5, unit = "pt")),
     indiv_rank_plot(),
-    ncol = 2)
+    ncol = 2,
+    top = textGrob(input$custom_athlete_select, x = 0.02, hjust = 0,
+                   gp = gpar(fontsize = 20, font = 10)))
     dev.off()
   }
 )
