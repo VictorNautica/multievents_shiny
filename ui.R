@@ -1,5 +1,5 @@
 navbarPage(
-  theme = shinythemes::shinytheme("sandstone"),
+  # theme = shinythemes::shinytheme("sandstone"),
   title = "Multi-events repository",
   tabPanel(
     ## 1) Calculator ####
@@ -238,7 +238,7 @@ navbarPage(
                ),
                tags$hr(),
                downloadButton("download_custom_athlete",
-                              label = paste0(stringi::stri_dup(intToUtf8(160), 6),"Download Indiv. Athlete Profile")
+                              label = paste0(stringi::stri_dup(intToUtf8(160), 2),"Download Indiv. Athlete Profile")
                )
                
              ),
@@ -259,7 +259,7 @@ navbarPage(
                    div(dataTableOutput("exampledf"), style = "height:300px; width:1500px; font-size: 80%; overflow-y: scroll"),
                    tags$br(),
                    
-                   "The primary requirement for this feature to function is that your dataset has to have a column denoting the athlete's name, and then columns for points the athletes have scored in in sequential order of the decathlon/heptathlon. Jumps and throws should be measured in the metric system. 1500m times can be recorded either in the format mm:ss or purely as seconds. Ranking order, points conversion, or other miscellaneous columns are not required.",
+                   "The primary requirement for this program to function is that your dataset has to have a column denoting the athlete's name, and then columns for points the athletes have scored in in sequential order of the decathlon/heptathlon. Jumps and throws should be measured in the metric system. 1500m times can be recorded either in the format mm:ss or purely as seconds. Ranking order, points conversion, or other miscellaneous columns are not required.",
                    tags$br(),
                    tags$br(),
                    "Events with no marks should be labelled as ",
@@ -429,7 +429,7 @@ navbarPage(
               "This website features data from all decathlons at the three major world events (Olympics, World Championships, and Gotzis Hypomeeting) since 2000. It allows you to view relevant visualisations, calculate common points conversion for events, view trends, see athlete profiles, and allows you to upload your own combined events dataset.<br/><br/>
               For best user experience use a browser with WebGL compatibility and a screen resolution of atleast 1920x1080.",
                h4("About me"),
-               "I previously competed in the decathlon at an amateur level. I mainly created this Shiny App to showcase some of the skills I have in this feature of R for work training and my CV.<br/><br/>
+               "I previously competed in the decathlon at an amateur level. I mainly created this Shiny App to showcase some of the skills I have in this feature of R for work training and my portfolio.<br/><br/>
               
               If you have any queries or spot any inaccuracies in the data, please contact me at victoryu@sent.com"
              )

@@ -788,8 +788,8 @@ output$download_custom_athlete = downloadHandler(
   content = function(file) {
     pdf(file,
         onefile = TRUE,
-        width = 16,
-        height = 9)
+        width = 33.1/2,
+        height = 23.4/2)
     grid.arrange(tableGrob(
       indiv_table() %>% rename(
         `Cumulative\nPoints` = `Cumulative Points`,
@@ -798,7 +798,9 @@ output$download_custom_athlete = downloadHandler(
       ),
       rows = NULL
     ),
-    indiv_line_plot(),
+    indiv_line_plot() + theme(plot.margin = margin(1.5, 1.5, 0.5, 1, "cm"), 
+                              text = element_text(size = 10),
+                              legend.margin = margin(-5, unit = "pt")),
     indiv_rank_plot(),
     ncol = 2)
     dev.off()
@@ -1128,7 +1130,7 @@ indiv_rank_plot <- reactive(
              group = Athlete)) +
   theme_bw() +
   theme(
-    text = element_text(family = "Segoe UI", size = 18),
+    text = element_text(size = 18),
     panel.grid.minor.y = element_blank(),
     legend.position = "none",
     axis.ticks.y = element_blank(),
@@ -1138,15 +1140,13 @@ indiv_rank_plot <- reactive(
     data = custom_indiv_athlete_rank()[1,],
     aes(5.5, 10, label = "victoryu.co.uk"),
     size = 20,
-    alpha = .05,
-    family = "Segoe UI"
+    alpha = .05
   ) +
   geom_text(
     data = custom_indiv_athlete_rank()[1,],
     aes(5.5, 20, label = "victoryu.co.uk"),
     size = 20,
-    alpha = .05,
-    family = "Segoe UI"
+    alpha = .05
   ) +
   geom_line(data = filtered_athlete(),
             colour = "black",
