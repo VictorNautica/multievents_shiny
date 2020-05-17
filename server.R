@@ -778,14 +778,29 @@ output$scatterplot3d <- renderPlotly({
 
 output$download_custom_athlete = downloadHandler(
   filename = function() {
-    paste0(str_replace_all(input$custom_athlete_select, "[:punct:]", "") %>% 
-             str_replace_all("[:blank:]", " _"),
-           "_plots.pdf")
+    paste0(
+      str_replace_all(input$custom_athlete_select, "[:punct:]", "") %>%
+        str_replace_all("[:blank:]", " _"),
+      "_profile.pdf"
+    )
   },
   
   content = function(file) {
-    pdf(file, onefile = TRUE)
-    grid.arrange(tableGrob(indiv_table()), indiv_line_plot(), indiv_rank_plot())
+    pdf(file,
+        onefile = TRUE,
+        width = 16,
+        height = 9)
+    grid.arrange(tableGrob(
+      indiv_table() %>% rename(
+        `Cumulative\nPoints` = `Cumulative Points`,
+        `Average\nPoints` = `Average Points`,
+        `Cumulative\nProportion` = `Cumulative Proportion`
+      ),
+      rows = NULL
+    ),
+    indiv_line_plot(),
+    indiv_rank_plot(),
+    ncol = 2)
     dev.off()
   }
 )
@@ -1050,7 +1065,7 @@ custom_athlete_data$score_num <- reactive(as.numeric(custom_athlete_data$score()
 
 ## Indiv Athlete - Summary Table ####  
 
-indiv_table <- reactive(decathlon_s2p(
+indiv_table <<- reactive(decathlon_s2p(
   custom_athlete_data$score_num()[1],
   custom_athlete_data$score_num()[2],
   custom_athlete_data$score_num()[3],
