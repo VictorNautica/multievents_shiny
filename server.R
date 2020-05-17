@@ -1065,7 +1065,7 @@ custom_athlete_data$score_num <- reactive(as.numeric(custom_athlete_data$score()
 
 ## Indiv Athlete - Summary Table ####  
 
-indiv_table <<- reactive(decathlon_s2p(
+indiv_table <- reactive(decathlon_s2p(
   custom_athlete_data$score_num()[1],
   custom_athlete_data$score_num()[2],
   custom_athlete_data$score_num()[3],
