@@ -463,12 +463,14 @@ navbarPage(
            )
            )
   ),
+  ## 7) Testing ####
   tabPanel("test",
            DT::dataTableOutput("foobar"),
            textOutput("text_test"),
            textOutput("athlete_df_idx"),
            verbatimTextOutput("print"),
-           verbatimTextOutput("editabletest")),
+           verbatimTextOutput("editabletest"),
+           plotOutput("first_test")),
   tabPanel("To do",
            "Update hand timed checkbox for table and plot - DONE",
            tags$br(),

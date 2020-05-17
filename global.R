@@ -11,6 +11,7 @@ library(shinycssloaders)
 library(ggrepel)
 library(extrafont)
 library(RColorBrewer)
+library(gridExtra)
 
 dfs <- readRDS("dfs.Rds")
 dfs_score <- readRDS("dfs_score.Rds")

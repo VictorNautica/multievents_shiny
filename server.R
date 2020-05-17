@@ -785,22 +785,7 @@ output$download_custom_athlete = downloadHandler(
   
   content = function(file) {
     pdf(file, onefile = TRUE)
-    renderPlot({
-      
-      
-      decathlon_vis(custom_athlete_data$score_num()[1],
-                    custom_athlete_data$score_num()[2],
-                    custom_athlete_data$score_num()[3],
-                    custom_athlete_data$score_num()[4],
-                    custom_athlete_data$score_num()[5],
-                    custom_athlete_data$score_num()[6],
-                    custom_athlete_data$score_num()[7],
-                    custom_athlete_data$score_num()[8],
-                    custom_athlete_data$score_num()[9],
-                    custom_athlete_data$score()[10]
-      ) + theme(axis.text.x = element_text(size = 11))
-    }
-    )
+    grid.arrange(tableGrob(indiv_table()), indiv_line_plot(), indiv_rank_plot())
     dev.off()
   }
 )
@@ -1056,7 +1041,6 @@ yyy <-
     )
   )
 
-
 ## custom summary table
 
 custom_athlete_data <- list()
@@ -1064,91 +1048,118 @@ custom_athlete_data$score <- reactive(
   yyy()[["base_df"]] %>% filter(Athlete == input$custom_athlete_select) %>% select("100m":"1500m") %>% as_vector())
 custom_athlete_data$score_num <- reactive(as.numeric(custom_athlete_data$score()[1:9]))
 
-  
-output$custom_dec_table <- renderTable({
- 
+## Indiv Athlete - Summary Table ####  
 
-    decathlon_s2p(custom_athlete_data$score_num()[1],
-                custom_athlete_data$score_num()[2],
-                custom_athlete_data$score_num()[3],
-                custom_athlete_data$score_num()[4],
-                custom_athlete_data$score_num()[5],
-                custom_athlete_data$score_num()[6],
-                custom_athlete_data$score_num()[7],
-                custom_athlete_data$score_num()[8],
-                custom_athlete_data$score_num()[9],
-                custom_athlete_data$score()[10]
-                )
-  
+indiv_table <- reactive(decathlon_s2p(
+  custom_athlete_data$score_num()[1],
+  custom_athlete_data$score_num()[2],
+  custom_athlete_data$score_num()[3],
+  custom_athlete_data$score_num()[4],
+  custom_athlete_data$score_num()[5],
+  custom_athlete_data$score_num()[6],
+  custom_athlete_data$score_num()[7],
+  custom_athlete_data$score_num()[8],
+  custom_athlete_data$score_num()[9],
+  custom_athlete_data$score()[10]
+))
+
+output$custom_dec_table <- renderTable({
+indiv_table()
 }, spacing = 'xs',
 bordered = TRUE)
 
-output$custom_dec_plot <- renderPlot({
+## Indiv Athlete - Points Plot #### 
 
-
-  decathlon_vis(custom_athlete_data$score_num()[1],
-                custom_athlete_data$score_num()[2],
-                custom_athlete_data$score_num()[3],
-                custom_athlete_data$score_num()[4],
-                custom_athlete_data$score_num()[5],
-                custom_athlete_data$score_num()[6],
-                custom_athlete_data$score_num()[7],
-                custom_athlete_data$score_num()[8],
-                custom_athlete_data$score_num()[9],
-                custom_athlete_data$score()[10]
+indiv_line_plot <- reactive(
+  decathlon_vis(
+    custom_athlete_data$score_num()[1],
+    custom_athlete_data$score_num()[2],
+    custom_athlete_data$score_num()[3],
+    custom_athlete_data$score_num()[4],
+    custom_athlete_data$score_num()[5],
+    custom_athlete_data$score_num()[6],
+    custom_athlete_data$score_num()[7],
+    custom_athlete_data$score_num()[8],
+    custom_athlete_data$score_num()[9],
+    custom_athlete_data$score()[10]
   ) + theme(axis.text.x = element_text(size = 11))
+)
+
+output$custom_dec_plot <- renderPlot({
+  indiv_line_plot()
 }
 )
 
+## Indiv Athlete - Rank Plot ####
+
+custom_indiv_athlete_rank <- reactive(
+  yyy()[["preproc_forcustomplot"]] %>%
+  mutate(select_athlete = case_when(Athlete == input$custom_athlete_select ~ "Select",
+                                    TRUE ~ "Other")) %>%
+  ungroup() %>%
+  mutate_at("select_athlete", as_factor) %>%
+  mutate_at("select_athlete", fct_relevel, "Select", "Other")
+)
+
+filtered_athlete <-
+  reactive(
+  custom_indiv_athlete_rank() %>% filter(Athlete == input$custom_athlete_select)
+  )
+
+indiv_rank_plot <- reactive(
+  custom_indiv_athlete_rank() %>%
+  ggplot(aes(name,
+             value,
+             group = Athlete)) +
+  theme_bw() +
+  theme(
+    text = element_text(family = "Segoe UI", size = 18),
+    panel.grid.minor.y = element_blank(),
+    legend.position = "none",
+    axis.ticks.y = element_blank(),
+    axis.text.y = element_blank()
+  ) +
+  geom_text(
+    data = custom_indiv_athlete_rank()[1,],
+    aes(5.5, 10, label = "victoryu.co.uk"),
+    size = 20,
+    alpha = .05,
+    family = "Segoe UI"
+  ) +
+  geom_text(
+    data = custom_indiv_athlete_rank()[1,],
+    aes(5.5, 20, label = "victoryu.co.uk"),
+    size = 20,
+    alpha = .05,
+    family = "Segoe UI"
+  ) +
+  geom_line(data = filtered_athlete(),
+            colour = "black",
+            size = 2.5) +
+  geom_point(data = filtered_athlete(),
+             colour = "black",
+             size = 7.5) +
+  geom_point(data = filtered_athlete(),
+             colour = "#347deb",
+             size = 7) +
+  geom_line(aes(colour = select_athlete, alpha = select_athlete), size = 2) +
+  geom_text(data = filtered_athlete(),
+            aes(label = value),
+            colour = "white",
+            size = 5) +
+  scale_y_reverse(breaks = 1:nrow(custom_indiv_athlete_rank())) +
+  scale_x_discrete() +
+  scale_alpha_manual(values = c(1, 0.2)) +
+  scale_colour_manual(values = c("#347deb", "#b3b3b3")) +
+  labs(y = "Rank",
+       x = "Event")
+)
+
 output$custom_rank_tile <- renderPlot({
-  
-  custom_indiv_athlete_rank <- yyy()[["preproc_forcustomplot"]] %>%
-    mutate(select_athlete = case_when(Athlete == input$custom_athlete_select ~ "Select",
-                                      TRUE ~ "Other")) %>%
-    ungroup() %>%
-    mutate_at("select_athlete", as_factor) %>%
-    mutate_at("select_athlete", fct_relevel, "Select", "Other")
-  
-  filtered_athlete <- custom_indiv_athlete_rank %>% filter(Athlete == input$custom_athlete_select)
-  
-  custom_indiv_athlete_rank %>%
-    ggplot(aes(name,
-               value,
-               group = Athlete)) +
-    theme_bw() +
-    theme(text = element_text(family = "Segoe UI", size = 18),
-          panel.grid.minor.y = element_blank(),
-          legend.position = "none", 
-          axis.ticks.y = element_blank(),
-          axis.text.y = element_blank()) +
-    geom_text(
-      data = custom_indiv_athlete_rank[1,],
-      aes(5.5, 10, label = "victoryu.co.uk"),
-      size = 20,
-      alpha = .05,
-      family = "Segoe UI"
-    ) +
-    geom_text(
-      data = custom_indiv_athlete_rank[1,],
-      aes(5.5, 20, label = "victoryu.co.uk"),
-      size = 20,
-      alpha = .05,
-      family = "Segoe UI"
-    ) +
-    geom_line(data = filtered_athlete, colour = "black", size = 2.5) +
-    geom_point(data = filtered_athlete, colour = "black", size = 7.5) +
-    geom_point(data = filtered_athlete, colour = "#347deb", size = 7) +
-    geom_line(aes(colour = select_athlete, alpha = select_athlete), size = 2) +
-    geom_text(data = filtered_athlete,
-              aes(label = value), colour = "white", size = 5) +
-    scale_y_reverse(breaks = 1:nrow(custom_indiv_athlete_rank)) +
-    scale_x_discrete() +
-    scale_alpha_manual(values = c(1, 0.2)) +
-    scale_colour_manual(values = c("#347deb", "#b3b3b3")) +
-    labs(y = "Rank",
-         x = "Event")
-  
+  indiv_rank_plot()
 })
+
+##
 
 outVar <- reactive(yyy()[["base_df"]]$Athlete %>% sort())
 
@@ -1157,7 +1168,10 @@ observe({
                     choices = outVar()
   )})
 
-## 
+## Test ####
+
+output$first_test <- renderPlot(indiv_line_plot())
+output$first_test_text <- renderPrint(mooooo[["data"]][["score"]])
 
 
 ## Closing server brackets ####
