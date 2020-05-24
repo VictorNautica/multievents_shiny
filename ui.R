@@ -249,7 +249,6 @@ navbarPage(
                          accept = c("text/csv",
                                     "text/comma-separated-values,text/plain",
                                     ".csv")),
-               
                tags$hr(),
                selectInput(
                  "custom_competition_select",
