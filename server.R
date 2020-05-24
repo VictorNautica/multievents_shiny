@@ -5,7 +5,7 @@ function(input, output, session) {
 
       ## 1)  Decathlon ####
   
-## Raw Calculations ####
+## ++++ Raw Calculations ####
   
   custom_dec_100m <- reactive({
     if (input$handtime_100m == T) {
@@ -50,7 +50,7 @@ function(input, output, session) {
   (req(input$event_ten_minutes)*60)+req(input$event_ten_seconds)
   )
   
-  ## Raw Score ####
+  ## ++++ Raw Score ####
   output$value_one <-
     renderText({
       dec_100m(custom_dec_100m())
@@ -93,7 +93,7 @@ function(input, output, session) {
     })
       
   
-  ## Table ####  
+  ## ++++ Table ####  
         output$dec_table <- renderTable({
           decathlon_s2p(
             custom_dec_100m(),
@@ -110,7 +110,7 @@ function(input, output, session) {
   }, spacing = 'xs',
   bordered = TRUE)
   
-  ## Plot ####
+  ## ++++ Plot ####
         
         output$dec_plot <- renderPlot({
           decathlon_vis(
@@ -128,6 +128,8 @@ function(input, output, session) {
         })
         
         ## 2) Heptathlon ####
+  
+  ## ++++ Raw Calculations ####
         
         custom_100mh <- reactive({if (input$handtime_100mh == T) {
             input$hept_one + 0.24
@@ -141,38 +143,59 @@ function(input, output, session) {
           input$hept_four
         }
         })
+        
+        custom_hept_hj <- reactive(
+          req(input$hept_two)
+        )
+        custom_hept_sp <- reactive(
+          req(input$hept_three)
+        )
+        custom_hept_lj <- reactive(
+          req(input$hept_five)
+        )
+        custom_hept_jt <- reactive(
+          req(input$hept_six)
+        )
+        
+        custom_hept_800m <- reactive(
+          (req(input$hept_seven_minutes)*60)+req(input$hept_seven_seconds)
+        )
+        
+  ## ++++ Raw Score ####
 
         
         output$valueh_one <- renderText({ hept_100mh(custom_100mh()) })
+        output$valueh_two <- renderText({ hept_hj(custom_hept_hj()) })
+        output$valueh_three <- renderText({ hept_sp(custom_hept_sp()) })
         output$valueh_four <- renderText({ hept_200m(custom_200m()) })
+        output$valueh_five <- renderText({ hept_lj(custom_hept_lj()) })
+        output$valueh_six <- renderText({ hept_jt(custom_hept_jt()) })
+        output$valueh_seven <- renderText({ hept_800m(custom_hept_800m()) })
         
         
-        output$valueh_two <- renderText({ hept_hj(input$hept_two) })
-        output$valueh_three <- renderText({ hept_sp(input$hept_three) })
-        output$valueh_five <- renderText({ hept_lj(input$hept_five) })
-        output$valueh_six <- renderText({ hept_jt(input$hept_six) })
-        output$valueh_seven <- renderText({ hept_800m(input$hept_seven) })
-        
+      ## ++++ Table ####
         output$hept_table <- renderTable({
           heptathlon_s2p(custom_100mh(),
-                        input$hept_two,
-                        input$hept_three,
+                         custom_hept_hj(),
+                         custom_hept_sp(),
                         custom_200m(),
-                        input$hept_five,
-                        input$hept_six,
-                        input$hept_seven)
+                        custom_hept_lj(),
+                        custom_hept_jt(),
+                        custom_hept_800m())
         },  spacing = 'xs',
         bordered = TRUE)
+        
+        ## ++++ Plot ####
         
         output$hept_plot <- renderPlot({
           heptathlon_vis(
             custom_100mh(),
-            input$hept_two,
-            input$hept_three,
+            custom_hept_hj(),
+            custom_hept_sp(),
             custom_200m(),
-            input$hept_five,
-            input$hept_six,
-            input$hept_seven
+            custom_hept_lj(),
+            custom_hept_jt(),
+            custom_hept_800m()
           )
         })      ## change to hept
         
@@ -284,6 +307,33 @@ function(input, output, session) {
           output$bar_wc <- barplotcreation("Worlds", "ex2_rows_selected")
           output$bar_gotzis <- barplotcreation("Gotzis", "ex3_rows_selected")
           
+          make_bar_dynamic <- function(bar_obj, exnum_rows_selected) {
+            renderUI({
+              hasClick <- input[[exnum_rows_selected]]
+              
+              plotOutput(bar_obj,
+                         height = if (is.null(hasClick) | length(hasClick) > 10) {
+                           "550"
+                         } else if (length(hasClick) %in% 1:2) {
+                           "590"
+                         } else if (length(hasClick) %in% 3:4) {
+                           "608"
+                         } else if (length(hasClick) %in% 5:6) {
+                           "622"
+                         } else if (length(hasClick) %in% 7:8) {
+                           "638"
+                         } else if (length(hasClick) %in% 9:10) {
+                           "654"
+                         })
+              
+            })
+          }
+          
+          output$bar_olympics_dynamic <- make_bar_dynamic("bar_olympics", "ex1_rows_selected")
+          output$bar_wc_dynamic <- make_bar_dynamic("bar_wc", "ex2_rows_selected")
+          output$bar_gotzis_dynamic <- make_bar_dynamic("bar_gotzis", "ex3_rows_selected")
+
+          
           output$text_test <- renderText({
 
             hasClick <- input[["ex1_rows_selected"]]
@@ -377,7 +427,6 @@ function(input, output, session) {
           geom_bar(stat = "identity") +
           theme(axis.text.x = element_blank(), 
                 axis.ticks.x = element_blank(),
-                panel.background = element_rect(fill = 'black', colour = 'red'),
                 panel.grid.major.x = element_blank(), 
                 axis.title.x = element_blank(), 
                 legend.title = element_blank()) +
@@ -813,7 +862,28 @@ output$download_custom_athlete = downloadHandler(
 
 output$example_athlete_bumpplot <- renderPlot({
   
-  yyy()[["preproc_forcustomplot"]] %>% ggplot(aes(
+  x_scale_expand <- yyy()[["preproc_forcustomplot"]]$Athlete %>% unique() %>% str_length() %>% max()/100 %>% rep(times = 2)
+  
+  line_100m <- yyy()[["preproc_forcustomplot"]] %>% filter(name == "100m")
+  
+  if (line_100m$value %>% duplicated() %>% any()) {
+    
+    line_100m_list <- list()
+    
+    for (duplicated_rank in line_100m$value[line_100m$value %>% duplicated()] %>% unique()) {
+      temp <- line_100m[which(line_100m$value == duplicated_rank),] %>% select(Athlete, name, value)
+      temp$Athlete %<>% as.character()
+      temp[1, "Athlete"] <-
+        str_c(temp$Athlete, collapse = " / ") %>% str_wrap(width = list_tidy[["preproc_forcustomplot"]]$Athlete %>% unique() %>% str_length() %>% max()*1.5)
+      temp <- temp[1,]
+      line_100m_list[[paste0(duplicated_rank)]] <- temp
+      line_100m <- line_100m[which(!line_100m$value == duplicated_rank),]
+      rm(temp)
+    }
+    
+  }
+  
+  final_line_plot <- yyy()[["preproc_forcustomplot"]] %>% ggplot(aes(
     name,
     value,
     group = Athlete
@@ -828,12 +898,28 @@ output$example_athlete_bumpplot <- renderPlot({
     geom_point(aes(colour = Athlete), size = 2) +
     geom_line(aes(colour = Athlete), size = 2) +
     geom_text(data = yyy()[["preproc_forcustomplot"]] %>% filter(name == "1500m"), aes(label = Athlete), nudge_x = 0.1, hjust = 0, family = "Segoe UI", size = 6) +
+    geom_text(data = line_100m, aes(label = Athlete), nudge_x = -0.1, hjust = 1, family = "Segoe UI", size = 6) +
     scale_y_reverse(breaks = 1:36) +
-    scale_x_discrete(expand = expansion(mult = c(.05, .2))) +
+    scale_x_discrete(expand = expansion(mult = x_scale_expand)) +
     scale_color_manual(values = yyy()[["preproc_forcustomplot"]] %>% summarise(colour = unique(Colour)) %>% pull(colour),
                        guide = F) +
     labs(y = "Rank",
          x = "Event")
+  
+  
+  for (duplicated_rank in line_100m_list) {
+    final_line_plot <- final_line_plot + geom_text(
+      data = duplicated_rank,
+      aes(label = Athlete),
+      nudge_x = -0.1,
+      hjust = 1,
+      family = "Segoe UI",
+      size = 4
+    )
+  }
+  
+  final_line_plot
+  
 })
 
 output$example_athlete_avg_points <- renderPlot({
@@ -914,15 +1000,21 @@ observe({
 ## initial user df displayed ####
 
 output$users_dataset <- renderDataTable({
-  datatable(x$user_df,
-            class = 'cell-border stripe compact',
-            editable = T,
-            rownames = F,
-            options = list(pageLength = nrow(exampledf),
-                           dom = "tir",
-                           columnDefs = list(list(className = 'dt-body-right', targets = 2:11))))
-}
-)
+  datatable(
+    x$user_df,
+    class = 'cell-border stripe compact',
+    editable = T,
+    rownames = F,
+    options = list(
+      pageLength = 20,
+      scrollX = TRUE,
+      dom = "ltipr",
+      columnDefs = list(list(
+        className = 'dt-body-right', targets = 2:11
+      ))
+    )
+  )
+})
 
 
 ## initial user df displayed ####
@@ -937,12 +1029,19 @@ output$users_dataset_calculated <- renderDataTable({
                    Average = "df_avg",
                    Standardised = )
   
-  datatable(yyy()[[custom_df_view]],
-            class = 'cell-border stripe compact', 
-            rownames = F,
-            options = list(pageLength = nrow(exampledf),
-                           dom = "tir",
-                           columnDefs = list(list(className = 'dt-body-right', targets = 2:11))))
+  datatable(
+    yyy()[[custom_df_view]],
+    class = 'cell-border stripe compact',
+    rownames = F,
+    options = list(
+      pageLength = 20,
+      scrollX = TRUE,
+      dom = "ltipr",
+      columnDefs = list(list(
+        className = 'dt-body-right', targets = 2:11
+      ))
+    )
+  )
   
 })
 

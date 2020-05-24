@@ -12,6 +12,7 @@ library(ggrepel)
 library(extrafont)
 library(RColorBrewer)
 library(gridExtra)
+library(grid)
 
 dfs <- readRDS("dfs.Rds")
 dfs_score <- readRDS("dfs_score.Rds")
@@ -95,7 +96,7 @@ decathlon_tabs <-
         tab_label,
         sidebarLayout(
           mainPanel(
-            div(DT::dataTableOutput(ex_id), style = "font-size: 80%; width: 70%"),
+            div(DT::dataTableOutput(ex_id), style = "font-size: 74.5%; width: 70%"),
             width = 9
             ),
           sidebarPanel(
@@ -107,7 +108,7 @@ decathlon_tabs <-
             multiple = TRUE,
             selectize = TRUE
           ),
-          plotOutput(plotoutputlabel, height = "550"),
+          uiOutput(plotoutputlabel),
           tags$br(),
           "Maximum of 10 athletes allowed for plot",
           width = 3
@@ -119,13 +120,13 @@ decathlon_tabs <-
 ## UI - tags padding test ####
 
 padding <- function(calc_output) {
-  column(4, tags$label("Score:"), tags$div(textOutput(calc_output), style = "padding-top:3px"))
+  column(3, tags$label("Points:"), tags$div(textOutput(calc_output), style = "padding-top:4px"))
 }
 
 ## UI - custom hr for calculator tab ####
 
 hr_calculator <- function(colour) {
-  tags$hr(style=paste0("border-color: ", colour, ";margin-top: 0px;margin-bottom: 10px"))
+  tags$hr(style=paste0("border-color: ", colour, ";margin-top: 0px;margin-bottom: 0px"))
 }
 
 ## UI - S2P panels ####

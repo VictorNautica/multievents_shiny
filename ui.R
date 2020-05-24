@@ -10,103 +10,136 @@ navbarPage(
       tabPanel("Decathlon",
     sidebarLayout(sidebarPanel(width = 3,
       fluidRow(
-        fluidRow(column(4, smallInput(numericInput("event_one", "100m (s):", 10.87, min = 0, max = 100, step = 0.1, width = "80%"))),
-                 column(4, checkboxInput("handtime_100m", "Hand timed", value = F)),
-                 padding("value_one")
+        fluidRow(column(5, smallInput(numericInput("event_one", "100m (s):", 10.87, min = 0, max = 100, step = 0.1, width = "80%"))),
+                 column(4, checkboxInput("handtime_100m", "Hand timed", value = F), style='padding-top:19px;'),
+                 padding("value_one"), style="padding:-2px;margin-top:-2px;"
       )),
-      hr_calculator("black"),
       fluidRow(
-        fluidRow(column(8, smallInput(numericInput("event_two", "Long jump (m):", 7.6, min = 0, max = 100, step = 0.1, width = "35.5%"))),
+        fluidRow(column(9, smallInput(numericInput("event_two", "Long jump (m):", 7.6, min = 0, max = 100, step = 0.1, width = "41%"))),
                  padding("value_two")
         )),
       fluidRow(
-        fluidRow(column(8, smallInput(numericInput("event_three", "Shot put (m):", 14, min = 0, max = 100, step = 0.1, width = "35.5%"))),
+        fluidRow(column(9, smallInput(numericInput("event_three", "Shot put (m):", 14, min = 0, max = 100, step = 0.1, width = "41%"))),
                  padding("value_three")
         )),
       fluidRow(
-        fluidRow(column(8, smallInput(numericInput("event_four", "High jump (m):", 2.00, min = 0, max = 100, step = 0.03, width = "35.5%"))),
+        fluidRow(column(9, smallInput(numericInput("event_four", "High jump (m):", 2.00, min = 0, max = 100, step = 0.03, width = "41%"))),
                  padding("value_four")
         )),
       fluidRow(
-        fluidRow(column(4, smallInput(numericInput("event_five", "400m (s)", 50, min = 0, max = 100, step = 0.2, width = "80%"))),
-                 column(4, checkboxInput("handtime_400m", "Hand timed", value = F)),
+        fluidRow(column(5, smallInput(numericInput("event_five", "400m (s)", 50, min = 0, max = 100, step = 0.2, width = "80%"))),
+                 column(4, checkboxInput("handtime_400m", "Hand timed", value = F), style='padding-top:19px;'),
                  padding("value_five")
         )),
       fluidRow(
-        fluidRow(column(4, smallInput(numericInput("event_six", "110m hurdles (s):", 16, min = 0, max = 100, step = 0.1, width = "95%"))),
-                 column(4, checkboxInput("handtime_110mh", "Hand timed", value = F)),
+        fluidRow(column(5, smallInput(numericInput("event_six", "110m hurdles (s):", 16, min = 0, max = 100, step = 0.1, width = "80%"))),
+                 column(4, checkboxInput("handtime_110mh", "Hand timed", value = F), style='padding-top:19px;'),
                  padding("value_six")
         )),
       fluidRow(
-        fluidRow(column(8, smallInput(numericInput("event_seven", "Discus throw (m):", 42, min = 0, max = 100, step = 0.5, width = "35.5%"))),
+        fluidRow(column(9, smallInput(numericInput("event_seven", "Discus throw (m):", 42, min = 0, max = 100, step = 0.5, width = "41%"))),
                  padding("value_seven")
         )),
       fluidRow(
-        fluidRow(column(8, smallInput(numericInput("event_eight", "Pole vault (m):", 4.70, min = 0, max = 100, step = 0.1, width = "35.5%"))),
+        fluidRow(column(9, smallInput(numericInput("event_eight", "Pole vault (m):", 4.70, min = 0, max = 100, step = 0.1, width = "41%"))),
                  padding("value_eight")
         )),
       fluidRow(
-        fluidRow(column(8, smallInput(numericInput("event_nine", "Javelin throw (m):", 62, min = 0, max = 100, step = 1, width = "35.5%"))),
+        fluidRow(column(9, smallInput(numericInput("event_nine", "Javelin throw (m):", 62, min = 0, max = 100, step = 1, width = "41%"))),
                  padding("value_nine")
         )),
-      fluidRow(
-        fluidRow(
-                 column(8, splitLayout(smallInput(numericInput("event_ten_minutes", "1500m (m):", 5, min = 0, max = 99, step = 1, width = "100%")),
-                                       smallInput(numericInput("event_ten_seconds", "(s):", 0, min = 0, max = 59.99, step = 0.1, width = "50%")))),
-                 padding("value_ten")
-        ))
+      fluidRow(fluidRow(column(3, smallInput(
+        numericInput(
+          "event_ten_minutes",
+          "1500m (m):",
+          5,
+          min = 0,
+          max = 99,
+          step = 1
+        )
+      )),
+      column(3, smallInput(
+        numericInput(
+          "event_ten_seconds",
+          "(s):",
+          0,
+          min = 0,
+          max = 59.99,
+          step = 0.1
+        )
+      )),
+      column(3),
+      padding("value_ten")))
     ), 
     mainPanel(
       ## ++++ Main Panel ####
       fluidRow(width = 9,
-                      h4("Summary statistics"),
-                      tableOutput("dec_table"),
-                      plotOutput("dec_plot", height = "400px", width = "800px"))
+                      column(width = 1),
+               column(width = 11, tableOutput("dec_table"),
+                      plotOutput("dec_plot", height = "400px", width = "860px")))
       ))
     ),
     ## ++++ Hept ####
     tabPanel("Heptathlon",
-             sidebarLayout(sidebarPanel(width = 2,
+             sidebarLayout(sidebarPanel(width = 3,
                                         fluidRow(
-                                          fluidRow(column(6, numericInput("hept_one", "100m hurdles (s):", 13.36, min = 0, step = 0.1, width = "80%")),
+                                          fluidRow(column(5, smallInput(numericInput("hept_one", "100m hurdles (s):", 13.36, min = 0, step = 0.1, width = "80%"))),
+                                                   column(4, checkboxInput("handtime_100mh", "Hand timed", value = F), style='padding-top:19px;'),
                                                    padding("valueh_one")
                                           )),
-                                        fluidRow(checkboxInput("handtime_100mh", "Hand timed", value = F)),
                                         fluidRow(
-                                          fluidRow(column(6, numericInput("hept_two", "High jump (m):", 1.77, min = 0, step = 0.3, width = "80%")),
+                                          fluidRow(column(9, smallInput(numericInput("hept_two", "High jump (m):", 1.77, min = 0, step = 0.3, width = "41%"))),
                                                    padding("valueh_two")
                                           )),
                                         fluidRow(
-                                          fluidRow(column(6, numericInput("hept_three", "Shot put (m):", 14.02, min = 0, max = 100, step = 0.1, width = "80%")),
+                                          fluidRow(column(9, smallInput(numericInput("hept_three", "Shot put (m):", 14.02, min = 0, max = 100, step = 0.1, width = "41%"))),
                                                    padding("valueh_three")
                                           )),
                                         fluidRow(
-                                          fluidRow(column(6, numericInput("hept_four", "200m (s):",  	24.29, min = 0, max = 100, step = 0.1, width = "80%")),
+                                          fluidRow(column(5, smallInput(numericInput("hept_four", "200m (s):",  	24.29, min = 0, max = 100, step = 0.1, width = "80%"))),
+                                                   column(4, checkboxInput("handtime_200m", "Hand timed", value = F), style='padding-top:19px;'),
                                                    padding("valueh_four")
                                           )),
-                                        fluidRow(checkboxInput("handtime_200m", "Hand timed", value = F)),
                                         fluidRow(
-                                          fluidRow(column(6, numericInput("hept_five", "Long jump (m):", 6.28, min = 0, max = 100, step = 0.1, width = "80%")),
+                                          fluidRow(column(9, smallInput(numericInput("hept_five", "Long jump (m):", 6.28, min = 0, max = 100, step = 0.1, width = "41%"))),
                                                    padding("valueh_five")
                                           )),
                                         fluidRow(
-                                          fluidRow(column(6, numericInput("hept_six", "Javelin throw (m):", 46.74, min = 0, step = 0.1, width = "80%")),
+                                          fluidRow(column(9, smallInput(numericInput("hept_six", "Javelin throw (m):", 46.74, min = 0, step = 0.1, width = "41%"))),
                                                    padding("valueh_six")
                                           )),
-                                        fluidRow(
-                                          fluidRow(column(6, numericInput("hept_seven", "800m (s):", 126.78, min = 0, step = 0.1, width = "80%")),
-                                                   padding("valueh_seven")
-                                          )),
+                                        fluidRow(fluidRow(column(3, smallInput(
+                                          numericInput(
+                                            "hept_seven_minutes",
+                                            "800m (m):",
+                                            2,
+                                            min = 0,
+                                            max = 99,
+                                            step = 1
+                                          )
+                                        )),
+                                        column(3, smallInput(
+                                          numericInput(
+                                            "hept_seven_seconds",
+                                            "(s):",
+                                            0,
+                                            min = 0,
+                                            max = 59.99,
+                                            step = 0.1
+                                          )
+                                        )),
+                                        column(3),
+                                        padding("valueh_seven"))),
                                         ),
                            ## ++++ Main Panel ####
                            mainPanel(
-                             fluidRow(column(width = 6,
-                                             h4("Summary statistics"),
-                                             tableOutput("hept_table")),
-                                      column(width = 6, 
-                                             h4(" "),
-                                             plotOutput("hept_plot", height = "600px")))
-                             ))
+                             width = 9,
+                             fluidRow(
+                               column(1),
+                               column(11,
+                                      tableOutput("hept_table"),
+                                      plotOutput("hept_plot", height = "400px", width = "860px")))
+                           ))
   )
   )
   ),
@@ -124,21 +157,21 @@ navbarPage(
         ex_id = "ex1",
         select_year_label = "year_olympics",
         dfs_proper_call = "olympics",
-        plotoutputlabel = "bar_olympics"
+        plotoutputlabel = "bar_olympics_dynamic"
       ),
       decathlon_tabs(
         tab_label = "World Championships",
         ex_id = "ex2",
         select_year_label = "year_wc",
         dfs_proper_call = "world_championships",
-        plotoutputlabel = "bar_wc"
+        plotoutputlabel = "bar_wc_dynamic"
       ),
       decathlon_tabs(
         tab_label = "Gotzis Hypomeeting",
         ex_id = "ex3",
         select_year_label = "year_gotzis",
         dfs_proper_call = "gotzis",
-        plotoutputlabel = "bar_gotzis"
+        plotoutputlabel = "bar_gotzis_dynamic"
       )
     )),
     ## ++++ Hept ####
@@ -204,7 +237,9 @@ navbarPage(
            )),   
   ## 5) Custom Data ####
   tabPanel("Custom Data (coming soon)", 
-           titlePanel(HTML(paste0("Upload completed multievents competition"))),
+           titlePanel(
+             h2("Upload completed multievents competition", 
+             style = "padding-top: 0px; margin-top: -25px;margin-bottom: 20px")), 
            
            sidebarLayout(
              
@@ -244,6 +279,7 @@ navbarPage(
              ),
              
              mainPanel(
+               width = 10,
                tabsetPanel(
                  ## ++++ Instructions ####
                  tabPanel(
@@ -286,10 +322,12 @@ navbarPage(
                  ## ++++ User Dataset ####
                  tabPanel(
                    "Your dataset",
+                   tags$br(),
                    div(dataTableOutput("users_dataset", width = "1500"), style = "font-size: 80%; width: 70%")
                  ),
                  tabPanel(
                    "Your dataset (calculated)",
+                   tags$br(),
                    div(dataTableOutput("users_dataset_calculated", width = "1500"), style = "font-size: 80%; width: 70%")
                  ),
                  # Bumps Plot ####
@@ -435,7 +473,7 @@ navbarPage(
              )
            ),
            h4("Support"),
-           "If you like the app, feel free to give a small donation through the Paypal button below to support future development/my hosting costs. You can also support the site by sharing it among those interested in combined ebvents.",
+           "If you like the app, feel free to give a small donation through the Paypal button below to support future development/my hosting costs. You can also support the site by sharing it among those interested in combined events.",
            HTML(paste('<br/><br/><form action="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DV63U2B9R7FE6&source=url" method="post" target="_top">
 <input type="hidden" name="cmd" value="_s-xclick" />
 <input type="hidden" name="hosted_button_id" value="DV63U2B9R7FE6" />
@@ -465,6 +503,7 @@ navbarPage(
   ),
   ## 7) Testing ####
   tabPanel("test",
+           "Ignore this page",
            DT::dataTableOutput("foobar"),
            textOutput("text_test"),
            textOutput("athlete_df_idx"),
@@ -478,7 +517,7 @@ navbarPage(
            tags$br(),
            "Think of plot for athlete page - DONE",
            tags$br(),
-           "Create customer user upload",
+           "Create customer user upload - DONE",
            tags$br(),
            "Convert 1500m to display mm:ss - DONE",
            tags$br(),
