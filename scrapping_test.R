@@ -156,6 +156,7 @@ athlete_info_tbl[fix_athlete_idx,"Athlete"] <- ultimate_df_list[["ultimate_df_po
 
 athlete_info_tbl$Height <- NA
 
+# readr::write_rds(athlete_info_tbl, "athlete_info_tbl.Rds")
 athlete_info_tbl[which(athlete_info_tbl$Athlete == "Adam Helcelet"), "Height"] <- 190
 athlete_info_tbl[which(athlete_info_tbl$Athlete == "Ashton Eaton"), "Height"] <- 185
 athlete_info_tbl[which(athlete_info_tbl$Athlete == "Bryan Clay"), "Height"] <- 178
@@ -171,8 +172,19 @@ athlete_info_tbl[which(athlete_info_tbl$Athlete == "Aleksandr Pogorelov"), "Heig
 athlete_info_tbl[which(athlete_info_tbl$Athlete == "Arthur Abele"), "Height"] <- 184
 athlete_info_tbl[which(athlete_info_tbl$Athlete == "Karl Robert Saluri"), "Height"] <- 178
 athlete_info_tbl[which(athlete_info_tbl$Athlete == "Maicel Uibo"), "Height"] <- 194
-athlete_info_tbl[which(athlete_info_tbl$Athlete == "Qi Haifeng"), "Height"] <- 189
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Qi Haifeng"), "Height"] <- 191
 athlete_info_tbl[which(athlete_info_tbl$Athlete == "Oleksiy Kasyanov"), "Height"] <- 191
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Akihiko Nakamura"), "Height"] <- 180
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "André Niklaus"), "Height"] <- 189
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Dean Macay"), "Height"] <- 196
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Tomáš Dvořák"), "Height"] <- 186
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Chris Huffins"), "Height"] <- 189
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Erki Nool"), "Height"] <- 184
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Massimo Bertocchi"), "Height"] <- 196
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Hans Van Alphen"), "Height"] <- 191
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Jaakko Ojaniemi"), "Height"] <- 193
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Jānis Karlivāns"), "Height"] <- 193
+athlete_info_tbl[which(athlete_info_tbl$Athlete == "Zsolt Kürtösi"), "Height"] <- 188
 athlete_info_tbl[which(athlete_info_tbl$Athlete == "Hamdi Dhouibi"),"Country"] <- "Tunisia"
 
 readr::write_rds(athlete_info_tbl, "athlete_info_tbl.Rds")

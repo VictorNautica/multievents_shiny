@@ -108,6 +108,12 @@ decathlon_tabs <-
             multiple = TRUE,
             selectize = TRUE
           ),
+          radioButtons(
+            "previous_events_radiobutton",
+            label = NULL,
+            inline = T,
+            choices = c("Points", "Z-Score")
+          ),
           uiOutput(plotoutputlabel),
           tags$br(),
           "Maximum of 10 athletes allowed for plot",
@@ -400,19 +406,6 @@ radar_colourbar_func <- function(athletename, grouping) {
   return(hexfillfunction(usethishex))
   
 }
-
-## SERVER - +11 athletes plot ####
-
-plus11athletes <- ultimate_df_standardised_global %>% ggplot(aes(event)) +
-  geom_hline(yintercept = 0, linetype = "dotdash") +
-  geom_linerange(aes(ymin = min, ymax = max)) +
-  labs(y = "z-score") +
-  scale_y_continuous(breaks = seq(-5, 4, 1)) +
-  scale_x_discrete(limits = rev(levels(ultimate_df_standardised_global$event))) +
-  annotate("text", x = 3, y = -1, size = 14, colour = "red", label = "Warning: More than\n10 athletes selected") +
-  theme(axis.title.y = element_blank()) +
-  coord_flip()
-
 
 ## SERVER - Athlete Cum DF ####
 

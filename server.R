@@ -248,14 +248,33 @@ function(input, output, session) {
               
               if (is.null(hasClick)) {
                 
-                df_selected <- ultimate_df_standardised_global %>% ggplot(aes(event)) +
-                  geom_hline(yintercept = 0, linetype = "dotdash") +
+                df_selected <- ultimate_df_standardised_global[[input$previous_events_radiobutton]] %>% ggplot(aes(event)) +
+                  {if (input$previous_events_radiobutton == "Z-Score")
+                  geom_hline(yintercept = 0, linetype = "dotdash") } +
+                    {
+                      if (input$previous_events_radiobutton == "Z-Score")
+                        labs(y = "z-score")
+                      else if (input$previous_events_radiobutton == "Points")
+                        labs(y = "Points")
+                    } +
                   geom_linerange(aes(ymin = min, ymax = max)) +
-                  labs(y = "z-score") +
-                  scale_y_continuous(breaks = seq(-5, 4, 1)) +
-                  scale_x_discrete(limits = rev(levels(ultimate_df_standardised_global$event))) +
-                  theme(axis.title.y = element_blank()) +
-                  coord_flip()
+                    {
+                      if (input$previous_events_radiobutton == "Z-Score")
+                        scale_y_continuous(breaks = seq(-5, 4, 1))
+                      else if (input$previous_events_radiobutton == "Points")
+                        scale_y_continuous(breaks = seq(
+                          plyr::round_any(
+                          min(ultimate_df_standardised_global[["Points"]]$min[1:10])
+                          ,
+                          100,
+                          f = floor
+                        ),
+                        round(
+                          max(ultimate_df_standardised_global[["Points"]]$max[1:10]), -2
+                        ),
+                        100))
+                    } +
+                  theme(axis.title.x = element_blank())
                 
                 return(df_selected)
                 
@@ -264,7 +283,7 @@ function(input, output, session) {
               
               if (length(hasClick) >= 1 & length(hasClick) < 11) {
                 
-                df <- ultimate_df_standardised_global %>% filter(comp == event_name_in_df)
+                df <- ultimate_df_standardised_global[[input$previous_events_radiobutton]] %>% filter(comp == event_name_in_df)
                 
                 athlete_names <- display_dfs[hasClick, "Athlete"]
                 years <- display_dfs[hasClick, "Year"]
@@ -275,19 +294,38 @@ function(input, output, session) {
                   df %>%
                   filter(comp == event_name_in_df, Athlete %in% athlete_names) %>%
                   ggplot(aes(event, score, group = Athlete)) +
-                  geom_hline(yintercept = 0, linetype = "dotdash") +
+                  {if (input$previous_events_radiobutton == "Z-Score")
+                    geom_hline(yintercept = 0, linetype = "dotdash") } +
                   geom_linerange(aes(ymin = min, ymax = max)) +
                   geom_point(aes(colour = Athlete), size = 2) +
-                  geom_line(aes(colour = Athlete)) +
-                  labs(y = "z-score") +
-                  scale_y_continuous(breaks = seq(-5, 4, 1)) +
-                  scale_x_discrete(limits = rev(levels(
-                    df$event
-                  ))) +
-                  theme(axis.title.y = element_blank(), 
+                  {if (input$previous_events_radiobutton == "Z-Score")
+                    geom_hline(yintercept = 0, linetype = "dotdash") } +
+                  {
+                    if (input$previous_events_radiobutton == "Z-Score")
+                      labs(y = "z-score")
+                    else if (input$previous_events_radiobutton == "Points")
+                      labs(y = "Points")
+                  } +
+                  {
+                    if (input$previous_events_radiobutton == "Z-Score")
+                      scale_y_continuous(breaks = seq(-5, 4, 1))
+                    else if (input$previous_events_radiobutton == "Points")
+                      scale_y_continuous(breaks = seq(
+                        plyr::round_any(
+                          min(ultimate_df_standardised_global[["Points"]]$min[1:10])
+                          ,
+                          100,
+                          f = floor
+                        ),
+                        round(
+                          max(ultimate_df_standardised_global[["Points"]]$max[1:10]), -2
+                        ),
+                        100))
+                  } +
+                  theme(axis.title.x = element_blank(), 
                         legend.position = "bottom") +
                   guides(col = guide_legend(ncol = 2)) +
-                  coord_flip()
+                  scale_colour_manual(values = colorRampPalette(brewer.pal(9, "Set1"))(10))
                 
                 return(plot)
                 
@@ -296,7 +334,39 @@ function(input, output, session) {
                 
                 if (length(hasClick) >= 11) {
                   
-                  return(plus11athletes)
+                  ultimate_df_standardised_global[[input$previous_events_radiobutton]] %>% ggplot(aes(event)) +
+                    {if (input$previous_events_radiobutton == "Z-Score")
+                      geom_hline(yintercept = 0, linetype = "dotdash") } +
+                    geom_linerange(aes(ymin = min, ymax = max)) +
+                    {
+                      if (input$previous_events_radiobutton == "Z-Score")
+                        labs(y = "z-score")
+                      else if (input$previous_events_radiobutton == "Points")
+                        labs(y = "Points")
+                    } +
+                    {
+                      if (input$previous_events_radiobutton == "Z-Score")
+                        scale_y_continuous(breaks = seq(-5, 4, 1))
+                      else if (input$previous_events_radiobutton == "Points")
+                        scale_y_continuous(breaks = seq(
+                          plyr::round_any(
+                            min(ultimate_df_standardised_global[["Points"]]$min[1:10])
+                            ,
+                            100,
+                            f = floor
+                          ),
+                          round(
+                            max(ultimate_df_standardised_global[["Points"]]$max[1:10]), -2
+                          ),
+                          100))
+                    } +
+                    {
+                      if (input$previous_events_radiobutton == "Z-Score")
+                        annotate("text", x = 5.5, y = 0, size = 14, colour = "red", label = "Warning: More than\n10 athletes selected")
+                      else if (input$previous_events_radiobutton == "Points")
+                        annotate("text", x = 5.5, y = 800, size = 14, colour = "red", label = "Warning: More than\n10 athletes selected")
+                    } +
+                    theme(axis.title.x = element_blank())
                   
                 }
                 
@@ -333,26 +403,6 @@ function(input, output, session) {
           output$bar_wc_dynamic <- make_bar_dynamic("bar_wc", "ex2_rows_selected")
           output$bar_gotzis_dynamic <- make_bar_dynamic("bar_gotzis", "ex3_rows_selected")
 
-          
-          output$text_test <- renderText({
-
-            hasClick <- input[["ex1_rows_selected"]]
-
-            if (is.null(hasClick))
-              return(NULL)
-
-            if (length(hasClick) >= 1) {
-              athlete_names <- display_dfs[hasClick, "Athlete"]
-              years <- display_dfs[hasClick, "Year"]
-            }
-
-            return(paste0(athlete_names, years))
-
-          }
-          )
-          
-          
-          
 ################################  depreciated code for old plots  
      # if (length(hasClick) == 1) {
           # 
@@ -860,6 +910,23 @@ output$download_custom_athlete = downloadHandler(
 
 ## Testing stuff goes here ####
 
+output$text_test <- renderText({
+  
+  hasClick <- input[["ex1_rows_selected"]]
+  
+  if (is.null(hasClick))
+    return(NULL)
+  
+  if (length(hasClick) >= 1) {
+    athlete_names <- display_dfs[hasClick, "Athlete"]
+    years <- display_dfs[hasClick, "Year"]
+  }
+  
+  return(paste0(athlete_names, years))
+  
+}
+)
+
 output$example_athlete_bumpplot <- renderPlot({
   
   x_scale_expand <- yyy()[["preproc_forcustomplot"]]$Athlete %>% unique() %>% str_length() %>% max()/100 %>% rep(times = 2)
@@ -874,7 +941,7 @@ output$example_athlete_bumpplot <- renderPlot({
       temp <- line_100m[which(line_100m$value == duplicated_rank),] %>% select(Athlete, name, value)
       temp$Athlete %<>% as.character()
       temp[1, "Athlete"] <-
-        str_c(temp$Athlete, collapse = " / ") %>% str_wrap(width = list_tidy[["preproc_forcustomplot"]]$Athlete %>% unique() %>% str_length() %>% max()*1.5)
+        str_c(temp$Athlete, collapse = " / ") %>% str_wrap(width = yyy()[["preproc_forcustomplot"]]$Athlete %>% unique() %>% str_length() %>% max()*1.5)
       temp <- temp[1,]
       line_100m_list[[paste0(duplicated_rank)]] <- temp
       line_100m <- line_100m[which(!line_100m$value == duplicated_rank),]
