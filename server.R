@@ -901,6 +901,7 @@ output$download_custom_athlete = downloadHandler(
                               text = element_text(size = 10),
                               legend.margin = margin(-5, unit = "pt")),
     indiv_rank_plot(),
+    indiv_spider_athlete(),
     ncol = 2,
     top = textGrob(input$custom_athlete_select, x = 0.02, hjust = 0,
                    gp = gpar(fontsize = 20, font = 10)))
@@ -1094,7 +1095,7 @@ output$users_dataset_calculated <- renderDataTable({
                    `Cumulative Points` = "df_cum",
                    Rank = "df_rank",
                    Average = "df_avg",
-                   Standardised = )
+                   Standardised = "df_standardised")
   
   datatable(
     yyy()[[custom_df_view]],
@@ -1107,7 +1108,8 @@ output$users_dataset_calculated <- renderDataTable({
       columnDefs = list(list(
         className = 'dt-body-right', targets = 2:11
       ))
-    )
+    ),
+    selection = "none"
   )
   
 })
@@ -1267,7 +1269,10 @@ indiv_line_plot <- reactive(
     custom_athlete_data$score_num()[8],
     custom_athlete_data$score_num()[9],
     custom_athlete_data$score()[10]
-  ) + theme(axis.text.x = element_text(size = 11))
+  ) + theme(axis.text.x = element_text(size = 11),
+            plot.margin = margin(1.5, 1.5, 0.5, 1, "cm"), 
+            text = element_text(size = 10),
+            legend.margin = margin(-5, unit = "pt"))
 )
 
 output$custom_dec_plot <- renderPlot({
@@ -1302,7 +1307,9 @@ indiv_rank_plot <- reactive(
     panel.grid.minor.y = element_blank(),
     legend.position = "none",
     axis.ticks.y = element_blank(),
-    axis.text.y = element_blank()
+    axis.text.y = element_blank(),
+    plot.margin = margin(0, 1.5, 0.5, 1, "cm"),
+    legend.margin = margin(-5, unit = "pt")
   ) +
   geom_text(
     data = custom_indiv_athlete_rank()[1,],
@@ -1341,6 +1348,36 @@ indiv_rank_plot <- reactive(
 output$custom_rank_tile <- renderPlot({
   indiv_rank_plot()
 })
+
+# Indiv Athlete - Spider Plot ####
+
+indiv_spider_athlete <- reactive(
+  ggradar::ggradar(
+    yyy()[["df_standardisednormalised"]] %>% filter(Athlete == input$custom_athlete_select) %>% select("Athlete", "100m":"1500m"),
+  grid.min = 0,
+  grid.mid = 0.5,
+  grid.max = 1,
+  values.radar	= NA,
+  
+  axis.label.offset = 1.1,
+  axis.label.size = 5,
+  background.circle.colour	= "#ac68e3",
+  group.colours = "#118dc2",
+  axis.line.colour	= "black",
+  gridline.min.colour = "black",
+  gridline.mid.colour = "black", 
+  gridline.max.colour = "black",
+  font.radar = "Segoe UI",
+  group.point.size	= 3,
+  group.line.width = 1) +
+  theme(
+    panel.background = element_rect(fill = "transparent"), # bg of the panel
+    plot.background = element_rect(fill = "transparent", color = NA))
+)
+
+output$custom_spider_plot <- renderPlot(
+  indiv_spider_athlete()
+)
 
 ##
 

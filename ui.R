@@ -363,9 +363,11 @@ navbarPage(
                                        width = "1525",
                                        height = "725")),
                  tabPanel("Individual Athlete (coming soon)",
-                          fluidRow(column(width = 6, tableOutput("custom_dec_table")),
+                          fluidRow(column(width = 6, div(tableOutput("custom_dec_table"), 
+                                                         style = "font-size:85%;margin-top:25px;margin-left:40px;margin-bottom:-20px")), 
                           column(width = 6, plotOutput("custom_dec_plot"))),
-                          fluidRow(column(width = 6, plotOutput("custom_rank_tile")))
+                          fluidRow(column(width = 6, plotOutput("custom_rank_tile")),
+                                   column(width = 6, plotOutput("custom_spider_plot")))
                           ),
                  tabPanel("About Plots")
                )

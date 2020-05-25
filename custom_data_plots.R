@@ -1,6 +1,10 @@
 library(tidyverse)
 library(magrittr)
 
+## Event names ####
+
+decathlon_names <- c("100m","LJ","SP","HJ","400m","110mh","DT","PV","JT","1500m")
+
 ## Vectorise hex black/white function ####
 
 hex_bw <- Vectorize(function(hex_code) {
@@ -98,7 +102,7 @@ list_tidy[["base_df"]] <-
   bind_cols(list_tidy[["base_df"]][, 1:(idx_100m-1)], .)
 
 
-colnames(list_tidy[["base_df"]])[idx_100m:(idx_100m+9)] <- c("100m","LJ","SP","HJ","400m","110mh","DT","PV","JT","1500m")
+colnames(list_tidy[["base_df"]])[idx_100m:(idx_100m+9)] <- decathlon_names
 list_tidy[["base_df"]]$PV <- str_replace_all(list_tidy[["base_df"]]$PV, "nhc", "NMR")
 
 ## Calculate Points ####
@@ -250,6 +254,32 @@ list_tidy[["preproc_forcustomplot_line"]] <- list_tidy[["preproc_forcustomplot"]
 
 list_tidy[["base_df"]] <- list_tidy[["base_df"]][match(list_tidy[["df_rank"]]$Athlete, list_tidy[["base_df"]]$Athlete),]
 list_tidy[["df_points"]] <- list_tidy[["df_points"]][match(list_tidy[["df_rank"]]$Athlete, list_tidy[["df_points"]]$Athlete),]
+
+## Calculate Standardised ####
+
+temp <- list_tidy[["base_df"]] %>% mutate_at(vars("100m":"1500m"), ~ if_else(str_detect(., "[:digit:]"), T, F))
+
+list_tidy[["df_standardised"]] <- list_tidy[["df_points"]]
+
+for (athlete in temp$Athlete) {
+  for (event in decathlon_names) {
+    if (!temp[[which(temp$Athlete == athlete), event]] &
+        !is.na(temp[[which(temp$Athlete == athlete), event]])) {
+      list_tidy[["df_standardised"]][[which(temp$Athlete == athlete), event]] <-
+        NA
+    }
+  }
+} ## naughty naughty
+
+list_tidy[["df_standardised"]] <- list_tidy[["df_standardised"]] %>% 
+  mutate_at(vars("100m":"1500m"), ~ as.numeric(round(base::scale(.), 2)))
+
+rm(temp)
+
+## Calculate Normalised Standardised ####
+
+list_tidy[["df_standardisednormalised"]] <- list_tidy[["df_standardised"]] %>% 
+  mutate_at(vars("100m":"1500m"), ~ normalize(., method = "range"))
 
 ## Final Return ####
 
