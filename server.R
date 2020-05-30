@@ -1230,14 +1230,16 @@ yyy <-
 
 ## custom summary table
 
-custom_athlete_data <- list()
-custom_athlete_data$score <- reactive(
+custom_athlete_data <<- list()
+custom_athlete_data$score <<- reactive(
   yyy()[["base_df"]] %>% filter(Athlete == input$custom_athlete_select) %>% select("100m":"1500m") %>% as_vector())
-custom_athlete_data$score_num <- reactive(as.numeric(custom_athlete_data$score()[1:9]))
+custom_athlete_data$score_num <<- reactive(as.numeric(custom_athlete_data$score()[1:9]))
 
 ## Indiv Athlete - Summary Table ####  
 
-indiv_table <- reactive(decathlon_s2p(
+indiv_table <- reactive(
+  
+  decathlon_s2p(
   custom_athlete_data$score_num()[1],
   custom_athlete_data$score_num()[2],
   custom_athlete_data$score_num()[3],
@@ -1247,8 +1249,20 @@ indiv_table <- reactive(decathlon_s2p(
   custom_athlete_data$score_num()[7],
   custom_athlete_data$score_num()[8],
   custom_athlete_data$score_num()[9],
-  custom_athlete_data$score()[10]
-))
+  if (is.na(custom_athlete_data$score()[10]))
+    NA
+  else if (str_detect(custom_athlete_data$score()[10], ":"))
+    custom_athlete_data$score()[10]
+  else if (str_detect(custom_athlete_data$score()[10], "DNS|DNF|UNKNOWN"))
+    NA
+  else
+    as.integer(custom_athlete_data$score()[10])
+  ) %>% mutate_at("Score", ~ imap_chr(., ~ {
+    if (is.na(.x)) custom_athlete_data$score()[.y] else .x
+  }))
+  
+
+)
 
 output$custom_dec_table <- renderTable({
 indiv_table()
@@ -1268,7 +1282,14 @@ indiv_line_plot <- reactive(
     custom_athlete_data$score_num()[7],
     custom_athlete_data$score_num()[8],
     custom_athlete_data$score_num()[9],
-    custom_athlete_data$score()[10]
+    if (is.na(custom_athlete_data$score()[10]))
+      NA
+    else if (str_detect(custom_athlete_data$score()[10], ":"))
+      custom_athlete_data$score()[10]
+    else if (str_detect(custom_athlete_data$score()[10], "DNS|DNF|UNKNOWN"))
+      NA
+    else
+      as.integer(custom_athlete_data$score()[10])
   ) + theme(axis.text.x = element_text(size = 11),
             plot.margin = margin(1.5, 1.5, 0.5, 1, "cm"), 
             text = element_text(size = 10),
@@ -1353,7 +1374,7 @@ output$custom_rank_tile <- renderPlot({
 
 indiv_spider_athlete <- reactive(
   ggradar::ggradar(
-    yyy()[["df_standardisednormalised"]] %>% filter(Athlete == input$custom_athlete_select) %>% select("Athlete", "100m":"1500m"),
+    yyy()[["df_standardisednormalised"]] %>% filter(Athlete == input$custom_athlete_select) %>% select("Athlete", "100m":"1500m") %>% select_if(~!all(is.na(.))),
   grid.min = 0,
   grid.mid = 0.5,
   grid.max = 1,
