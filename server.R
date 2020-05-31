@@ -885,11 +885,12 @@ output$download_custom_athlete = downloadHandler(
   },
   
   content = function(file) {
-    pdf(file,
+    cairo_pdf(file,
         onefile = TRUE,
         width = 33.1/2,
-        height = 23.4/2, 
-        family = "Segoe UI")
+        height = 23.4/2
+        , 
+        family = "Segoe UI") ## global font set
     grid.arrange(tableGrob(
       indiv_table() %>% rename(
         `Cumulative\nPoints` = `Cumulative Points`,
