@@ -888,7 +888,8 @@ output$download_custom_athlete = downloadHandler(
     pdf(file,
         onefile = TRUE,
         width = 33.1/2,
-        height = 23.4/2)
+        height = 23.4/2, 
+        family = "Segoe UI")
     grid.arrange(tableGrob(
       indiv_table() %>% rename(
         `Cumulative\nPoints` = `Cumulative Points`,
@@ -1180,29 +1181,45 @@ output$example_user_points_boxplot <- renderPlotly({
 
 output$example_user_cum_points_boxplot <- renderPlotly({
   
-  foo <- yyy()[["df_cum"]] %>% 
-    pivot_longer(cols = `100m`:`1500m`, names_to = "event", values_to = "points") %>% 
-    mutate_at(vars("event", "Athlete"), as_factor) %>% 
-    ggplot(aes(event, points)) +
+  df <- yyy()[["df_cum"]] %>%
+    pivot_longer(cols = `100m`:`1500m`,
+                 names_to = "event",
+                 values_to = "points") %>%
+    mutate_at(vars("event", "Athlete"), as_factor)
+  
+  foo <- df %>% 
+  ggplot(aes(event, points)) +
     theme_dark() +
     geom_boxplot(alpha = 0.33) +
     geom_jitter(
-      aes(colour = Athlete, text = paste0("Athlete: ", Athlete,
-                                          "\nCumulative Points: ", points)),
-      height = 0, width = 0.2, shape = 18, size = 1, alpha = 0.75) +
-    facet_wrap(~ event, scales = "free", ncol = 10, strip.position = "bottom") +
+      aes(
+        colour = Athlete,
+        text = paste0("Athlete: ", Athlete,
+                      "\nCumulative Points: ", points)
+      ),
+      height = 0,
+      width = 0.2,
+      shape = 18,
+      size = 1,
+      alpha = 0.75
+    ) +
+    facet_wrap( ~ event,
+                scales = "free",
+                ncol = 10,
+                strip.position = "bottom") +
     scale_colour_manual(values = colorRampPalette(brewer.pal(9, "Set1"))(nrow(yyy()[["base_df"]]))) +
     theme(
       axis.title.x = element_blank(),
       axis.ticks.x = element_blank(),
       axis.text.x = element_blank(),
       text = element_text(family = "Segoe UI", size = 18),
-      legend.text = element_text(size = 10), 
+      legend.text = element_text(size = 10),
       legend.title = element_blank(),
       axis.text.y = element_text(angle = 90),
       panel.spacing = unit(0, "points")
     ) +
     labs(y = "Points")
+  
   plotly::ggplotly(foo, tooltip = "text")
   
 })

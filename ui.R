@@ -178,7 +178,7 @@ navbarPage(
     tabPanel("Heptathlon (coming soon)"))
   ),
   ## 3) Score to Points #####
-  tabPanel("Score to points",
+  tabPanel("Score to Points",
            navbarPage(title = "",
                       tabPanel("Decathlon", navlistPanel(
                         widths = c(2, 10),
@@ -236,7 +236,7 @@ navbarPage(
              )
            )),   
   ## 5) Custom Data ####
-  tabPanel("Custom Data (coming soon)", 
+  tabPanel("Custom Data", 
            titlePanel(
              h2("Upload completed multievents competition", 
              style = "padding-top: 0px; margin-top: -25px;margin-bottom: 20px")), 
@@ -329,7 +329,7 @@ navbarPage(
                    tags$br(),
                    div(dataTableOutput("users_dataset_calculated", width = "1500"), style = "font-size: 80%; width: 70%")
                  ),
-                 # Bumps Plot ####
+                 # ++++ Plots ####
                  tabPanel(
                    "Bumps Plot (Ranking)",
                    plotOutput(
@@ -362,14 +362,33 @@ navbarPage(
                           plotlyOutput("example_user_cum_points_boxplot",
                                        width = "1525",
                                        height = "725")),
-                 tabPanel("Individual Athlete (coming soon)",
+                 tabPanel("Individual Athlete",
                           fluidRow(column(width = 6, div(tableOutput("custom_dec_table"), 
                                                          style = "font-size:85%;margin-top:25px;margin-left:40px;margin-bottom:-20px")), 
                           column(width = 6, plotOutput("custom_dec_plot"))),
                           fluidRow(column(width = 6, plotOutput("custom_rank_tile")),
                                    column(width = 6, plotOutput("custom_spider_plot")))
                           ),
-                 tabPanel("About Plots")
+                 ## ++++ About Plots ####
+                 tabPanel("About Plots",
+                          tags$br(),
+                          tags$b("Bumps Plot/Tile Plot: "), "These plots show the change in rank between athletes across the competition. Athletes with a black line did not finish the competition, and are not officially ranked.",
+                          tags$br(), tags$br(),
+                          tags$b("Average Points: "), "This plot shows the change in average points for each athlete across the competition.",
+                          tags$br(), tags$br(),
+                          tags$b("Points Plot: "), "This plot shows points for each event which an athlete completed across the competition. Tukey boxplots are underlaid.",
+                          tags$br(), tags$br(),
+                          tags$b("Cumulative Points Plot: "), "This plot is similar to the Points Plot, except it shows cumulative points after each event compared to individual points.",
+                          tags$br(), tags$br(),
+                          tags$b("Individual Athlete Tab: "), "This tab provides the following information about an individual athlete from your uploaded dataset.",
+                          tags$ol(
+                            tags$br(),
+                            tags$li("Summary table as seen in the calculator tab"), 
+                            tags$li("Individual and cumulative points plot as seen in the calculator tab"), 
+                            tags$li("Rank change throughout the competition"),
+                            tags$li("The radar plot maps the athlete's relative performance in each event against other athletes in the dataset through normalisation. This uses a similar process seen in the radar plot in ", tags$i("Athlete Profile", .noWS = ), ", but each event is considered independently instead of being grouped due to lack of observations and inclusion of athletes who did not finish the competition.")
+                          ),
+                          "You can download a pdf of the plots for the current selected athlete using the download button on the left.")
                )
              )
              
