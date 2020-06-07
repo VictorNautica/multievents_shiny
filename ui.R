@@ -83,36 +83,36 @@ navbarPage(
     tabPanel("Heptathlon",
              sidebarLayout(sidebarPanel(width = 3,
                                         fluidRow(
-                                          fluidRow(column(5, smallInput(numericInput("hept_one", "100m hurdles (s):", 13.36, min = 0, step = 0.1, width = "80%"))),
+                                          fluidRow(column(5, smallInput(numericInput("hept_one", "100m hurdles (s):", value = NULL, min = 0, step = 0.1, width = "80%"))),
                                                    column(4, checkboxInput("handtime_100mh", "Hand timed", value = F), style='padding-top:19px;'),
                                                    padding("valueh_one")
                                           )),
                                         fluidRow(
-                                          fluidRow(column(9, smallInput(numericInput("hept_two", "High jump (m):", 1.77, min = 0, step = 0.3, width = "41%"))),
+                                          fluidRow(column(9, smallInput(numericInput("hept_two", "High jump (m):", value = NULL, min = 0, step = 0.3, width = "41%"))),
                                                    padding("valueh_two")
                                           )),
                                         fluidRow(
-                                          fluidRow(column(9, smallInput(numericInput("hept_three", "Shot put (m):", 14.02, min = 0, max = 100, step = 0.1, width = "41%"))),
+                                          fluidRow(column(9, smallInput(numericInput("hept_three", "Shot put (m):", value = NULL, min = 0, max = 100, step = 0.1, width = "41%"))),
                                                    padding("valueh_three")
                                           )),
                                         fluidRow(
-                                          fluidRow(column(5, smallInput(numericInput("hept_four", "200m (s):",  	24.29, min = 0, max = 100, step = 0.1, width = "80%"))),
+                                          fluidRow(column(5, smallInput(numericInput("hept_four", "200m (s):",  	value = NULL, min = 0, max = 100, step = 0.1, width = "80%"))),
                                                    column(4, checkboxInput("handtime_200m", "Hand timed", value = F), style='padding-top:19px;'),
                                                    padding("valueh_four")
                                           )),
                                         fluidRow(
-                                          fluidRow(column(9, smallInput(numericInput("hept_five", "Long jump (m):", 6.28, min = 0, max = 100, step = 0.1, width = "41%"))),
+                                          fluidRow(column(9, smallInput(numericInput("hept_five", "Long jump (m):", value = NULL, min = 0, max = 100, step = 0.1, width = "41%"))),
                                                    padding("valueh_five")
                                           )),
                                         fluidRow(
-                                          fluidRow(column(9, smallInput(numericInput("hept_six", "Javelin throw (m):", 46.74, min = 0, step = 0.1, width = "41%"))),
+                                          fluidRow(column(9, smallInput(numericInput("hept_six", "Javelin throw (m):", value = NULL, min = 0, step = 0.1, width = "41%"))),
                                                    padding("valueh_six")
                                           )),
                                         fluidRow(fluidRow(column(3, smallInput(
                                           numericInput(
                                             "hept_seven_minutes",
                                             "800m (m):",
-                                            2,
+                                            value = NULL,
                                             min = 0,
                                             max = 99,
                                             step = 1
@@ -122,7 +122,7 @@ navbarPage(
                                           numericInput(
                                             "hept_seven_seconds",
                                             "(s):",
-                                            0,
+                                            value = NULL,
                                             min = 0,
                                             max = 59.99,
                                             step = 0.1
