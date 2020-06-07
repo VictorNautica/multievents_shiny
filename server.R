@@ -9,110 +9,219 @@ function(input, output, session) {
   
   custom_dec_100m <- reactive({
     if (input$handtime_100m == T) {
-    req(input$event_one) + 0.24
+    input$event_one + 0.24
   } else {
-    req(input$event_one)
+    input$event_one
   }
   })
   custom_dec_400m <- reactive({if (input$handtime_400m == T) {
-    req(input$event_five) + 0.14
+    input$event_five + 0.14
   } else {
-    req(input$event_five)
+    input$event_five
   }
   })
   custom_dec_110mh <- reactive({if (input$handtime_110mh == T) {
-    req(input$event_six) + 0.24
+    input$event_six + 0.24
   } else {
-    req(input$event_six)
+    input$event_six
   }
   })
   
   custom_dec_lj <- reactive(
-    req(input$event_two)
+  input$event_two
   )
   custom_dec_sp <- reactive(
-    req(input$event_three)
+  input$event_three
   )
   custom_dec_hj <- reactive(
-    req(input$event_four)
+  input$event_four
   )
   custom_dec_dt <- reactive(
-    req(input$event_seven)
+  input$event_seven
   )
   custom_dec_pv <- reactive(
-    req(input$event_eight)
+  input$event_eight
   )
   custom_dec_jt <- reactive(
-    req(input$event_nine)
+  input$event_nine
   )
   
   custom_dec_1500m <- reactive(
-  (req(input$event_ten_minutes)*60)+req(input$event_ten_seconds)
+    if (isTruthy(input$event_ten_minutes) & !isTruthy(input$event_ten_seconds)) {
+      input$event_ten_minutes*60
+    } else if (!isTruthy(input$event_ten_minutes) & isTruthy(input$event_ten_seconds)) {
+      input$event_ten_seconds
+    } else if (isTruthy(input$event_ten_minutes) & isTruthy(input$event_ten_seconds)) {
+  input$event_ten_minutes*60+input$event_ten_seconds
+    } else if (!isTruthy(input$event_ten_minutes) & !isTruthy(input$event_ten_seconds)) {
+      NA
+    }
   )
   
   ## ++++ Raw Score ####
   output$value_one <-
     renderText({
-      dec_100m(custom_dec_100m())
+      if (!isTruthy(input$event_one)) {
+      } else {
+        dec_100m(custom_dec_100m())
+      }
     })
   output$value_five <-
     renderText({
-      dec_400m(custom_dec_400m())
+      if (!isTruthy(input$event_five)) {
+      } else {
+        dec_400m(custom_dec_400m())
+      }
     })
   output$value_six <-
     renderText({
-      dec_110mh(custom_dec_110mh())
+      if (!isTruthy(input$event_six)) {
+      } else {
+        dec_110mh(custom_dec_110mh())
+      }
     })
   
   output$value_two <- renderText({
+    if (!isTruthy(input$event_two)) {
+    } else {
     dec_lj(custom_dec_lj())
+    }
   })
   output$value_three <-
     renderText({
-      dec_sp(custom_dec_sp())
+      if (!isTruthy(input$event_three)) {
+        
+      } else {
+        dec_sp(custom_dec_sp())
+      }
     })
   output$value_four <-
     renderText({
-      dec_hj(custom_dec_hj())
+      if (!isTruthy(input$event_four)) {
+        
+      } else {
+        dec_hj(custom_dec_hj())
+      }
     })
   output$value_seven <-
     renderText({
-      dec_dt(custom_dec_dt())
+      if (!isTruthy(input$event_seven)) {
+        
+      } else {
+        dec_dt(custom_dec_dt())
+      }
     })
   output$value_eight <-
     renderText({
-      dec_pv(custom_dec_pv())
+      if (!isTruthy(input$event_eight)) {
+        
+      } else {
+        dec_pv(custom_dec_pv())
+      }
     })
   output$value_nine <-
     renderText({
-      dec_jt(custom_dec_jt())
+      if (!isTruthy(input$event_nine)) {
+      } else {
+        dec_jt(custom_dec_jt())
+      }
     })
   output$value_ten <-
     renderText({
+      if (!isTruthy(custom_dec_1500m())) {
+      } else {
       dec_1500m(custom_dec_1500m())
+      }
     })
       
   
   ## ++++ Table ####  
         output$dec_table <- renderTable({
-          decathlon_s2p(
-            custom_dec_100m(),
-            custom_dec_lj(),
-            custom_dec_sp(),
-            custom_dec_hj(),
-            custom_dec_400m(),
-            custom_dec_110mh(),
-            custom_dec_dt(),
-            custom_dec_pv(),
-            custom_dec_jt(),
-            custom_dec_1500m()
-          )
-  }, spacing = 'xs',
-  bordered = TRUE)
+          
+          if (all(
+            !isTruthy(input$event_one), !isTruthy(input$event_two), !isTruthy(input$event_three), !isTruthy(input$event_four), !isTruthy(input$event_five), !isTruthy(input$event_six), !isTruthy(input$event_seven), !isTruthy(input$event_eight), !isTruthy(input$event_nine), !isTruthy(input$event_ten_minutes), !isTruthy(input$event_ten_seconds)
+          )) {
+            tibble::tibble(Day = c(rep("One", 5), rep("Two", 5)),
+                           Event = forcats::as_factor(
+                             c(
+                               "100m",
+                               "Long Jump",
+                               "Shotput",
+                               "High Jump",
+                               "400m",
+                               "110m Hurdles",
+                               "Discus Throw",
+                               "Pole Vault",
+                               "Javelin Throw",
+                               "1500m"
+                             )
+                           ),
+                           Score = NA,
+                           Points = NA,
+                           `Cumulative Points` = NA,
+                           `Average Points` = NA,
+                           Proportion = NA,
+                           `Cumulative Proportion` = NA)
+                           
+          } else {
+            decathlon_s2p(
+              custom_dec_100m(),
+              custom_dec_lj(),
+              custom_dec_sp(),
+              custom_dec_hj(),
+              custom_dec_400m(),
+              custom_dec_110mh(),
+              custom_dec_dt(),
+              custom_dec_pv(),
+              custom_dec_jt(),
+              custom_dec_1500m()
+            )
+            
+          }
+  }, 
+  
+  
+  
+  spacing = 'xs',
+  bordered = TRUE, 
+  na = '')
   
   ## ++++ Plot ####
         
         output$dec_plot <- renderPlot({
+          
+          if (all(!isTruthy(input$event_one),
+                  !isTruthy(input$event_two),
+                  !isTruthy(input$event_three),
+                  !isTruthy(input$event_four),
+                  !isTruthy(input$event_five),
+                  !isTruthy(input$event_six),
+                  !isTruthy(input$event_seven),
+                  !isTruthy(input$event_eight),
+                  !isTruthy(input$event_nine),
+                  !isTruthy(input$event_ten_minutes),
+                  !isTruthy(input$event_ten_seconds)
+                  )
+              ) {
+            ggplot(tibble(Event = as_factor(c("100m", "Long Jump", "Shotput", "High Jump", "400m", "110m Hurdles", "Discus Throw", "Pole Vault", "Javelin Throw", "1500M")),
+                          Points = NA), aes(x = Event, y = Points)) +
+              geom_blank() +
+              annotation_raster(
+                alpha("darkgrey", .25),
+                xmin = 5.5,
+                xmax = Inf,
+                ymin = -Inf,
+                ymax = Inf
+              ) + ## from https://github.com/tidyverse/ggplot2/issues/3184
+              theme(
+                text = element_text(family = "Segoe UI", size = 18),
+                axis.text.y = element_blank(),
+                axis.ticks.y = element_blank(), 
+                panel.grid.major.y = element_blank()
+              ) +
+            scale_x_discrete(labels = function(x) str_replace_all(x, " ", "\n"))
+          } else {
+          
           decathlon_vis(
             custom_dec_100m(),
             custom_dec_lj(),
@@ -125,6 +234,11 @@ function(input, output, session) {
             custom_dec_jt(),
             custom_dec_1500m()
           )
+            
+          }
+          
+          
+          
         })
         
         ## 2) Heptathlon ####
@@ -145,32 +259,75 @@ function(input, output, session) {
         })
         
         custom_hept_hj <- reactive(
-          req(input$hept_two)
+          input$hept_two
         )
         custom_hept_sp <- reactive(
-          req(input$hept_three)
+          input$hept_three
         )
         custom_hept_lj <- reactive(
-          req(input$hept_five)
+          input$hept_five
         )
         custom_hept_jt <- reactive(
-          req(input$hept_six)
+          input$hept_six
         )
         
         custom_hept_800m <- reactive(
-          (req(input$hept_seven_minutes)*60)+req(input$hept_seven_seconds)
+          
+          if (isTruthy(input$hept_seven_minutes) & !isTruthy(input$hept_seven_seconds)) {
+            input$hept_seven_minutes*60
+          } else if (!isTruthy(input$hept_seven_minutes) & isTruthy(input$hept_seven_seconds)) {
+            input$hept_seven_seconds
+          } else if (isTruthy(input$hept_seven_minutes) & isTruthy(input$hept_seven_seconds)) {
+            input$hept_seven_minutes*60+input$hept_seven_seconds
+          } else if (!isTruthy(input$hept_seven_minutes) & !isTruthy(input$hept_seven_seconds)) {
+            NA
+          }
+          
         )
         
   ## ++++ Raw Score ####
 
         
-        output$valueh_one <- renderText({ hept_100mh(custom_100mh()) })
-        output$valueh_two <- renderText({ hept_hj(custom_hept_hj()) })
-        output$valueh_three <- renderText({ hept_sp(custom_hept_sp()) })
-        output$valueh_four <- renderText({ hept_200m(custom_200m()) })
-        output$valueh_five <- renderText({ hept_lj(custom_hept_lj()) })
-        output$valueh_six <- renderText({ hept_jt(custom_hept_jt()) })
-        output$valueh_seven <- renderText({ hept_800m(custom_hept_800m()) })
+        output$valueh_one <- renderText({ 
+          if (!isTruthy(input$hept_one)) {
+          } else {
+            hept_100mh(custom_100mh())
+          }
+        })
+        output$valueh_two <- renderText({
+          if (!isTruthy(input$hept_two)) {
+          } else {
+            hept_hj(custom_hept_hj())
+          }
+        })
+        output$valueh_three <- renderText({
+          if (!isTruthy(input$hept_three)) {
+          } else {
+            hept_sp(custom_hept_sp())
+          }
+        })
+        output$valueh_four <- renderText({
+          if (!isTruthy(input$hept_four)) {
+          } else {hept_200m(custom_200m()) }
+          })
+        output$valueh_five <- renderText({
+          if (!isTruthy(input$hept_five)) {
+          } else {
+            hept_lj(custom_hept_lj())
+          }
+        })
+        output$valueh_six <- renderText({ 
+          if (!isTruthy(input$hept_six)) {
+          } else {
+            hept_jt(custom_hept_jt()) 
+            }
+          })
+        output$valueh_seven <- renderText({
+          if (!isTruthy(custom_hept_800m())) {
+          } else {
+            hept_800m(custom_hept_800m())
+          }
+        })
         
         
       ## ++++ Table ####
@@ -183,23 +340,50 @@ function(input, output, session) {
                         custom_hept_jt(),
                         custom_hept_800m())
         },  spacing = 'xs',
-        bordered = TRUE)
+        bordered = TRUE, 
+        na = '')
         
         ## ++++ Plot ####
         
         output$hept_plot <- renderPlot({
-          heptathlon_vis(
-            custom_100mh(),
-            custom_hept_hj(),
-            custom_hept_sp(),
-            custom_200m(),
-            custom_hept_lj(),
-            custom_hept_jt(),
-            custom_hept_800m()
-          )
-        })      ## change to hept
-        
-        
+          if (all(
+            !isTruthy(input$hept_one),!isTruthy(input$hept_two),!isTruthy(input$hept_three),!isTruthy(input$hept_four),!isTruthy(input$hept_five),!isTruthy(input$hept_six),!isTruthy(input$hept_seven_minutes),!isTruthy(input$hept_seven_seconds))) {
+            ggplot(tibble(Event = as_factor(
+              c("110m Hurdles", "High Jump", "Shot put", "200m", "Long Jump", "Javelin Throw", "800m")
+            ),
+            Points = NA),
+            aes(x = Event, y = Points)) +
+              geom_blank() +
+              annotation_raster(
+                alpha("darkgrey", .25),
+                xmin = 4.5,
+                xmax = Inf,
+                ymin = -Inf,
+                ymax = Inf
+              ) + ## from https://github.com/tidyverse/ggplot2/issues/3184
+              theme(
+                text = element_text(family = "Segoe UI", size = 18),
+                axis.text.y = element_blank(),
+                axis.ticks.y = element_blank(),
+                panel.grid.major.y = element_blank()
+              ) +
+              scale_x_discrete(
+                labels = function(x)
+                  str_replace_all(x, " ", "\n")
+              )
+          } else {
+            heptathlon_vis(
+              custom_100mh(),
+              custom_hept_hj(),
+              custom_hept_sp(),
+              custom_200m(),
+              custom_hept_lj(),
+              custom_hept_jt(),
+              custom_hept_800m()
+            )
+          }
+          
+        })
         
         ## For tables ####
         
@@ -891,22 +1075,25 @@ output$download_custom_athlete = downloadHandler(
         height = 23.4/2
         , 
         family = "Segoe UI") ## global font set
-    grid.arrange(tableGrob(
-      indiv_table() %>% rename(
-        `Cumulative\nPoints` = `Cumulative Points`,
-        `Average\nPoints` = `Average Points`,
-        `Cumulative\nProportion` = `Cumulative Proportion`
-      ),
-      rows = NULL
-    ),
-    indiv_line_plot() + theme(plot.margin = margin(1.5, 1.5, 0.5, 1, "cm"), 
-                              text = element_text(size = 10),
-                              legend.margin = margin(-5, unit = "pt")),
-    indiv_rank_plot(),
-    indiv_spider_athlete(),
-    ncol = 2,
-    top = textGrob(input$custom_athlete_select, x = 0.02, hjust = 0,
-                   gp = gpar(fontsize = 20, font = 10)))
+    # grid.arrange(tableGrob(
+    #   indiv_table() %>% rename(
+    #     `Cumulative\nPoints` = `Cumulative Points`,
+    #     `Average\nPoints` = `Average Points`,
+    #     `Cumulative\nProportion` = `Cumulative Proportion`
+    #   ),
+    #   rows = NULL
+    # ),
+    # indiv_line_plot() + theme(plot.margin = margin(1.5, 1.5, 0.5, 1, "cm"), 
+    #                           text = element_text(size = 10),
+    #                           legend.margin = margin(-5, unit = "pt")),
+    # indiv_rank_plot(),
+    # indiv_spider_athlete(),
+    # ncol = 2,
+    # top = textGrob(input$custom_athlete_select, x = 0.02, hjust = 0,
+    #                gp = gpar(fontsize = 20, font = 10)))
+    patchwork::wrap_plots(indiv_rank_plot(),
+      indiv_spider_athlete(),
+      ggplot(economics, aes(date, unemploy)) + geom_line())
     dev.off()
   }
 )

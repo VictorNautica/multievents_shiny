@@ -10,49 +10,49 @@ navbarPage(
       tabPanel("Decathlon",
     sidebarLayout(sidebarPanel(width = 3,
       fluidRow(
-        fluidRow(column(5, smallInput(numericInput("event_one", "100m (s):", 10.87, min = 0, max = 100, step = 0.1, width = "80%"))),
+        fluidRow(column(5, smallInput(numericInput("event_one", "100m (s):", value = NULL, min = 0, max = 100, step = 0.1, width = "80%"))),
                  column(4, checkboxInput("handtime_100m", "Hand timed", value = F), style='padding-top:19px;'),
                  padding("value_one"), style="padding:-2px;margin-top:-2px;"
       )),
       fluidRow(
-        fluidRow(column(9, smallInput(numericInput("event_two", "Long jump (m):", 7.6, min = 0, max = 100, step = 0.1, width = "41%"))),
+        fluidRow(column(9, smallInput(numericInput("event_two", "Long jump (m):", value = NULL, min = 0, max = 100, step = 0.1, width = "41%"))),
                  padding("value_two")
         )),
       fluidRow(
-        fluidRow(column(9, smallInput(numericInput("event_three", "Shot put (m):", 14, min = 0, max = 100, step = 0.1, width = "41%"))),
+        fluidRow(column(9, smallInput(numericInput("event_three", "Shot put (m):", value = NULL, min = 0, max = 100, step = 0.1, width = "41%"))),
                  padding("value_three")
         )),
       fluidRow(
-        fluidRow(column(9, smallInput(numericInput("event_four", "High jump (m):", 2.00, min = 0, max = 100, step = 0.03, width = "41%"))),
+        fluidRow(column(9, smallInput(numericInput("event_four", "High jump (m):", value = NULL, min = 0, max = 100, step = 0.03, width = "41%"))),
                  padding("value_four")
         )),
       fluidRow(
-        fluidRow(column(5, smallInput(numericInput("event_five", "400m (s)", 50, min = 0, max = 100, step = 0.2, width = "80%"))),
+        fluidRow(column(5, smallInput(numericInput("event_five", "400m (s)", value = NULL, min = 0, max = 100, step = 0.2, width = "80%"))),
                  column(4, checkboxInput("handtime_400m", "Hand timed", value = F), style='padding-top:19px;'),
                  padding("value_five")
         )),
       fluidRow(
-        fluidRow(column(5, smallInput(numericInput("event_six", "110m hurdles (s):", 16, min = 0, max = 100, step = 0.1, width = "80%"))),
+        fluidRow(column(5, smallInput(numericInput("event_six", "110m hurdles (s):", value = NULL, min = 0, max = 100, step = 0.1, width = "80%"))),
                  column(4, checkboxInput("handtime_110mh", "Hand timed", value = F), style='padding-top:19px;'),
                  padding("value_six")
         )),
       fluidRow(
-        fluidRow(column(9, smallInput(numericInput("event_seven", "Discus throw (m):", 42, min = 0, max = 100, step = 0.5, width = "41%"))),
+        fluidRow(column(9, smallInput(numericInput("event_seven", "Discus throw (m):", value = NULL, min = 0, max = 100, step = 0.5, width = "41%"))),
                  padding("value_seven")
         )),
       fluidRow(
-        fluidRow(column(9, smallInput(numericInput("event_eight", "Pole vault (m):", 4.70, min = 0, max = 100, step = 0.1, width = "41%"))),
+        fluidRow(column(9, smallInput(numericInput("event_eight", "Pole vault (m):", value = NULL, min = 0, max = 100, step = 0.1, width = "41%"))),
                  padding("value_eight")
         )),
       fluidRow(
-        fluidRow(column(9, smallInput(numericInput("event_nine", "Javelin throw (m):", 62, min = 0, max = 100, step = 1, width = "41%"))),
+        fluidRow(column(9, smallInput(numericInput("event_nine", "Javelin throw (m):", value = NULL, min = 0, max = 100, step = 1, width = "41%"))),
                  padding("value_nine")
         )),
       fluidRow(fluidRow(column(3, smallInput(
         numericInput(
           "event_ten_minutes",
           "1500m (m):",
-          5,
+          value = NULL,
           min = 0,
           max = 99,
           step = 1
@@ -62,7 +62,7 @@ navbarPage(
         numericInput(
           "event_ten_seconds",
           "(s):",
-          0,
+          value = NULL,
           min = 0,
           max = 59.99,
           step = 0.1

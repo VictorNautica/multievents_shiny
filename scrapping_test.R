@@ -187,6 +187,21 @@ athlete_info_tbl[which(athlete_info_tbl$Athlete == "Jānis Karlivāns"), "Height
 athlete_info_tbl[which(athlete_info_tbl$Athlete == "Zsolt Kürtösi"), "Height"] <- 188
 athlete_info_tbl[which(athlete_info_tbl$Athlete == "Hamdi Dhouibi"),"Country"] <- "Tunisia"
 
+## Finally functionalise this ####
+
+fix_athlete_profile <- function(Athlete, Column, Value) athlete_info_tbl[which(athlete_info_tbl$Athlete == Athlete),Column] <<- Value
+
+fix_athlete_profile("Agustín Félix", "image_url", "https://1.bp.blogspot.com/_WfKuaRVqTzo/TCM_n21MYYI/AAAAAAAAjP8/6Xo2-aDHdsM/s1600/Agust%C3%ADn+F%C3%A9lix+representar%C3%A1+al+equipo+espa%C3%B1ol..jpg")
+fix_athlete_profile("Aki Heikkinen", "image_url", "https://media.gettyimages.com/photos/finlands-aki-heikkinen-picture-id650922848?s=612x612")
+fix_athlete_profile("Alberto Juantorena", "image_url", "https://www3.pictures.gi.zimbio.com/IAAF+World+Athletics+Championship+Day+7+9qNfBzUFPS-x.jpg")
+fix_athlete_profile("Aleksandr Pogorelov", "image_url", "https://media.gettyimages.com/photos/aleksandr-pogorelov-of-russia-competes-during-the-1500-metres-in-the-picture-id71631698?s=612x612")
+fix_athlete_profile("Aleksandr Shtepa", "image_url", "https://media.gettyimages.com/photos/aleksandr-pogorelov-of-russia-competes-during-the-1500-metres-in-the-picture-id71631698?s=612x612")
+fix_athlete_profile("Aleksandr Yurkov", "image_url", "https://media.gettyimages.com/photos/aug-2001-oleksandr-yurkov-of-ukraine-throwing-the-discus-during-the-picture-id604368?s=2048x2048")
+fix_athlete_profile("Aleksey Drozdov", "image_url", "https://c8.alamy.com/comp/GCKKKM/athletics-iaaf-european-championships-2010-day-two-olympic-stadium-GCKKKM.jpg")
+fix_athlete_profile("Aleksey Sysoyev", "image_url", "https://lh3.googleusercontent.com/proxy/ng7QNUWCRnvu56NZnvvqROkw2XThGtnJnrzsKpCZ22TLnbjeKHM8cugP00BS5glaasRlQibCgNchI85jtQ0oszlGdIusERZdM9nBWkUP-YXRGuvaqx_JKhOxw_M")
+
+## Write ####
+
 readr::write_rds(athlete_info_tbl, "athlete_info_tbl.Rds")
 
 
