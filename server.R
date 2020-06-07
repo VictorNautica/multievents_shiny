@@ -203,7 +203,7 @@ function(input, output, session) {
                   !isTruthy(input$event_ten_seconds)
                   )
               ) {
-            ggplot(tibble(Event = as_factor(c("100m", "Long Jump", "Shotput", "High Jump", "400m", "110m Hurdles", "Discus Throw", "Pole Vault", "Javelin Throw", "1500M")),
+            ggplot(tibble(Event = as_factor(c("100m", "Long Jump", "Shot Put", "High Jump", "400m", "110m Hurdles", "Discus Throw", "Pole Vault", "Javelin Throw", "1500M")),
                           Points = NA), aes(x = Event, y = Points)) +
               geom_blank() +
               annotation_raster(
@@ -349,7 +349,7 @@ function(input, output, session) {
           if (all(
             !isTruthy(input$hept_one),!isTruthy(input$hept_two),!isTruthy(input$hept_three),!isTruthy(input$hept_four),!isTruthy(input$hept_five),!isTruthy(input$hept_six),!isTruthy(input$hept_seven_minutes),!isTruthy(input$hept_seven_seconds))) {
             ggplot(tibble(Event = as_factor(
-              c("110m Hurdles", "High Jump", "Shot put", "200m", "Long Jump", "Javelin Throw", "800m")
+              c("110m Hurdles", "High Jump", "Shot Put", "200m", "Long Jump", "Javelin Throw", "800m")
             ),
             Points = NA),
             aes(x = Event, y = Points)) +
